@@ -345,25 +345,37 @@ export function AppProvider({ children }) {
   useEffect(() => {
     const calculateTime = () => {
       const now = new Date();
-      const startDate = new Date(coupleProfile.anniversaryDate);
 
-      // Days together
-      const diffMsTogether = now - startDate;
-      const daysTogether = Math.max(0, Math.floor(diffMsTogether / (1000 * 60 * 60 * 24)));
+      // Safely parse anniversary YYYY-MM-DD into year, month, day components
+      const rawDate = coupleProfile.anniversaryDate || '2025-03-27';
+      const parts = rawDate.split('-').map(Number);
+      const startYear = parts[0] || 2025;
+      const startMonth = parts[1] || 3; // 1-indexed (March = 3)
+      const startDay = parts[2] || 27;
 
-      // Next anniversary
-      let nextAnniv = new Date(now.getFullYear(), startDate.getMonth(), startDate.getDate());
-      if (now > nextAnniv) {
-        nextAnniv = new Date(now.getFullYear() + 1, startDate.getMonth(), startDate.getDate());
+      // 1. Days Together: calculated by comparing local calendar midnights
+      // This guarantees that the counter increments automatically the moment a new day begins (12:00:00 AM midnight)
+      const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+      const startMidnight = new Date(startYear, startMonth - 1, startDay, 0, 0, 0, 0);
+      const diffMsCalendar = todayMidnight.getTime() - startMidnight.getTime();
+      const daysTogether = Math.max(0, Math.round(diffMsCalendar / (1000 * 60 * 60 * 24)));
+
+      // 2. Next Anniversary Countdown (exact time remaining until midnight of next anniversary)
+      let nextAnniv = new Date(now.getFullYear(), startMonth - 1, startDay, 0, 0, 0, 0);
+      if (now.getTime() >= nextAnniv.getTime()) {
+        nextAnniv = new Date(now.getFullYear() + 1, startMonth - 1, startDay, 0, 0, 0, 0);
       }
 
-      const diffMs = nextAnniv - now;
+      const diffMs = Math.max(0, nextAnniv.getTime() - now.getTime());
       const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
       const hours = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
       const minutes = Math.floor((diffMs / (1000 * 60)) % 60);
       const seconds = Math.floor((diffMs / 1000) % 60);
 
-      const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      const months = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
       const nextFormatted = `${months[nextAnniv.getMonth()]} ${nextAnniv.getDate()}, ${nextAnniv.getFullYear()}`;
 
       setTimeStats({
@@ -377,8 +389,20 @@ export function AppProvider({ children }) {
     };
 
     calculateTime();
+
+    // 1-second live interval to update countdown and increment day count at midnight in real time
     const interval = setInterval(calculateTime, 1000);
-    return () => clearInterval(interval);
+
+    // Also recalculate immediately whenever phone is unlocked, tab switched, or app focused
+    const handleFocus = () => calculateTime();
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleFocus);
+    };
   }, [coupleProfile.anniversaryDate]);
 
   return (
