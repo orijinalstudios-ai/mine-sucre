@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pen a New Memory — Mine &amp; Sucre</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Playfair Display, Plus Jakarta Sans, Montserrat -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&amp;family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-surface-variant": "#524345",
+            "inverse-on-surface": "#f4f0ea",
+            "on-secondary-container": "#7a5c2b",
+            "on-secondary-fixed-variant": "#5d4213",
+            "tertiary": "#1b120e",
+            "surface-container-low": "#f7f3ed",
+            "error-container": "#ffdad6",
+            "primary-container": "#4a1622",
+            "outline-variant": "#d7c1c3",
+            "secondary-fixed": "#ffdeae",
+            "primary-fixed": "#ffd9de",
+            "surface-dim": "#dddad4",
+            "on-secondary": "#ffffff",
+            "surface-container-lowest": "#ffffff",
+            "surface": "#fdf9f3",
+            "tertiary-fixed-dim": "#d5c3bc",
+            "surface-container-high": "#ebe8e2",
+            "background": "#fdf9f3",
+            "inverse-primary": "#ffb2bd",
+            "primary-fixed-dim": "#ffb2bd",
+            "primary": "#2f020e",
+            "on-surface": "#1c1c18",
+            "secondary-container": "#ffd79b",
+            "on-error": "#ffffff",
+            "outline": "#857375",
+            "inverse-surface": "#31302d",
+            "surface-variant": "#e6e2dc",
+            "on-primary-fixed-variant": "#703440",
+            "on-secondary-fixed": "#281800",
+            "on-tertiary-fixed-variant": "#51443f",
+            "on-primary": "#ffffff",
+            "surface-container": "#f1ede7",
+            "surface-container-highest": "#e6e2dc",
+            "on-error-container": "#93000a",
+            "on-tertiary": "#ffffff",
+            "on-tertiary-container": "#9c8c86",
+            "on-primary-container": "#c57a87",
+            "surface-bright": "#fdf9f3",
+            "error": "#ba1a1a",
+            "on-primary-fixed": "#390916",
+            "secondary": "#775928",
+            "on-tertiary-fixed": "#231915",
+            "on-background": "#1c1c18",
+            "tertiary-fixed": "#f2dfd7",
+            "surface-tint": "#8c4b57",
+            "tertiary-container": "#312622",
+            "secondary-fixed-dim": "#e8c086"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-lg": "1.75rem",
+            "space-xl": "3rem",
+            "space-md": "1rem",
+            "space-xs": "0.25rem",
+            "space-sm": "0.5rem",
+            "gutter": "1.25rem",
+            "gutter-desktop": "2rem",
+            "margin-desktop": "3rem",
+            "margin": "1.25rem"
+          },
+          "fontFamily": {
+            "headline-lg-mobile": ["Playfair Display"],
+            "body-md": ["Plus Jakarta Sans"],
+            "body-sm": ["Plus Jakarta Sans"],
+            "headline-md": ["Playfair Display"],
+            "label-caps-sm": ["Montserrat"],
+            "display-hero": ["Playfair Display"],
+            "body-lg": ["Plus Jakarta Sans"],
+            "headline-lg": ["Playfair Display"],
+            "label-caps-md": ["Montserrat"],
+            "headline-sm": ["Playfair Display"],
+            "display-hero-mobile": ["Playfair Display"],
+            "quote-editorial": ["Playfair Display"]
+          },
+          "fontSize": {
+            "headline-lg-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "body-md": ["15px", { "lineHeight": "24px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "body-sm": ["13px", { "lineHeight": "20px", "letterSpacing": "0.015em", "fontWeight": "400" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "0em", "fontWeight": "500" }],
+            "label-caps-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.22em", "fontWeight": "600" }],
+            "display-hero": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.02em", "fontWeight": "400" }],
+            "body-lg": ["18px", { "lineHeight": "28px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "headline-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.01em", "fontWeight": "400" }],
+            "label-caps-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.18em", "fontWeight": "500" }],
+            "headline-sm": ["20px", { "lineHeight": "28px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+            "display-hero-mobile": ["38px", { "lineHeight": "46px", "letterSpacing": "-0.01em", "fontWeight": "400" }],
+            "quote-editorial": ["22px", { "lineHeight": "34px", "letterSpacing": "0.01em", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 350, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .parchment-texture {
+      background-color: #fdf9f3;
+      background-image: radial-gradient(#d7c1c3 0.65px, transparent 0.65px), radial-gradient(#d7c1c3 0.65px, #fdf9f3 0.65px);
+      background-size: 26px 26px;
+      background-position: 0 0, 13px 13px;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface antialiased min-h-screen selection:bg-secondary-container selection:text-primary pb-28">
+<!-- Mobile Canvas Shell: Max-w-md (390px styled viewport) -->
+<main class="w-full max-w-md mx-auto min-h-screen bg-surface flex flex-col relative shadow-[0_0_50px_rgba(47,2,14,0.06)]">
+<!-- Top Action Bar (Cancel & Gilded Save to Capsule) -->
+<header class="sticky top-0 z-40 bg-surface/90 backdrop-blur-md px-4 py-3 border-b border-outline-variant/30 flex items-center justify-between transition-colors">
+<button class="text-on-surface-variant font-label-caps-md text-label-caps-md uppercase tracking-widest hover:text-secondary transition-colors duration-200 active:scale-95 flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[18px]">close</span>
+<span>Cancel</span>
+</button>
+<!-- Discreet Monogram Brand Seal -->
+<div class="flex items-center gap-1.5 opacity-80">
+<span class="text-secondary text-[11px]">✦</span>
+<span class="font-headline-sm text-headline-sm tracking-widest text-primary italic font-serif">M &amp; S</span>
+<span class="text-secondary text-[11px]">✦</span>
+</div>
+<!-- Gilded Primary Action Button -->
+<button class="bg-primary-container text-surface px-3.5 py-1.5 rounded-full border border-secondary/40 font-label-caps-sm text-label-caps-sm tracking-wider uppercase flex items-center gap-1.5 shadow-sm hover:bg-primary transition-all duration-200 active:scale-95 group" type="button">
+<span class="material-symbols-outlined text-[15px] text-secondary-fixed" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="font-medium text-surface tracking-wider">Save to Capsule</span>
+</button>
+</header>
+<!-- Page Content Container -->
+<div class="px-5 pt-4 pb-12 flex flex-col gap-6">
+<!-- Title & Archival Header -->
+<section class="text-center pt-2">
+<div class="flex items-center justify-center gap-2 mb-1.5">
+<span class="h-[1px] w-6 bg-secondary/30"></span>
+<span class="text-secondary font-label-caps-sm text-label-caps-sm tracking-widest uppercase">Archive Volume IV · Keepsake</span>
+<span class="h-[1px] w-6 bg-secondary/30"></span>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary font-serif">
+          Pen a New Memory
+        </h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant/80 mt-1 italic font-serif">
+          “Immortalizing the quiet cadence of today.”
+        </p>
+</section>
+<!-- Media Upload Area: Dashed Gold & Burgundy framed dropzone with pre-filled preview -->
+<section class="flex flex-col gap-2.5">
+<div class="flex items-center justify-between">
+<label class="font-label-caps-sm text-label-caps-sm uppercase tracking-wider text-primary font-semibold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-secondary">photo_camera</span>
+            Keepsake Film &amp; Frames
+          </label>
+<span class="font-label-caps-sm text-label-caps-sm text-on-surface-variant/70 uppercase">2 Photos Attached</span>
+</div>
+<div class="grid grid-cols-3 gap-2.5">
+<!-- Thumbnail Preview 1: Polaroid aesthetic frame -->
+<div class="relative group aspect-[4/5] rounded bg-surface-container-low p-1.5 border border-secondary/30 shadow-[inset_0_1px_3px_rgba(36,22,24,0.04)] flex flex-col justify-between">
+<div class="w-full h-full overflow-hidden rounded-[2px] relative">
+<img class="w-full h-full object-cover" data-alt="A soft-focus intimate polaroid photograph of a couple holding hands across a Parisian mahogany cafe table with warm evening amber sunlight, espresso cups, and dried rose petals. The lighting is golden hour cinematic warmth, with luxurious burgundy undertones and fine grain texture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnbTqJpYxOEuo7mPoMlR2fOEAj8ra3T9Y6Eas9CmohrFlynMVf9s1mxp_X1gqhAVngpcRQKbTAf6xcLaNuxD9mk8LBuYSdQJe1pBo6kbZBFDg_dnVRy6hYEkUXz9Q-SpVR1qEABGTLiusxo4-PC7-d-wrMTwwm6RSzW41mCziHPaYf1M0RdYKPtS7XNdB94sOnQK2IzqYr1-Kiz_egyJmR9WJXZ_4WqOneo2_Py8EQZRkW7nbVd76z"/>
+<div class="absolute inset-0 bg-primary/10 mix-blend-multiply"></div>
+</div>
+<button class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-primary text-surface flex items-center justify-center shadow hover:scale-105 active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[12px]">close</span>
+</button>
+<div class="text-center pt-1">
+<p class="font-label-caps-sm text-[8px] leading-tight text-secondary uppercase tracking-tighter">01 · Dusk</p>
+</div>
+</div>
+<!-- Thumbnail Preview 2: Gilded Memory -->
+<div class="relative group aspect-[4/5] rounded bg-surface-container-low p-1.5 border border-secondary/30 shadow-[inset_0_1px_3px_rgba(36,22,24,0.04)] flex flex-col justify-between">
+<div class="w-full h-full overflow-hidden rounded-[2px] relative">
+<img class="w-full h-full object-cover" data-alt="An ethereal candid snapshot of a woman smiling radiantly in a champagne gold silk slip dress under soft romantic chandelier lights during a private midnight celebration. Deep crimson shadows, rich velvety atmosphere, elegant luxury editorial film photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbQrSWJZ4bOsybxm4-rkYhzaZr0dVXknL6etdL39G9eSZVmemWJXsNIKHVsXobf4G3_qlTTPfEAZPsjRXgKR5Dyhf9J8W9uFzA0KzTSusruG5c2bov-MliadGkhunPhBywEh4guanDz5qHhYxxAjnEDb1ugZ4flIveLCKtdATIvK6BfAMwph5EJ9YlNEZEKsZudV7eMW27FM_8FPDDB0zZ_oyd714o-0yZivND173lfzpb6APzHB2c"/>
+<div class="absolute inset-0 bg-secondary/10 mix-blend-soft-light"></div>
+</div>
+<button class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-primary text-surface flex items-center justify-center shadow hover:scale-105 active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[12px]">close</span>
+</button>
+<div class="text-center pt-1">
+<p class="font-label-caps-sm text-[8px] leading-tight text-secondary uppercase tracking-tighter">02 · Sucre</p>
+</div>
+</div>
+<!-- Upload Dropzone Target Button -->
+<label class="aspect-[4/5] rounded border-2 border-dashed border-secondary/40 hover:border-secondary bg-surface-container-lowest/60 hover:bg-surface-container-low transition-all duration-200 cursor-pointer flex flex-col items-center justify-center p-2 text-center group active:scale-98">
+<div class="w-8 h-8 rounded-full bg-secondary-fixed/50 flex items-center justify-center text-primary mb-1.5 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[18px]">add_photo_alternate</span>
+</div>
+<span class="font-label-caps-sm text-[9px] leading-tight uppercase tracking-wider text-primary font-medium">Add Photo<br/>or Film</span>
+<span class="text-[9px] text-on-surface-variant/60 font-body-sm mt-0.5">High Res</span>
+<input accept="image/*,video/*" class="hidden" multiple="" type="file"/>
+</label>
+</div>
+</section>
+<!-- Date & Location Selector: Smythson stationery styling -->
+<section class="bg-surface-container-lowest border border-secondary/25 rounded p-3.5 shadow-sm space-y-3">
+<div class="grid grid-cols-1 divide-y divide-outline-variant/30">
+<!-- Date & Time Row -->
+<div class="pb-2.5 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[18px]">calendar_today</span>
+<span class="font-label-caps-sm text-label-caps-sm uppercase tracking-wider text-on-surface-variant">Moment Date</span>
+</div>
+<div class="flex items-center gap-1.5">
+<input class="bg-transparent text-right font-headline-sm text-[15px] leading-tight text-primary font-serif border-none p-0 focus:ring-0 cursor-pointer w-28 hover:text-secondary transition-colors" type="text" value="March 27, 2025"/>
+<span class="text-secondary text-[10px]">✦</span>
+</div>
+</div>
+<!-- Location Row -->
+<div class="pt-2.5 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[18px]">location_on</span>
+<span class="font-label-caps-sm text-label-caps-sm uppercase tracking-wider text-on-surface-variant">Sanctuary Place</span>
+</div>
+<div class="flex items-center gap-1">
+<input class="bg-transparent text-right font-body-md text-body-sm text-primary border-none p-0 focus:ring-0 w-36 hover:text-secondary transition-colors" type="text" value="Victoria Island, Lagos"/>
+<span class="material-symbols-outlined text-[15px] text-on-surface-variant/50">edit</span>
+</div>
+</div>
+</div>
+</section>
+<!-- The 'Side Note' Journal Editor (Rich Parchment Personal Love Letter) -->
+<section class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<label class="font-label-caps-sm text-label-caps-sm uppercase tracking-wider text-primary font-semibold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-secondary">stylus_note</span>
+            The Side Note · Letter to Sucre
+          </label>
+<span class="font-headline-sm text-[12px] italic text-secondary font-serif">Dear Heart,</span>
+</div>
+<!-- Double-Hairline Archival Stationery Container -->
+<div class="parchment-texture rounded border border-secondary/35 p-1 bg-surface-container-lowest shadow-[inset_0_1px_4px_rgba(47,2,14,0.03)]">
+<div class="rounded border border-secondary/20 p-4 space-y-3 bg-surface/80 backdrop-blur-[1px]">
+<!-- Love Letter Textarea -->
+<textarea class="w-full bg-transparent border-none p-0 text-primary font-quote-editorial text-[17px] leading-[28px] focus:ring-0 resize-none placeholder:text-on-surface-variant/40 placeholder:italic font-serif" placeholder="What made this second unforgettable? Write something to make Sucre smile in ten years..." rows="5"></textarea>
+<!-- Stationery Bottom Bar: Voice Note Attachment Pill -->
+<div class="pt-3 border-t border-outline-variant/30 flex items-center justify-between flex-wrap gap-2">
+<!-- Voice Note Attachment Pill -->
+<button class="group flex items-center gap-2 bg-secondary-fixed/40 hover:bg-secondary-fixed/70 border border-secondary/30 rounded-full px-3 py-1.5 transition-all active:scale-95" type="button">
+<span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+<span class="material-symbols-outlined text-primary text-[16px]">mic</span>
+<span class="font-label-caps-sm text-[9px] uppercase tracking-wider text-primary font-medium">Record Audio Memo</span>
+</button>
+<div class="flex items-center gap-2 text-on-surface-variant/60 font-label-caps-sm text-[9px] tracking-widest uppercase">
+<span>✦ Wax Sealed</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Song Soundtrack Link ("Baby Riddim" Quick-Attach Chip) -->
+<section class="bg-surface-container-lowest border border-secondary/25 rounded p-3.5 space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-label-caps-sm text-label-caps-sm uppercase tracking-wider text-primary font-semibold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px] text-secondary">music_note</span>
+            Soundtrack Resonance
+          </span>
+<span class="font-body-sm text-[11px] text-secondary hover:underline cursor-pointer">Change Track</span>
+</div>
+<!-- Compact Audio Pill Card -->
+<div class="bg-primary-container/10 border border-secondary/35 rounded-full px-3.5 py-2 flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-2.5 overflow-hidden">
+<button class="w-6 h-6 rounded-full bg-primary text-surface flex items-center justify-center shrink-0 shadow active:scale-90 transition-transform" type="button">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<div class="truncate">
+<p class="font-headline-sm text-[13px] leading-tight text-primary font-serif truncate">✦ Fave — Baby Riddim</p>
+<p class="font-label-caps-sm text-[8px] uppercase tracking-widest text-secondary font-medium">Shared Resonance · 03:12</p>
+</div>
+</div>
+<!-- Animated micro audio wave simulation -->
+<div class="flex items-end gap-0.5 h-4 px-1 shrink-0">
+<span class="w-0.5 h-2 bg-secondary rounded-full"></span>
+<span class="w-0.5 h-3.5 bg-secondary rounded-full"></span>
+<span class="w-0.5 h-1.5 bg-secondary rounded-full"></span>
+<span class="w-0.5 h-4 bg-secondary rounded-full"></span>
+<span class="w-0.5 h-2.5 bg-secondary rounded-full"></span>
+</div>
+</div>
+</section>
+<!-- Mood Tag Selector Pills -->
+<section class="space-y-2">
+<span class="font-label-caps-sm text-label-caps-sm uppercase tracking-wider text-primary font-semibold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-secondary">label</span>
+          Atmosphere &amp; Mood Tags
+        </span>
+<div class="flex flex-wrap gap-1.5">
+<!-- Active Mood Pill -->
+<button class="bg-primary text-surface border border-secondary/40 px-3 py-1.5 rounded-full font-label-caps-sm text-[9px] uppercase tracking-wider flex items-center gap-1 shadow-sm active:scale-95 transition-all" type="button">
+<span class="text-secondary-fixed">✦</span>
+<span>Effortless Joy</span>
+</button>
+<!-- Inactive Mood Pills -->
+<button class="bg-surface-container-lowest text-on-surface-variant hover:text-primary hover:border-secondary border border-outline-variant/40 px-3 py-1.5 rounded-full font-label-caps-sm text-[9px] uppercase tracking-wider active:scale-95 transition-all" type="button">
+            Intimate
+          </button>
+<button class="bg-surface-container-lowest text-on-surface-variant hover:text-primary hover:border-secondary border border-outline-variant/40 px-3 py-1.5 rounded-full font-label-caps-sm text-[9px] uppercase tracking-wider active:scale-95 transition-all" type="button">
+            Adventures
+          </button>
+<button class="bg-surface-container-lowest text-on-surface-variant hover:text-primary hover:border-secondary border border-outline-variant/40 px-3 py-1.5 rounded-full font-label-caps-sm text-[9px] uppercase tracking-wider active:scale-95 transition-all" type="button">
+            Celebration
+          </button>
+<button class="bg-primary-container/15 text-primary border border-secondary/35 px-3 py-1.5 rounded-full font-label-caps-sm text-[9px] uppercase tracking-wider flex items-center gap-1 active:scale-95 transition-all" type="button">
+<span class="text-secondary">✦</span>
+<span>Quiet Love</span>
+</button>
+</div>
+</section>
+<!-- Private Capsule Toggle: Lock until Anniversary -->
+<section class="bg-surface-container-lowest border border-secondary/30 rounded p-4 shadow-sm flex items-center justify-between gap-3">
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container/30 border border-secondary/30 flex items-center justify-center shrink-0 text-secondary mt-0.5">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">lock</span>
+</div>
+<div>
+<h2 class="font-headline-sm text-[15px] leading-snug text-primary font-serif">Lock until Anniversary</h2>
+<p class="font-body-sm text-[12px] text-on-surface-variant/80">Capsule seals until March 27 for Sucre</p>
+</div>
+</div>
+<!-- Gold Switch Toggle -->
+<label class="relative inline-flex items-center cursor-pointer shrink-0">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-secondary/30 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+</section>
+<!-- Editorial Delimiter -->
+<div class="flex items-center justify-center gap-2 py-2">
+<span class="h-[1px] w-12 bg-secondary/20"></span>
+<span class="text-secondary text-[10px]">✦ ✦ ✦</span>
+<span class="h-[1px] w-12 bg-secondary/20"></span>
+</div>
+</div>
+<!-- BottomNavBar Component (JSON Anchor Execution) -->
+<!-- Destination count: 4 | active tab: Capture | semantic mapping lock -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 pb-safe max-w-md mx-auto bg-surface-container-lowest/95 backdrop-blur-lg border-t border-secondary/20 shadow-[0_-4px_16px_rgba(47,2,14,0.06)]">
+<!-- Tab 1: Sanctuary (Inactive) -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-secondary transition-colors duration-200 active:scale-90 transition-transform duration-150 py-1" type="button">
+<span class="material-symbols-outlined text-[22px]">favorite</span>
+<span class="font-label-caps-sm text-label-caps-sm tracking-wider uppercase mt-0.5">Sanctuary</span>
+</button>
+<!-- Tab 2: Journey (Inactive) -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-secondary transition-colors duration-200 active:scale-90 transition-transform duration-150 py-1" type="button">
+<span class="material-symbols-outlined text-[22px]">auto_stories</span>
+<span class="font-label-caps-sm text-label-caps-sm tracking-wider uppercase mt-0.5">Journey</span>
+</button>
+<!-- Tab 3: Capture (ACTIVE TAB - strictly matched to memory creator intent) -->
+<button class="flex flex-col items-center justify-center text-primary font-semibold relative after:content-[''] after:w-1 after:h-1 after:bg-secondary after:rounded-full after:mt-1 active:scale-90 transition-transform duration-150 py-1" type="button">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+<span class="font-label-caps-sm text-label-caps-sm tracking-wider uppercase mt-0.5">Capture</span>
+</button>
+<!-- Tab 4: Vault (Inactive) -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-secondary transition-colors duration-200 active:scale-90 transition-transform duration-150 py-1" type="button">
+<span class="material-symbols-outlined text-[22px]">lock_open</span>
+<span class="font-label-caps-sm text-label-caps-sm tracking-wider uppercase mt-0.5">Vault</span>
+</button>
+</nav>
+</main>
+</body></html>

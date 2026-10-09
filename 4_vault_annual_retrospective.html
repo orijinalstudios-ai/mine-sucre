@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mine &amp; Sucre · Annual Keepsake &amp; Anniversary Vault</title>
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&amp;family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-surface-variant": "#524345",
+            "inverse-on-surface": "#f4f0ea",
+            "on-secondary-container": "#7a5c2b",
+            "on-secondary-fixed-variant": "#5d4213",
+            "tertiary": "#1b120e",
+            "surface-container-low": "#f7f3ed",
+            "error-container": "#ffdad6",
+            "primary-container": "#4a1622",
+            "outline-variant": "#d7c1c3",
+            "secondary-fixed": "#ffdeae",
+            "primary-fixed": "#ffd9de",
+            "surface-dim": "#dddad4",
+            "on-secondary": "#ffffff",
+            "surface-container-lowest": "#ffffff",
+            "surface": "#fdf9f3",
+            "tertiary-fixed-dim": "#d5c3bc",
+            "surface-container-high": "#ebe8e2",
+            "background": "#fdf9f3",
+            "inverse-primary": "#ffb2bd",
+            "primary-fixed-dim": "#ffb2bd",
+            "primary": "#2f020e",
+            "on-surface": "#1c1c18",
+            "secondary-container": "#ffd79b",
+            "on-error": "#ffffff",
+            "outline": "#857375",
+            "inverse-surface": "#31302d",
+            "surface-variant": "#e6e2dc",
+            "on-primary-fixed-variant": "#703440",
+            "on-secondary-fixed": "#281800",
+            "on-tertiary-fixed-variant": "#51443f",
+            "on-primary": "#ffffff",
+            "surface-container": "#f1ede7",
+            "surface-container-highest": "#e6e2dc",
+            "on-error-container": "#93000a",
+            "on-tertiary": "#ffffff",
+            "on-tertiary-container": "#9c8c86",
+            "on-primary-container": "#c57a87",
+            "surface-bright": "#fdf9f3",
+            "error": "#ba1a1a",
+            "on-primary-fixed": "#390916",
+            "secondary": "#775928",
+            "on-tertiary-fixed": "#231915",
+            "on-background": "#1c1c18",
+            "tertiary-fixed": "#f2dfd7",
+            "surface-tint": "#8c4b57",
+            "tertiary-container": "#312622",
+            "secondary-fixed-dim": "#e8c086"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-lg": "1.75rem",
+            "space-xl": "3rem",
+            "space-md": "1rem",
+            "space-xs": "0.25rem",
+            "space-sm": "0.5rem",
+            "gutter": "1.25rem",
+            "gutter-desktop": "2rem",
+            "margin-desktop": "3rem",
+            "margin": "1.25rem"
+          },
+          "fontFamily": {
+            "headline-lg-mobile": ["Playfair Display"],
+            "body-md": ["Plus Jakarta Sans"],
+            "body-sm": ["Plus Jakarta Sans"],
+            "headline-md": ["Playfair Display"],
+            "label-caps-sm": ["Montserrat"],
+            "display-hero": ["Playfair Display"],
+            "body-lg": ["Plus Jakarta Sans"],
+            "headline-lg": ["Playfair Display"],
+            "label-caps-md": ["Montserrat"],
+            "headline-sm": ["Playfair Display"],
+            "display-hero-mobile": ["Playfair Display"],
+            "quote-editorial": ["Playfair Display"]
+          },
+          "fontSize": {
+            "headline-lg-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "body-md": ["15px", { "lineHeight": "24px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "body-sm": ["13px", { "lineHeight": "20px", "letterSpacing": "0.015em", "fontWeight": "400" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "0em", "fontWeight": "500" }],
+            "label-caps-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.22em", "fontWeight": "600" }],
+            "display-hero": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.02em", "fontWeight": "400" }],
+            "body-lg": ["18px", { "lineHeight": "28px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "headline-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.01em", "fontWeight": "400" }],
+            "label-caps-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.18em", "fontWeight": "500" }],
+            "headline-sm": ["20px", { "lineHeight": "28px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+            "display-hero-mobile": ["38px", { "lineHeight": "46px", "letterSpacing": "-0.01em", "fontWeight": "400" }],
+            "quote-editorial": ["22px", { "lineHeight": "34px", "letterSpacing": "0.01em", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    }
+    .spin-slow {
+      animation: spin 24s linear infinite;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface antialiased min-h-screen flex justify-center selection:bg-secondary-fixed selection:text-primary">
+<!-- Mobile Viewport Container (390px Max) -->
+<div class="w-full max-w-[390px] min-h-screen bg-background relative flex flex-col shadow-2xl pb-28">
+<!-- TopAppBar (Shared Component JSON Spec) -->
+<header class="bg-surface/90 dark:bg-tertiary/90 backdrop-blur-md text-primary dark:text-primary-fixed docked full-width top-0 sticky z-40 shadow-sm dark:shadow-none">
+<div class="flex justify-between items-center w-full px-4 py-3 max-w-md mx-auto">
+<button aria-label="Library" class="flex items-center justify-center p-1.5 rounded text-primary hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-200 active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-[20px]" data-icon="menu_book">menu_book</span>
+</button>
+<div class="flex flex-col items-center">
+<span class="font-headline-md text-headline-md tracking-widest text-primary dark:text-primary-fixed italic">M &amp; S</span>
+<span class="font-label-caps-sm text-label-caps-sm uppercase tracking-widest text-secondary text-[8px] -mt-1">Vault Registry</span>
+</div>
+<button aria-label="Settings" class="flex items-center justify-center p-1.5 rounded text-primary hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-200 active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 px-4 pt-4 space-y-6">
+<!-- Hero Keepsake Vault Banner -->
+<section class="relative overflow-hidden rounded-xl bg-primary text-inverse-on-surface p-5 border border-secondary/40 shadow-[0_8px_24px_rgba(47,2,14,0.12)]">
+<!-- Archival watermark subtle texture pattern -->
+<div class="absolute inset-0 opacity-10 bg-[radial-gradient(#ffd79b_1px,transparent_1px)] [background-size:12px_12px] pointer-events-none"></div>
+<div class="relative z-10 flex flex-col items-center text-center">
+<!-- Gilded Ornamental Seal -->
+<div class="w-12 h-12 rounded-full border border-secondary-fixed/50 flex items-center justify-center mb-3 bg-primary-container/80 shadow-inner">
+<span class="font-headline-sm text-secondary-fixed italic font-light">✦</span>
+</div>
+<div class="flex items-center space-x-2 text-secondary-fixed mb-1">
+<span class="text-[9px] tracking-[0.25em] font-label-caps-sm uppercase">Archive Capsule</span>
+<span class="text-[10px]">✦</span>
+<span class="text-[9px] tracking-[0.25em] font-label-caps-sm uppercase">N° 01</span>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-surface font-normal tracking-tight">
+            Mine &amp; Sucre
+          </h1>
+<p class="font-quote-editorial italic text-secondary-fixed text-sm mt-0.5 opacity-90">
+            Annual Keepsake &amp; Heirloom
+          </p>
+<!-- Delimiter -->
+<div class="flex items-center justify-center space-x-2 my-3 opacity-60">
+<div class="w-6 h-[1px] bg-secondary-fixed"></div>
+<span class="text-[10px] text-secondary-fixed">✦ ✦ ✦</span>
+<div class="w-6 h-[1px] bg-secondary-fixed"></div>
+</div>
+<p class="font-body-sm text-body-sm text-surface-container-high/80 text-[12px] tracking-wide">
+            Celebrating March 27, 2025 &amp; Beyond
+          </p>
+</div>
+</section>
+<!-- Year Switcher Tabs -->
+<section class="flex space-x-1 p-1 bg-surface-container rounded-lg border border-outline-variant/30">
+<button class="flex-1 py-2 px-2.5 rounded bg-primary text-inverse-on-surface font-label-caps-sm text-[10px] tracking-wider uppercase text-center shadow-sm">
+          Year 1 (2025–2026)
+        </button>
+<button class="flex-1 py-2 px-2 rounded text-on-surface-variant font-label-caps-sm text-[10px] tracking-wider uppercase text-center hover:text-primary transition-colors">
+          Year 2 (Upcoming)
+        </button>
+<button class="flex-1 py-2 px-2 rounded text-on-surface-variant font-label-caps-sm text-[10px] tracking-wider uppercase text-center hover:text-primary transition-colors">
+          Our Vows
+        </button>
+</section>
+<!-- Save The Next Date Countdown Badge -->
+<section class="bg-surface-container-low border border-secondary/30 rounded-xl p-3.5 flex items-center justify-between">
+<div class="flex items-center space-x-3">
+<div class="w-9 h-9 rounded-full bg-secondary-container/40 flex items-center justify-center text-secondary border border-secondary/30">
+<span class="material-symbols-outlined text-[18px]" data-icon="hourglass_top">hourglass_top</span>
+</div>
+<div>
+<span class="font-label-caps-sm text-label-caps-sm uppercase text-secondary block text-[9px] tracking-widest">Next Anniversary</span>
+<span class="font-headline-sm text-[15px] text-primary block leading-tight">March 27, 2026</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-headline-md text-primary font-bold text-lg block leading-none">365</span>
+<span class="font-label-caps-sm text-[8px] uppercase tracking-wider text-outline block mt-0.5">Days Of Grace</span>
+</div>
+</section>
+<!-- Our Soundtrack of the Year (Baby Riddim) -->
+<section class="rounded-xl bg-surface-container-lowest border border-secondary/30 p-4 relative overflow-hidden shadow-sm">
+<div class="flex items-center justify-between mb-3">
+<div class="flex items-center space-x-1.5">
+<span class="text-secondary text-[11px]">✦</span>
+<span class="font-label-caps-sm text-label-caps-sm uppercase text-secondary text-[10px] tracking-widest">Our Soundtrack Of The Year</span>
+</div>
+<span class="font-label-caps-sm text-[9px] uppercase tracking-wider text-on-surface-variant/60">3,420 Plays</span>
+</div>
+<div class="flex items-center space-x-4">
+<!-- Vinyl Disc Art Record -->
+<div class="relative w-20 h-20 shrink-0 flex items-center justify-center">
+<div class="w-20 h-20 rounded-full bg-tertiary flex items-center justify-center shadow-md relative spin-slow">
+<!-- Vinyl Grooves -->
+<div class="w-16 h-16 rounded-full border border-tertiary-container/60 flex items-center justify-center">
+<div class="w-12 h-12 rounded-full border border-tertiary-container/80 flex items-center justify-center">
+<!-- Vinyl Center Label -->
+<div class="w-7 h-7 rounded-full bg-primary-container border border-secondary-fixed flex items-center justify-center text-[7px] text-secondary-fixed font-headline-sm font-bold">
+                    M&amp;S
+                  </div>
+</div>
+</div>
+</div>
+<!-- Center Play Toggle -->
+<button aria-label="Play Track" class="absolute inset-0 m-auto w-8 h-8 rounded-full bg-primary/80 backdrop-blur-sm text-secondary-fixed flex items-center justify-center border border-secondary/50 shadow">
+<span class="material-symbols-outlined text-[16px]" data-icon="play_arrow" data-weight="fill">play_arrow</span>
+</button>
+</div>
+<!-- Metadata & Lyric excerpt -->
+<div class="flex-1 min-w-0">
+<span class="font-headline-sm text-primary text-[17px] font-semibold block truncate">Baby Riddim</span>
+<span class="font-label-caps-md text-[11px] text-secondary font-medium tracking-wider uppercase block -mt-0.5">Fave</span>
+<p class="font-quote-editorial italic text-on-surface-variant text-[12px] leading-relaxed mt-1.5 border-l-2 border-secondary/40 pl-2">
+              "Yes boy I dey for you... baby riddim playing on replay all year."
+            </p>
+</div>
+</div>
+<!-- Audio Frequency Visualizer -->
+<div class="mt-3.5 pt-3 border-t border-outline-variant/30 flex items-center justify-between">
+<div class="flex items-end space-x-1 h-3">
+<span class="w-0.5 h-2 bg-secondary rounded-full"></span>
+<span class="w-0.5 h-3 bg-secondary rounded-full"></span>
+<span class="w-0.5 h-1.5 bg-secondary rounded-full"></span>
+<span class="w-0.5 h-2.5 bg-secondary rounded-full"></span>
+<span class="w-0.5 h-1 bg-secondary rounded-full"></span>
+<span class="w-0.5 h-3 bg-secondary rounded-full"></span>
+<span class="w-0.5 h-2 bg-secondary rounded-full"></span>
+<span class="w-0.5 h-2.5 bg-secondary rounded-full"></span>
+<span class="w-0.5 h-1 bg-secondary rounded-full"></span>
+<span class="w-0.5 h-2 bg-secondary rounded-full"></span>
+</div>
+<span class="font-label-caps-sm text-[9px] text-secondary uppercase tracking-wider">✦ FAVE — BABY RIDDIM</span>
+</div>
+</section>
+<!-- Letters to Each Other Carousel / Sealed Folders -->
+<section class="space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-1.5">
+<span class="text-secondary text-[11px]">✦</span>
+<h2 class="font-headline-sm text-headline-sm text-primary text-[18px]">Letters To Each Other</h2>
+</div>
+<span class="font-label-caps-sm text-[10px] text-secondary uppercase tracking-widest">Vault Sealed</span>
+</div>
+<div class="grid grid-cols-1 gap-3">
+<!-- Letter 1: Mine to Sucre (Sealed Envelope Aesthetic) -->
+<div class="rounded-xl bg-surface-container-low border border-secondary/30 p-4 relative overflow-hidden shadow-sm">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-caps-sm text-[9px] uppercase tracking-widest text-secondary block">Anniversary Epistle</span>
+<h3 class="font-headline-sm text-[16px] text-primary mt-0.5">From Mine to Sucre</h3>
+</div>
+<!-- Wax Seal Graphic Badge -->
+<div class="w-9 h-9 rounded-full bg-primary-container border-2 border-secondary-fixed/60 flex items-center justify-center shadow-inner shrink-0">
+<span class="font-headline-sm text-secondary-fixed text-[11px] font-bold">M</span>
+</div>
+</div>
+<p class="font-quote-editorial italic text-on-surface-variant text-[13px] leading-relaxed mt-2 text-opacity-80">
+              "To the one whose touch quietens my whole soul. Entering year one with you was like discovering music in every silent corner..."
+            </p>
+<div class="mt-3 pt-2.5 border-t border-outline-variant/30 flex items-center justify-between">
+<span class="font-label-caps-sm text-[9px] tracking-wider text-outline uppercase">Written March 27, 2025</span>
+<button class="inline-flex items-center space-x-1 text-primary hover:text-secondary font-label-caps-sm text-[10px] uppercase tracking-widest transition-colors font-semibold">
+<span>Open Letter</span>
+<span class="material-symbols-outlined text-[14px]" data-icon="lock_open">lock_open</span>
+</button>
+</div>
+</div>
+<!-- Letter 2: Sucre to Mine -->
+<div class="rounded-xl bg-surface-container-low border border-secondary/30 p-4 relative overflow-hidden shadow-sm">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-caps-sm text-[9px] uppercase tracking-widest text-secondary block">Anniversary Epistle</span>
+<h3 class="font-headline-sm text-[16px] text-primary mt-0.5">From Sucre to Mine</h3>
+</div>
+<!-- Wax Seal Graphic Badge -->
+<div class="w-9 h-9 rounded-full bg-primary-container border-2 border-secondary-fixed/60 flex items-center justify-center shadow-inner shrink-0">
+<span class="font-headline-sm text-secondary-fixed text-[11px] font-bold">S</span>
+</div>
+</div>
+<p class="font-quote-editorial italic text-on-surface-variant text-[13px] leading-relaxed mt-2 text-opacity-80">
+              "365 days of being your safe harbor. Every morning waking beside you reminded me why promises are meant to be kept with gentle hands..."
+            </p>
+<div class="mt-3 pt-2.5 border-t border-outline-variant/30 flex items-center justify-between">
+<span class="font-label-caps-sm text-[9px] tracking-wider text-outline uppercase">Written March 27, 2025</span>
+<button class="inline-flex items-center space-x-1 text-primary hover:text-secondary font-label-caps-sm text-[10px] uppercase tracking-widest transition-colors font-semibold">
+<span>Open Letter</span>
+<span class="material-symbols-outlined text-[14px]" data-icon="lock_open">lock_open</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Annual Stats & Milestones Recap Bento -->
+<section class="space-y-3">
+<div class="flex items-center space-x-1.5">
+<span class="text-secondary text-[11px]">✦</span>
+<h2 class="font-headline-sm text-headline-sm text-primary text-[18px]">Milestones &amp; Retrospective</h2>
+</div>
+<div class="grid grid-cols-2 gap-2.5">
+<!-- Stat 1 -->
+<div class="p-3.5 rounded-xl bg-surface-container-lowest border border-outline-variant/40 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-secondary text-[20px]" data-icon="photo_camera">photo_camera</span>
+<span class="text-[9px] font-label-caps-sm text-outline uppercase">Archived</span>
+</div>
+<div class="mt-3">
+<span class="font-headline-md text-primary font-semibold text-2xl block leading-none">84</span>
+<span class="font-body-sm text-on-surface-variant text-[12px] block mt-1">Moments Captured</span>
+</div>
+</div>
+<!-- Stat 2 -->
+<div class="p-3.5 rounded-xl bg-surface-container-lowest border border-outline-variant/40 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-secondary text-[20px]" data-icon="flight_takeoff">flight_takeoff</span>
+<span class="text-[9px] font-label-caps-sm text-outline uppercase">Passports</span>
+</div>
+<div class="mt-3">
+<span class="font-headline-md text-primary font-semibold text-2xl block leading-none">14</span>
+<span class="font-body-sm text-on-surface-variant text-[12px] block mt-1">Cities &amp; Escapes</span>
+</div>
+</div>
+<!-- Stat 3 -->
+<div class="p-3.5 rounded-xl bg-surface-container-lowest border border-outline-variant/40 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-secondary text-[20px]" data-icon="mic">mic</span>
+<span class="text-[9px] font-label-caps-sm text-outline uppercase">Audio</span>
+</div>
+<div class="mt-3">
+<span class="font-headline-md text-primary font-semibold text-2xl block leading-none">32</span>
+<span class="font-body-sm text-on-surface-variant text-[12px] block mt-1">Voice Notes</span>
+</div>
+</div>
+<!-- Stat 4 (Highlight) -->
+<div class="p-3.5 rounded-xl bg-primary-container text-inverse-on-surface border border-secondary/40 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-secondary-fixed text-[20px]" data-icon="favorite" data-weight="fill">favorite</span>
+<span class="text-[9px] font-label-caps-sm text-secondary-fixed uppercase">Forever</span>
+</div>
+<div class="mt-3">
+<span class="font-headline-md text-surface font-semibold text-2xl block leading-none">1</span>
+<span class="font-body-sm text-secondary-fixed text-[12px] block mt-1 font-medium">Unbreakable Bond</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Editorial Curated Photo Reel (Top 8 Iconic Photos) -->
+<section class="space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-1.5">
+<span class="text-secondary text-[11px]">✦</span>
+<h2 class="font-headline-sm text-headline-sm text-primary text-[18px]">Iconic Moments Reel</h2>
+</div>
+<span class="font-label-caps-sm text-[10px] text-secondary uppercase tracking-widest">Year 01 Reel</span>
+</div>
+<div class="grid grid-cols-2 gap-2.5">
+<!-- Photo 01 -->
+<div class="bg-surface-container-lowest p-2 rounded-lg border border-secondary/30 shadow-sm flex flex-col">
+<div class="relative w-full aspect-[4/5] rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="An intimate editorial portrait of an elegant young couple embracing in soft golden evening light during their private wedding celebration. Warm ivory silk and deep royal burgundy accents frame the couple against a French chateau courtyard. The aesthetic is heirloom luxury with delicate grain and soft focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAn8gzUDqsyeSqMO6EfL_puGJQtxnnzHrRLlEo2v7P-vis7N5Uyky62e-OA3vqdu2IvJ-JtBQjitqvJzVV1Mfh8bDdzvGq7OuKdASkWUjyMQIl5EDJ2bGRWkAHKrAIvWAV9ZTtPcM1yOwzUWrB14OmgLHDm0N78Rc1tvpfwjhjUEwaXZwagptTq5j55ysGkco_26VEbYuCf2HzoZfeDP3Vx3XXGAkeRzEMLgMQc8GI4JAwJB02ZkvcD"/>
+<div class="absolute top-1.5 left-1.5 bg-primary/80 backdrop-blur-xs text-secondary-fixed px-1.5 py-0.5 rounded text-[8px] font-label-caps-sm uppercase tracking-wider border border-secondary/40">
+                01/08
+              </div>
+</div>
+<span class="font-quote-editorial italic text-primary text-[11px] mt-1.5 block truncate text-center">First Vows at Sunrise</span>
+</div>
+<!-- Photo 02 -->
+<div class="bg-surface-container-lowest p-2 rounded-lg border border-secondary/30 shadow-sm flex flex-col">
+<div class="relative w-full aspect-[4/5] rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A cinematic capture of a romantic couple walking hand-in-hand along the Seine riverbank in Paris under antique streetlamps at dusk. The palette embraces rich burgundy, charcoal, and warm amber glows with fine print film texture and refined romantic grandeur." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7zwZ8rawYG_31IEmrs130AdSdZTeauhIzvxLgZFibOFJyvEwrKLvzysh1YD_rjtUfXr6zrfGmMVGQEZFMoeDE9djBAhkxFXIJIK7yX58taI2FPdUBGC6BVr_Ayea-lczAB05RjQKomT9eqz94eWImS6ZlkFjPs9oYIxXm1zRUDhd0gGec1CBq8FzG6uNVJZUpwD5Efy6CVR36JKKTWsEsHDx6GxD2Q-aXCbc_J1fwtM-G7kYbWSv6"/>
+<div class="absolute top-1.5 left-1.5 bg-primary/80 backdrop-blur-xs text-secondary-fixed px-1.5 py-0.5 rounded text-[8px] font-label-caps-sm uppercase tracking-wider border border-secondary/40">
+                02/08
+              </div>
+</div>
+<span class="font-quote-editorial italic text-primary text-[11px] mt-1.5 block truncate text-center">Midnight in Saint-Germain</span>
+</div>
+<!-- Photo 03 -->
+<div class="bg-surface-container-lowest p-2 rounded-lg border border-secondary/30 shadow-sm flex flex-col">
+<div class="relative w-full aspect-[4/5] rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="An artistic high-fashion detail photo of intertwined hands wearing vintage gold wedding bands resting on textured parchment paper with handwritten vows. Ambient gentle studio illumination highlights champagne silk, burgundy velvet ribbons, and luxurious craftsmanship." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVqaNkRkcXl5D98VIfrWEYSsNW_vpgjq0KL6B0OecZCzQvr_0IYZR8ooA0ns8Z80gwbTf4XAYGSmydQv56J7b3SwHhDjNkzAk8uK5PdCjcE-yst2CMPcC9J4D2lbGeIpwxyhMgZkSPAaC7Om32Yfc6NeHtKLKV5jBrBCvIV8kLNmL8274Hty33jNZWG3DE3BghSXmlr0Mhs_WOwDPRMzSYNvUl9HF5Lwg3GTkKc29_WScS1Zt7Xjep"/>
+<div class="absolute top-1.5 left-1.5 bg-primary/80 backdrop-blur-xs text-secondary-fixed px-1.5 py-0.5 rounded text-[8px] font-label-caps-sm uppercase tracking-wider border border-secondary/40">
+                03/08
+              </div>
+</div>
+<span class="font-quote-editorial italic text-primary text-[11px] mt-1.5 block truncate text-center">Rings &amp; Golden Vows</span>
+</div>
+<!-- Photo 04 -->
+<div class="bg-surface-container-lowest p-2 rounded-lg border border-secondary/30 shadow-sm flex flex-col">
+<div class="relative w-full aspect-[4/5] rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A candid vacation memory of the couple sharing laughs over champagne flutes on a private wooden yacht in Lake Como. The scene is drenched in radiant Mediterranean sunlight, muted terracotta hills, and timeless vintage European editorial elegance." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtchXaM0CAEWTZMjQ43nBtra6ZhYLxAbvveD0berhh78yrkmxdVBLcvoi6zc2LOpuDOYLcNRHMpmybaDWK0EZg3xBkGtKLkHnqs_fUiAavXyTU8igxKWBgl6bL8VIrrD_I0rtECN0Ab1TQZSXIi_9bg50jGSN3wZU6jDY91TcleUzw-ZozMrqRtYwjQwHbj93RhKZQYENgXXMX5dFn-OM_CmzSVraVCfHeXJ7SWIpDtJPV2AMHC62X"/>
+<div class="absolute top-1.5 left-1.5 bg-primary/80 backdrop-blur-xs text-secondary-fixed px-1.5 py-0.5 rounded text-[8px] font-label-caps-sm uppercase tracking-wider border border-secondary/40">
+                04/08
+              </div>
+</div>
+<span class="font-quote-editorial italic text-primary text-[11px] mt-1.5 block truncate text-center">Lake Como Getaway</span>
+</div>
+<!-- Photo 05 -->
+<div class="bg-surface-container-lowest p-2 rounded-lg border border-secondary/30 shadow-sm flex flex-col">
+<div class="relative w-full aspect-[4/5] rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A high editorial portrait of the couple dancing in an intimate private gallery surrounded by gilded oil paintings and candlelight. The atmosphere breathes deep burgundy shadows, ivory marble reflections, and quiet heartfelt devotion." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAay8EBY_Ds1iAwzw_VdWwe7N-BG0FDPX3oKtgVwwrIUlYSCzg6bw_WaSiKlhlgBfIJuBgx_ogamcFlydQ7CdWRLHCtrANl2dpARidM1Zwpy3HQcbtnnmNiu0ll9qGUdlyYwdCZTsvQahWMvdHDQ0pnQJCfsLKoCVCK78x7nV_LOAAHpljEEJy0ekd6Z69a7G7R9c-XVgksc96YQIhARo9jgQJKGgcOHqiQXA1b_6wAeTO8zwT71Z8d"/>
+<div class="absolute top-1.5 left-1.5 bg-primary/80 backdrop-blur-xs text-secondary-fixed px-1.5 py-0.5 rounded text-[8px] font-label-caps-sm uppercase tracking-wider border border-secondary/40">
+                05/08
+              </div>
+</div>
+<span class="font-quote-editorial italic text-primary text-[11px] mt-1.5 block truncate text-center">Slow Dance in Florence</span>
+</div>
+<!-- Photo 06 -->
+<div class="bg-surface-container-lowest p-2 rounded-lg border border-secondary/30 shadow-sm flex flex-col">
+<div class="relative w-full aspect-[4/5] rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A poetic black and white photograph with subtle sepia tones capturing a quiet forehead kiss in front of a rustic archway draped in ivy. Soft natural daylight creates gentle rim highlights along the silhouettes in high-end editorial book styling." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrVNfSAybGmdBgJQbzgvTWSTsI5Ll4h7C7VfFJRqGHIspswmvBu-KnxCKdoY3dhVI_QVh7URisK5xPdfDHvunQR3ky7F9huivb8BxRNhQpp7ad8jM_BYAne5NTsBTZY765RiH1lIkLHYWu48ubtSQMtuJOhz7WpygW8oQfFTa0AV8PJcduBri3e5J4hwLmzC4jjitbFYD5MI8manaI_BpYYnn7kAuejgyaE64PwaBVww69-Nf9y0Pb"/>
+<div class="absolute top-1.5 left-1.5 bg-primary/80 backdrop-blur-xs text-secondary-fixed px-1.5 py-0.5 rounded text-[8px] font-label-caps-sm uppercase tracking-wider border border-secondary/40">
+                06/08
+              </div>
+</div>
+<span class="font-quote-editorial italic text-primary text-[11px] mt-1.5 block truncate text-center">The Quiet Morning</span>
+</div>
+<!-- Photo 07 -->
+<div class="bg-surface-container-lowest p-2 rounded-lg border border-secondary/30 shadow-sm flex flex-col">
+<div class="relative w-full aspect-[4/5] rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A spontaneous celebratory snapshot of the couple laughing under gentle golden sparklers during their anniversary dinner. Rich mahogany table settings with burgundy napkins and vintage glassware add warmth and refined heirloom luxury." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBf18eXcic7CYgCEasxAoBA56EhYOYTsb-w3rzICq1piKjLU_O70NY3bStSmWRya7ryEatpmmmj6FSOKT3mU7C2hPkZFq_GplWiSKV0mv_av520eeeHGt8Wfltx_udHICv1i9glNBE5U00IVz2g_4FiZN-HJhi-eRjCyw9rdaLf1T2gEJppAJeNPBzdxNjHBPmk7thTXipF2V4woDk4DEuCofaiG0LHOp5QJUkKp0bf9XwqLtin40HO"/>
+<div class="absolute top-1.5 left-1.5 bg-primary/80 backdrop-blur-xs text-secondary-fixed px-1.5 py-0.5 rounded text-[8px] font-label-caps-sm uppercase tracking-wider border border-secondary/40">
+                07/08
+              </div>
+</div>
+<span class="font-quote-editorial italic text-primary text-[11px] mt-1.5 block truncate text-center">Private Candlelit Supper</span>
+</div>
+<!-- Photo 08 -->
+<div class="bg-surface-container-lowest p-2 rounded-lg border border-secondary/30 shadow-sm flex flex-col">
+<div class="relative w-full aspect-[4/5] rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A serene landscape diptych with the couple standing together at the edge of a golden coastal cliff watching the sunset over calm ocean waters. Warm amber skies, deep crimson clouds, and timeless editorial styling evoke enduring love." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqzDxdGTe8oGJcAnHo3a4dvQA5FZx6EqQobaUUSHJ8dS86wKjiSZdDJGkeq3O2ZS-R0q2fVqe3U6fm5vL6XZCeXKKBY4ojBC4H_hlUc7QL7RO7ZyOcwEjHZU8oIKP1PzYACz00zFoYmdlt5ai7bfD5qgoKjS_nls5ozJdbK5Fexu-XaotZ14xXL7WYxEbcjUJh3QzcWVZ3DEuz2-k2EF5La8GOQZl-gdkjS4m0p2Go0HOGEcK9zT-l"/>
+<div class="absolute top-1.5 left-1.5 bg-primary/80 backdrop-blur-xs text-secondary-fixed px-1.5 py-0.5 rounded text-[8px] font-label-caps-sm uppercase tracking-wider border border-secondary/40">
+                08/08
+              </div>
+</div>
+<span class="font-quote-editorial italic text-primary text-[11px] mt-1.5 block truncate text-center">To Infinity &amp; Always</span>
+</div>
+</div>
+</section>
+<!-- Archival Seal Delimiter Footer Note -->
+<section class="py-6 flex flex-col items-center justify-center text-center">
+<div class="w-10 h-10 rounded-full border border-secondary/40 flex items-center justify-center text-secondary mb-2 bg-surface-container-low shadow-sm">
+<span class="font-headline-sm text-[12px] italic">M&amp;S</span>
+</div>
+<p class="font-label-caps-sm text-[9px] uppercase tracking-[0.25em] text-secondary">
+          Certified Heirloom Record · 2025–2026
+        </p>
+<p class="font-quote-editorial italic text-on-surface-variant text-[12px] mt-1 opacity-70">
+          "Held in our private sanctuary forever."
+        </p>
+</section>
+</main>
+<!-- BottomNavBar (Shared Component JSON Spec) -->
+<!-- Active State Logic: Screen is Anniversary Vault -> Active Tab is 'Vault' -->
+<nav class="bg-surface-container-lowest/95 dark:bg-tertiary-container/95 backdrop-blur-lg fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 pb-safe max-w-md mx-auto shadow-[0_-4px_16px_rgba(47,2,14,0.06)] dark:shadow-[0_-4px_16px_rgba(0,0,0,0.3)]">
+<!-- Destination 1: Sanctuary -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 dark:text-outline-variant/70 hover:text-secondary dark:hover:text-secondary-fixed active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined text-[22px]" data-icon="favorite">favorite</span>
+<span class="font-label-caps-sm text-label-caps-sm tracking-wider uppercase text-[9px] mt-0.5">Sanctuary</span>
+</a>
+<!-- Destination 2: Journey -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 dark:text-outline-variant/70 hover:text-secondary dark:hover:text-secondary-fixed active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined text-[22px]" data-icon="auto_stories">auto_stories</span>
+<span class="font-label-caps-sm text-label-caps-sm tracking-wider uppercase text-[9px] mt-0.5">Journey</span>
+</a>
+<!-- Destination 3: Capture -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 dark:text-outline-variant/70 hover:text-secondary dark:hover:text-secondary-fixed active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined text-[22px]" data-icon="add_circle">add_circle</span>
+<span class="font-label-caps-sm text-label-caps-sm tracking-wider uppercase text-[9px] mt-0.5">Capture</span>
+</a>
+<!-- Destination 4: Vault (ACTIVE) -->
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed font-semibold relative after:content-[''] after:w-1 after:h-1 after:bg-secondary dark:after:bg-secondary-fixed after:rounded-full after:mt-1 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined text-[22px]" data-icon="lock_open">lock_open</span>
+<span class="font-label-caps-sm text-label-caps-sm tracking-wider uppercase text-[9px] mt-0.5">Vault</span>
+</a>
+</nav>
+</div>
+</body></html>
