@@ -116,8 +116,51 @@ export function AppProvider({ children }) {
     ambientPlayer.toggle();
   };
 
-  // Lightweight Cloud Sync State
-  const [isCloudConfigured, setIsCloudConfigured] = useState(false);
+  // Lightweight Cloud Sync State (Pre-connected to live cloud database)
+  const [isCloudConfigured, setIsCloudConfigured] = useState(true);
+
+  // Auto-pull shared memories from live cloud database
+  const pullFromCloud = async (silent = true) => {
+    try {
+      const res = await fetchCloudVault();
+      if (res && res.data) {
+        const cloudData = res.data;
+        const cloudUpdatedAt = cloudData.updatedAt;
+        const localUpdatedAt = localStorage.getItem('mm_vault_updated_at');
+
+        // Apply if no local record, or cloud is newer/equal
+        const shouldApply =
+          !localUpdatedAt ||
+          !cloudUpdatedAt ||
+          cloudUpdatedAt >= localUpdatedAt;
+
+        if (shouldApply) {
+          if (Array.isArray(cloudData.memories)) {
+            setMemories(cloudData.memories);
+            localStorage.setItem('mm_memories', JSON.stringify(cloudData.memories));
+          }
+          if (Array.isArray(cloudData.vows)) {
+            setVows(cloudData.vows);
+            localStorage.setItem('mm_vows', JSON.stringify(cloudData.vows));
+          }
+          if (cloudData.coupleProfile && typeof cloudData.coupleProfile === 'object') {
+            setCoupleProfile((prev) => ({ ...prev, ...cloudData.coupleProfile }));
+            localStorage.setItem('mm_couple_profile_v2', JSON.stringify(cloudData.coupleProfile));
+          }
+          if (cloudUpdatedAt) {
+            localStorage.setItem('mm_vault_updated_at', cloudUpdatedAt);
+          }
+          if (!silent) {
+            showToast('✦ Sanctuary synced with partner in real-time!');
+          }
+        } else if (!silent) {
+          showToast('✦ Sanctuary is up to date!');
+        }
+      }
+    } catch (err) {
+      console.warn('Auto-sync notice:', err);
+    }
+  };
 
   // 1. Check for Partner Sync Link in URL Hash (#sync=...) on mount
   useEffect(() => {
@@ -127,6 +170,8 @@ export function AppProvider({ children }) {
         const payload = hash.split('sync=')[1];
         const unpacked = unpackPartnerSyncPayload(payload);
         if (unpacked) {
+          const now = new Date().toISOString();
+          localStorage.setItem('mm_vault_updated_at', now);
           if (unpacked.memories && unpacked.memories.length > 0) {
             setMemories(unpacked.memories);
             localStorage.setItem('mm_memories', JSON.stringify(unpacked.memories));
@@ -148,40 +193,43 @@ export function AppProvider({ children }) {
     }
   }, []);
 
-  // 2. Poll/Check Vercel KV via /api/sync on load
+  // 2. Continuous Auto-Sync: on mount, on phone wake/focus, and every 10 seconds
   useEffect(() => {
-    fetchCloudVault().then((res) => {
-      if (res && res.configured) {
-        setIsCloudConfigured(true);
-        if (res.data) {
-          if (res.data.memories && res.data.memories.length > 0) {
-            setMemories(res.data.memories);
-            localStorage.setItem('mm_memories', JSON.stringify(res.data.memories));
-          }
-          if (res.data.vows && res.data.vows.length > 0) {
-            setVows(res.data.vows);
-            localStorage.setItem('mm_vows', JSON.stringify(res.data.vows));
-          }
-          if (res.data.coupleProfile) {
-            setCoupleProfile(res.data.coupleProfile);
-            localStorage.setItem('mm_couple_profile_v2', JSON.stringify(res.data.coupleProfile));
-          }
-        }
+    // Initial fetch on mount
+    pullFromCloud(true);
+
+    // Sync whenever phone is unlocked, tab switched, or app focused
+    const handleFocus = () => pullFromCloud(true);
+    window.addEventListener('focus', handleFocus);
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') pullFromCloud(true);
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    // Live continuous polling while tab is active
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        pullFromCloud(true);
       }
-    });
+    }, 10000);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibility);
+      clearInterval(interval);
+    };
   }, []);
 
-  // Helper to sync local state to cloud vault
+  // Helper to sync local state to cloud vault manually
   const syncAllLocalToCloud = async () => {
-    showToast('✦ Syncing sanctuary to cloud...');
-    const res = await saveCloudVault({ memories, vows, coupleProfile });
+    showToast('✦ Syncing sanctuary with cloud...');
+    const now = new Date().toISOString();
+    localStorage.setItem('mm_vault_updated_at', now);
+    const res = await saveCloudVault({ memories, vows, coupleProfile, updatedAt: now });
     if (res && res.success) {
-      setIsCloudConfigured(true);
       showToast("✦ Sanctuary synced! Both phones now share memories.");
-    } else if (res && !res.configured) {
-      showToast('✦ In Vercel, connect Storage > KV for auto-sync.');
     } else {
-      showToast('✦ Could not reach cloud vault.');
+      pullFromCloud(false);
     }
   };
 
@@ -206,6 +254,8 @@ export function AppProvider({ children }) {
   const importSyncData = (encoded) => {
     const unpacked = unpackPartnerSyncPayload(encoded);
     if (unpacked) {
+      const now = new Date().toISOString();
+      localStorage.setItem('mm_vault_updated_at', now);
       if (unpacked.memories && unpacked.memories.length > 0) {
         setMemories(unpacked.memories);
         localStorage.setItem('mm_memories', JSON.stringify(unpacked.memories));
@@ -218,6 +268,12 @@ export function AppProvider({ children }) {
         setCoupleProfile((prev) => ({ ...prev, ...unpacked.coupleProfile }));
         localStorage.setItem('mm_couple_profile_v2', JSON.stringify(unpacked.coupleProfile));
       }
+      saveCloudVault({
+        memories: unpacked.memories || memories,
+        vows: unpacked.vows || vows,
+        coupleProfile: unpacked.coupleProfile || coupleProfile,
+        updatedAt: now,
+      });
       showToast('✦ Memories imported successfully!');
       return true;
     } else {
@@ -226,87 +282,147 @@ export function AppProvider({ children }) {
     }
   };
 
-  const addMemory = (newMemory) => {
-    setMemories((prev) => {
-      const updated = [newMemory, ...prev];
-      if (isCloudConfigured) {
-        saveCloudVault({ memories: updated, vows, coupleProfile });
-      }
-      return updated;
-    });
+  const addMemory = async (newMemory) => {
+    const now = new Date().toISOString();
+    localStorage.setItem('mm_vault_updated_at', now);
+
+    // Optimistically update local state immediately
+    setMemories((prev) => [newMemory, ...prev]);
     showToast("Memory sealed & archived forever ✦");
     ambientPlayer.playChime();
-  };
 
-  const updateMemory = (id, updates) => {
-    setMemories((prev) => {
-      const updated = prev.map((m) => (m.id === id ? { ...m, ...updates } : m));
-      if (isCloudConfigured) {
-        saveCloudVault({ memories: updated, vows, coupleProfile });
+    try {
+      // Fetch latest cloud memories to merge seamlessly without overwriting partner
+      const cloudRes = await fetchCloudVault();
+      let merged = [newMemory, ...memories];
+      let currentVows = vows;
+      let currentProfile = coupleProfile;
+
+      if (cloudRes && cloudRes.data) {
+        if (Array.isArray(cloudRes.data.memories)) {
+          const knownIds = new Set(merged.map((m) => m.id));
+          const partnerMemories = cloudRes.data.memories.filter((m) => !knownIds.has(m.id));
+          merged = [...merged, ...partnerMemories];
+        }
+        if (Array.isArray(cloudRes.data.vows)) {
+          currentVows = cloudRes.data.vows;
+        }
+        if (cloudRes.data.coupleProfile) {
+          currentProfile = { ...coupleProfile, ...cloudRes.data.coupleProfile };
+        }
       }
-      return updated;
-    });
-  };
 
-  const deleteMemory = (id) => {
-    setMemories((prev) => {
-      const updated = prev.filter((m) => m.id !== id);
-      if (isCloudConfigured) {
-        saveCloudVault({ memories: updated, vows, coupleProfile });
-      }
-      return updated;
-    });
-    showToast("Memory gently removed from archives.");
-  };
-
-  const toggleFavorite = (id) => {
-    setMemories((prev) => {
-      const updated = prev.map((m) => (m.id === id ? { ...m, isFavorite: !m.isFavorite } : m));
-      if (isCloudConfigured) {
-        saveCloudVault({ memories: updated, vows, coupleProfile });
-      }
-      return updated;
-    });
-  };
-
-  const addVow = (newVow) => {
-    setVows((prev) => {
-      const updated = [...prev, newVow];
-      if (isCloudConfigured) {
-        saveCloudVault({ memories, vows: updated, coupleProfile });
-      }
-      return updated;
-    });
-    showToast("Sacred vow sealed into the vault ✦");
-  };
-
-  const deleteVow = (indexOrId) => {
-    setVows((prev) => {
-      const updated = typeof indexOrId === 'string'
-        ? prev.filter((v) => v.id !== indexOrId)
-        : prev.filter((_, idx) => idx !== indexOrId);
-      if (isCloudConfigured) {
-        saveCloudVault({ memories, vows: updated, coupleProfile });
-      }
-      return updated;
-    });
-    showToast("Vow removed from vault.");
-  };
-
-  const updateCoupleProfile = (newProfile) => {
-    setCoupleProfile(newProfile);
-    if (isCloudConfigured) {
-      saveCloudVault({ memories, vows, coupleProfile: newProfile });
+      setMemories(merged);
+      localStorage.setItem('mm_memories', JSON.stringify(merged));
+      await saveCloudVault({
+        memories: merged,
+        vows: currentVows,
+        coupleProfile: currentProfile,
+        updatedAt: now,
+      });
+    } catch (err) {
+      saveCloudVault({
+        memories: [newMemory, ...memories],
+        vows,
+        coupleProfile,
+        updatedAt: now,
+      });
     }
   };
 
-  const clearAllData = () => {
+  const updateMemory = async (id, updates) => {
+    const now = new Date().toISOString();
+    localStorage.setItem('mm_vault_updated_at', now);
+
+    const updated = memories.map((m) => (m.id === id ? { ...m, ...updates } : m));
+    setMemories(updated);
+    localStorage.setItem('mm_memories', JSON.stringify(updated));
+
+    if (isCloudConfigured) {
+      await saveCloudVault({ memories: updated, vows, coupleProfile, updatedAt: now });
+    }
+  };
+
+  const deleteMemory = async (id) => {
+    const now = new Date().toISOString();
+    localStorage.setItem('mm_vault_updated_at', now);
+
+    const updated = memories.filter((m) => m.id !== id);
+    setMemories(updated);
+    localStorage.setItem('mm_memories', JSON.stringify(updated));
+    showToast("Memory gently removed from archives.");
+
+    if (isCloudConfigured) {
+      await saveCloudVault({ memories: updated, vows, coupleProfile, updatedAt: now });
+    }
+  };
+
+  const toggleFavorite = async (id) => {
+    const now = new Date().toISOString();
+    localStorage.setItem('mm_vault_updated_at', now);
+
+    const updated = memories.map((m) => (m.id === id ? { ...m, isFavorite: !m.isFavorite } : m));
+    setMemories(updated);
+    localStorage.setItem('mm_memories', JSON.stringify(updated));
+
+    if (isCloudConfigured) {
+      await saveCloudVault({ memories: updated, vows, coupleProfile, updatedAt: now });
+    }
+  };
+
+  const addVow = async (newVow) => {
+    const now = new Date().toISOString();
+    localStorage.setItem('mm_vault_updated_at', now);
+
+    const updated = [...vows, newVow];
+    setVows(updated);
+    localStorage.setItem('mm_vows', JSON.stringify(updated));
+    showToast("Sacred vow sealed into the vault ✦");
+
+    if (isCloudConfigured) {
+      await saveCloudVault({ memories, vows: updated, coupleProfile, updatedAt: now });
+    }
+  };
+
+  const deleteVow = async (indexOrId) => {
+    const now = new Date().toISOString();
+    localStorage.setItem('mm_vault_updated_at', now);
+
+    const updated = typeof indexOrId === 'string'
+      ? vows.filter((v) => v.id !== indexOrId)
+      : vows.filter((_, idx) => idx !== indexOrId);
+    setVows(updated);
+    localStorage.setItem('mm_vows', JSON.stringify(updated));
+    showToast("Vow removed from vault.");
+
+    if (isCloudConfigured) {
+      await saveCloudVault({ memories, vows: updated, coupleProfile, updatedAt: now });
+    }
+  };
+
+  const updateCoupleProfile = async (newProfile) => {
+    const now = new Date().toISOString();
+    localStorage.setItem('mm_vault_updated_at', now);
+
+    setCoupleProfile(newProfile);
+    localStorage.setItem('mm_couple_profile_v2', JSON.stringify(newProfile));
+
+    if (isCloudConfigured) {
+      await saveCloudVault({ memories, vows, coupleProfile: newProfile, updatedAt: now });
+    }
+  };
+
+  const clearAllData = async () => {
+    const now = new Date().toISOString();
+    localStorage.setItem('mm_vault_updated_at', now);
+
     setMemories([]);
     setVows([]);
     localStorage.removeItem('mm_memories');
     localStorage.removeItem('mm_vows');
+
     if (isCloudConfigured) {
-      saveCloudVault({ memories: [], vows: [], coupleProfile });
+      await saveCloudVault({ memories: [], vows: [], coupleProfile, updatedAt: now });
     }
     showToast("Archives cleared. Ready for your memories.");
   };

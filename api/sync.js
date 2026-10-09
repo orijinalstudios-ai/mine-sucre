@@ -13,9 +13,15 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  // Detect Vercel KV or Upstash Redis credentials from environment
-  const kvUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-  const kvToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+  // Live Upstash Redis connection (pre-connected for Mine & Sucre)
+  const kvUrl =
+    process.env.KV_REST_API_URL ||
+    process.env.UPSTASH_REDIS_REST_URL ||
+    'https://shining-monarch-216455.upstash.io';
+  const kvToken =
+    process.env.KV_REST_API_TOKEN ||
+    process.env.UPSTASH_REDIS_REST_TOKEN ||
+    'gQAAAAAAA02HAQIgcDE2MTBkMzU2YTNjODU0ZjNhODQ3NTA2YjY0NjJjMWRkNQ';
 
   const vaultKey = 'couple_vault_mine_and_sucre';
 
@@ -24,7 +30,7 @@ export default async function handler(req, res) {
     if (!kvUrl || !kvToken) {
       return res.status(200).json({
         configured: false,
-        message: 'Vercel KV not enabled yet. In Vercel, go to Storage > Create KV to enable auto-sync.',
+        message: 'Upstash Redis not connected yet. Connect Upstash in Vercel Marketplace or add UPSTASH_REDIS_REST_URL in Vercel Settings.',
       });
     }
 
@@ -41,11 +47,11 @@ export default async function handler(req, res) {
 
       const result = await response.json();
       let data = result.result;
-      if (typeof data === 'string') {
+      while (typeof data === 'string') {
         try {
           data = JSON.parse(data);
         } catch (e) {
-          // ignore
+          break;
         }
       }
 
@@ -66,7 +72,7 @@ export default async function handler(req, res) {
     if (!kvUrl || !kvToken) {
       return res.status(200).json({
         configured: false,
-        message: 'Vercel KV not enabled yet. In Vercel, go to Storage > Create KV to enable auto-sync.',
+        message: 'Upstash Redis not connected yet. Connect Upstash in Vercel Marketplace or add UPSTASH_REDIS_REST_URL in Vercel Settings.',
       });
     }
 

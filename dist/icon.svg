@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="burgundyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4a1622" />
+      <stop offset="100%" stop-color="#2f020e" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffe2b8" />
+      <stop offset="50%" stop-color="#ffd79b" />
+      <stop offset="100%" stop-color="#c99b4a" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="115" fill="url(#burgundyGrad)" />
+
+  <!-- Outer Gold Ring -->
+  <circle cx="256" cy="256" r="215" fill="none" stroke="url(#goldGrad)" stroke-width="4" stroke-opacity="0.4" />
+
+  <!-- Inner Gold Ring -->
+  <circle cx="256" cy="256" r="198" fill="none" stroke="url(#goldGrad)" stroke-width="2.5" />
+
+  <!-- Decorative Stars -->
+  <text x="256" y="95" font-size="22" fill="#ffd79b" text-anchor="middle" font-family="serif">✦</text>
+  <text x="256" y="435" font-size="22" fill="#ffd79b" text-anchor="middle" font-family="serif">✦</text>
+  <text x="85" y="265" font-size="22" fill="#ffd79b" text-anchor="middle" font-family="serif">✦</text>
+  <text x="427" y="265" font-size="22" fill="#ffd79b" text-anchor="middle" font-family="serif">✦</text>
+
+  <!-- Monogram M & S -->
+  <text x="256" y="285" font-size="125" font-family="'Playfair Display', Georgia, serif" font-style="italic" font-weight="600" fill="url(#goldGrad)" text-anchor="middle">
+    M&amp;S
+  </text>
+
+  <!-- Subtitle -->
+  <text x="256" y="345" font-size="22" font-family="'Montserrat', sans-serif" font-weight="600" letter-spacing="8" fill="#ffd79b" fill-opacity="0.85" text-anchor="middle">
+    SANCTUARY
+  </text>
+</svg>

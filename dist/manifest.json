@@ -1,0 +1,18 @@
+{
+  "name": "Mine & Sucre — Couple Memory Journal",
+  "short_name": "Mine & Sucre",
+  "description": "A sacred heirloom memory journal and anniversary keepsake.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fdf9f3",
+  "theme_color": "#2f020e",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -218,13 +218,13 @@ export default function SettingsModal() {
                     isCloudConfigured ? 'bg-emerald-500 animate-pulse' : 'bg-secondary'
                   }`}
                 ></span>
-                <span>{isCloudConfigured ? 'Vercel KV Connected' : 'Device Storage'}</span>
+                <span>{isCloudConfigured ? 'Cloud Live' : 'Device Storage'}</span>
               </span>
             </div>
 
             <p className="text-[11px] text-on-surface-variant leading-relaxed">
               {isCloudConfigured
-                ? 'Your sanctuary is linked to Vercel KV! When either partner seals a memory or picture, the other receives it automatically in real-time.'
+                ? 'Your sanctuary is linked to Upstash cloud! When either partner seals a memory or picture, the other receives it automatically in real-time.'
                 : 'Share your memories and photos with your partner instantly below:'}
             </p>
 
@@ -249,7 +249,7 @@ export default function SettingsModal() {
               )}
             </div>
 
-            {/* Method 2: Vercel KV Auto-Sync or Manual Code */}
+            {/* Method 2: Upstash Cloud Auto-Sync or Manual Code */}
             <div className="flex items-center justify-between pt-1 border-t border-outline-variant/20 text-[10px]">
               <button
                 type="button"
@@ -257,7 +257,7 @@ export default function SettingsModal() {
                 className="text-secondary hover:underline flex items-center gap-1 font-semibold"
               >
                 <Icon name="sync" size={12} />
-                <span>Check / Sync Vercel KV</span>
+                <span>Check Cloud Sync</span>
               </button>
 
               <button

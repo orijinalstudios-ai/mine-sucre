@@ -40,14 +40,16 @@ export default function TopAppBar({ title, showBack = false, onBack }) {
           </h2>
         ) : (
           <div
-            className="flex items-center gap-1.5 cursor-pointer"
+            className="flex items-center gap-1.5 cursor-pointer relative group"
             onClick={() => setIsSettingsOpen(true)}
+            title="Auto-Sync Live between Mine & Sucre"
           >
             <span className="text-secondary text-[11px] opacity-70">✦</span>
             <span className="font-serif italic text-lg tracking-widest text-primary font-medium">
               {coupleProfile.partner1.charAt(0)} & {coupleProfile.partner2.charAt(0)}
             </span>
             <span className="text-secondary text-[11px] opacity-70">✦</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse ml-0.5 inline-block" title="Both phones auto-synced" />
           </div>
         )}
 
