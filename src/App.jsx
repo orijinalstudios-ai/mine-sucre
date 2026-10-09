@@ -31,7 +31,7 @@ function MainApp() {
     <AppLayout>
       <div className="flex-1 flex flex-col h-full relative overflow-hidden">
         {/* Scrollable View Canvas */}
-        <div className="flex-1 overflow-y-auto no-scrollbar relative flex flex-col pb-6">
+        <div className="flex-1 overflow-y-auto no-scrollbar relative flex flex-col pb-6 overscroll-y-contain">
           {activeTab === 'sanctuary' && <SanctuaryView />}
           {activeTab === 'journey' && <JourneyView />}
           {activeTab === 'capture' && <CaptureView />}

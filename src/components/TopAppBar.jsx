@@ -2,7 +2,7 @@ import React from 'react';
 import { useApp } from '../context/AppContext';
 import Icon from './Icon';
 
-export default function TopAppBar({ title, showBack = false, onBack }) {
+export default function TopAppBar({ title, showBack = false, onBack, borderless = false, className = '' }) {
   const {
     coupleProfile,
     setIsSettingsOpen,
@@ -12,7 +12,13 @@ export default function TopAppBar({ title, showBack = false, onBack }) {
   } = useApp();
 
   return (
-    <header className="bg-surface/95 backdrop-blur-md text-primary sticky top-0 z-30 border-b border-outline-variant/30 shadow-sm transition-colors">
+    <header
+      className={`text-primary transition-colors ${
+        borderless
+          ? 'bg-transparent'
+          : 'bg-surface/95 backdrop-blur-md sticky top-0 z-30 border-b border-outline-variant/30 shadow-sm'
+      } ${className}`}
+    >
       <div className="flex justify-between items-center w-full px-4 py-2.5">
         {/* Leading Action */}
         {showBack ? (
@@ -37,7 +43,7 @@ export default function TopAppBar({ title, showBack = false, onBack }) {
 
         {/* Monogram Crest or Title */}
         {title ? (
-          <h2 className="font-serif italic font-semibold text-lg text-primary truncate max-w-[180px]">
+          <h2 className="font-serif italic font-semibold text-base sm:text-lg text-primary truncate max-w-[140px] sm:max-w-[220px]">
             {title}
           </h2>
         ) : (

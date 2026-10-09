@@ -28,18 +28,18 @@ export default function SanctuaryView() {
     <div className="flex-1 flex flex-col bg-surface min-h-full">
       <TopAppBar />
 
-      <main className="px-5 pt-6 pb-8 space-y-6 flex-1">
+      <main className="px-3.5 sm:px-5 pt-4 sm:pt-6 pb-8 space-y-5 sm:space-y-6 flex-1">
         {/* Hero Header Section */}
-        <section className="text-center space-y-2.5">
+        <section className="text-center space-y-2">
           <div className="inline-flex items-center justify-center gap-2 text-secondary px-3.5 py-0.5 rounded-full bg-secondary-container/25 border border-secondary/25 shadow-sm">
-            <span className="font-cinzel text-[10px] tracking-widest text-secondary font-bold">
+            <span className="font-cinzel text-[9px] sm:text-[10px] tracking-widest text-secondary font-bold">
               ✦ PRIVATE KEEPSAKE ✦
             </span>
           </div>
-          <h1 className="font-serif text-3xl md:text-4xl text-primary tracking-tight font-bold">
+          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl text-primary tracking-tight font-bold break-words px-2">
             {coupleProfile.names}
           </h1>
-          <p className="font-editorial italic text-base md:text-lg text-on-surface-variant font-medium">
+          <p className="font-editorial italic text-sm sm:text-base md:text-lg text-on-surface-variant font-medium">
             Together Since {formattedStart}
           </p>
 
@@ -116,60 +116,60 @@ export default function SanctuaryView() {
                 </span>
                 <span className="text-secondary-fixed text-[10px]">✦</span>
               </div>
-              <h2 className="font-serif text-2xl md:text-3xl text-surface font-bold tracking-tight">
+              <h2 className="font-serif text-xl sm:text-2xl md:text-3xl text-surface font-bold tracking-tight">
                 {timeStats.daysTogether} Days of Love &amp; Grace
               </h2>
-              <p className="font-editorial italic text-sm md:text-base text-primary-fixed-dim/95 pt-0.5 leading-relaxed">
+              <p className="font-editorial italic text-xs sm:text-sm md:text-base text-primary-fixed-dim/95 pt-0.5 leading-relaxed">
                 “Every quiet hour, breathless laughter, and dawn whisper chronicled in your private constellation.”
               </p>
             </div>
           </div>
 
           {/* Countdown Card: Anniversary Ticker */}
-          <div className="bg-surface-container-lowest p-4 rounded-2xl border border-secondary/35 shadow-sm space-y-3">
-            <div className="flex items-center justify-between border-b border-outline-variant/30 pb-2.5">
-              <div className="flex items-center gap-2">
-                <Icon name="hourglass_top" size={17} className="text-secondary" />
-                <span className="font-montserrat text-[10px] text-on-surface-variant font-semibold uppercase tracking-wider">
+          <div className="bg-surface-container-lowest p-3.5 sm:p-4 rounded-2xl border border-secondary/35 shadow-sm space-y-3">
+            <div className="flex items-center justify-between border-b border-outline-variant/30 pb-2.5 gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                <Icon name="hourglass_top" size={16} className="text-secondary shrink-0" />
+                <span className="font-montserrat text-[9px] sm:text-[10px] text-on-surface-variant font-semibold uppercase tracking-wider">
                   Next Anniversary
                 </span>
               </div>
-              <span className="font-cinzel text-[11px] text-secondary font-bold uppercase tracking-wider">
+              <span className="font-cinzel text-[10px] sm:text-[11px] text-secondary font-bold uppercase tracking-wider truncate">
                 {timeStats.nextAnniversaryFormatted}
               </span>
             </div>
 
             {/* Countdown Grid */}
-            <div className="grid grid-cols-4 gap-2 text-center pt-1">
-              <div className="bg-surface-container-low/80 py-2.5 rounded-xl border border-outline-variant/30">
-                <span className="font-serif text-lg md:text-xl text-primary block font-bold leading-tight">
+            <div className="grid grid-cols-4 gap-1.5 sm:gap-2 text-center pt-1">
+              <div className="bg-surface-container-low/80 py-2 sm:py-2.5 rounded-xl border border-outline-variant/30">
+                <span className="font-serif text-base sm:text-lg md:text-xl text-primary block font-bold leading-tight">
                   {timeStats.days}
                 </span>
-                <span className="font-montserrat text-[9px] uppercase tracking-wider text-on-surface-variant font-semibold">
+                <span className="font-montserrat text-[8px] sm:text-[9px] uppercase tracking-wider text-on-surface-variant font-semibold">
                   Days
                 </span>
               </div>
-              <div className="bg-surface-container-low/80 py-2.5 rounded-xl border border-outline-variant/30">
-                <span className="font-serif text-lg md:text-xl text-primary block font-bold leading-tight">
+              <div className="bg-surface-container-low/80 py-2 sm:py-2.5 rounded-xl border border-outline-variant/30">
+                <span className="font-serif text-base sm:text-lg md:text-xl text-primary block font-bold leading-tight">
                   {timeStats.hours}
                 </span>
-                <span className="font-montserrat text-[9px] uppercase tracking-wider text-on-surface-variant font-semibold">
+                <span className="font-montserrat text-[8px] sm:text-[9px] uppercase tracking-wider text-on-surface-variant font-semibold">
                   Hours
                 </span>
               </div>
-              <div className="bg-surface-container-low/80 py-2.5 rounded-xl border border-outline-variant/30">
-                <span className="font-serif text-lg md:text-xl text-primary block font-bold leading-tight">
+              <div className="bg-surface-container-low/80 py-2 sm:py-2.5 rounded-xl border border-outline-variant/30">
+                <span className="font-serif text-base sm:text-lg md:text-xl text-primary block font-bold leading-tight">
                   {timeStats.minutes}
                 </span>
-                <span className="font-montserrat text-[9px] uppercase tracking-wider text-on-surface-variant font-semibold">
+                <span className="font-montserrat text-[8px] sm:text-[9px] uppercase tracking-wider text-on-surface-variant font-semibold">
                   Mins
                 </span>
               </div>
-              <div className="bg-surface-container-low/80 py-2.5 rounded-xl border border-outline-variant/30">
-                <span className="font-serif text-lg md:text-xl text-secondary block font-bold leading-tight animate-pulse">
+              <div className="bg-surface-container-low/80 py-2 sm:py-2.5 rounded-xl border border-outline-variant/30">
+                <span className="font-serif text-base sm:text-lg md:text-xl text-secondary block font-bold leading-tight animate-pulse">
                   {timeStats.seconds}
                 </span>
-                <span className="font-montserrat text-[9px] uppercase tracking-wider text-on-surface-variant font-semibold">
+                <span className="font-montserrat text-[8px] sm:text-[9px] uppercase tracking-wider text-on-surface-variant font-semibold">
                   Secs
                 </span>
               </div>

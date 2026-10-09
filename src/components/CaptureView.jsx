@@ -211,7 +211,7 @@ export default function CaptureView() {
       </header>
 
       {/* Form Content */}
-      <form onSubmit={handleSaveToCapsule} className="px-5 pt-5 pb-12 flex flex-col gap-6 flex-1">
+      <form onSubmit={handleSaveToCapsule} className="px-3.5 sm:px-5 pt-4 sm:pt-5 pb-12 flex flex-col gap-5 sm:gap-6 flex-1">
         {/* Title & Archival Header */}
         <section className="text-center pt-1">
           <div className="flex items-center justify-center gap-2 mb-1.5">

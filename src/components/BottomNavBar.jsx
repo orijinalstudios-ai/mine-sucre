@@ -7,7 +7,7 @@ export default function BottomNavBar() {
 
   return (
     <nav className="w-full bg-surface/95 backdrop-blur-xl border-t border-secondary/25 shadow-[0_-6px_25px_rgba(47,2,14,0.06)] px-3 pt-2 pb-[max(0.6rem,env(safe-area-inset-bottom))] transition-colors">
-      <div className="flex items-center justify-around max-w-md mx-auto">
+      <div className="flex items-center justify-around max-w-md sm:max-w-lg mx-auto">
         {/* Sanctuary Tab */}
         <button
           type="button"

@@ -45,48 +45,51 @@ export default function VaultView() {
 
   return (
     <div className="flex-1 flex flex-col bg-surface min-h-full">
-      <TopAppBar title="Annual Retrospective" />
+      {/* Sticky Combined Header: Top App Bar + Year/Vows Switcher */}
+      <header className="sticky top-0 z-30 bg-surface/95 backdrop-blur-xl border-b border-outline-variant/30 shadow-sm transition-colors">
+        <TopAppBar title="Annual Retrospective" borderless />
 
-      {/* Year & Category Switcher */}
-      <section className="p-3 bg-surface-container-low border-b border-outline-variant/20 sticky top-0 z-20 backdrop-blur-md">
-        <div className="flex bg-surface-container/80 rounded-xl p-1 border border-outline-variant/30 gap-1">
-          <button
-            type="button"
-            onClick={() => setActiveTabYear('year1')}
-            className={`flex-1 py-1.5 px-2 rounded-lg font-montserrat text-[10px] tracking-wider uppercase transition-all active:scale-95 ${
-              activeTabYear === 'year1'
-                ? 'bg-primary text-secondary-fixed font-bold shadow-sm border border-secondary/30'
-                : 'text-on-surface-variant hover:text-primary font-medium'
-            }`}
-          >
-            Year 1 Archive
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTabYear('year2')}
-            className={`flex-1 py-1.5 px-2 rounded-lg font-montserrat text-[10px] tracking-wider uppercase transition-all active:scale-95 ${
-              activeTabYear === 'year2'
-                ? 'bg-primary text-secondary-fixed font-bold shadow-sm border border-secondary/30'
-                : 'text-on-surface-variant hover:text-primary font-medium'
-            }`}
-          >
-            Year 2 (Upcoming)
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTabYear('vows')}
-            className={`flex-1 py-1.5 px-2 rounded-lg font-montserrat text-[10px] tracking-wider uppercase transition-all active:scale-95 ${
-              activeTabYear === 'vows'
-                ? 'bg-primary text-secondary-fixed font-bold shadow-sm border border-secondary/30'
-                : 'text-on-surface-variant hover:text-primary font-medium'
-            }`}
-          >
-            Our Vows ({vows.length})
-          </button>
-        </div>
-      </section>
+        {/* Year & Category Switcher */}
+        <section className="px-3 sm:px-4 py-2 bg-surface-container-low/70 border-t border-outline-variant/20">
+          <div className="flex bg-surface-container/80 rounded-xl p-1 border border-outline-variant/30 gap-1">
+            <button
+              type="button"
+              onClick={() => setActiveTabYear('year1')}
+              className={`flex-1 py-1.5 px-2 rounded-lg font-montserrat text-[10px] tracking-wider uppercase transition-all active:scale-95 ${
+                activeTabYear === 'year1'
+                  ? 'bg-primary text-secondary-fixed font-bold shadow-sm border border-secondary/30'
+                  : 'text-on-surface-variant hover:text-primary font-medium'
+              }`}
+            >
+              Year 1 Archive
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTabYear('year2')}
+              className={`flex-1 py-1.5 px-2 rounded-lg font-montserrat text-[10px] tracking-wider uppercase transition-all active:scale-95 ${
+                activeTabYear === 'year2'
+                  ? 'bg-primary text-secondary-fixed font-bold shadow-sm border border-secondary/30'
+                  : 'text-on-surface-variant hover:text-primary font-medium'
+              }`}
+            >
+              Year 2
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTabYear('vows')}
+              className={`flex-1 py-1.5 px-2 rounded-lg font-montserrat text-[10px] tracking-wider uppercase transition-all active:scale-95 ${
+                activeTabYear === 'vows'
+                  ? 'bg-primary text-secondary-fixed font-bold shadow-sm border border-secondary/30'
+                  : 'text-on-surface-variant hover:text-primary font-medium'
+              }`}
+            >
+              Vows ({vows.length})
+            </button>
+          </div>
+        </section>
+      </header>
 
-      <main className="px-5 py-6 space-y-6 flex-1">
+      <main className="px-3.5 sm:px-5 py-4 sm:py-6 space-y-4 sm:space-y-6 flex-1">
         {activeTabYear === 'year1' && (
           <>
             {/* Save The Next Date Countdown Badge */}
