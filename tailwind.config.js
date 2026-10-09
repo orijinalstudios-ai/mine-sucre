@@ -59,7 +59,9 @@ export default {
       },
       fontFamily: {
         serif: ["'Playfair Display'", "Georgia", "serif"],
-        sans: ["'Plus Jakarta Sans'", "sans-serif"],
+        editorial: ["'Cormorant Garamond'", "Georgia", "serif"],
+        cinzel: ["'Cinzel'", "serif"],
+        sans: ["'Plus Jakarta Sans'", "system-ui", "-apple-system", "sans-serif"],
         montserrat: ["Montserrat", "sans-serif"],
       },
       keyframes: {

@@ -180,33 +180,33 @@ export default function CaptureView() {
   return (
     <div className="flex-1 flex flex-col bg-surface min-h-full">
       {/* Top Action Bar */}
-      <header className="sticky top-0 z-30 bg-surface/95 backdrop-blur-md px-4 py-3 border-b border-outline-variant/30 flex items-center justify-between transition-colors">
+      <header className="sticky top-0 z-30 bg-surface/95 backdrop-blur-md px-4 py-2.5 border-b border-outline-variant/30 flex items-center justify-between transition-colors">
         <button
           onClick={() => setActiveTab('sanctuary')}
-          className="text-on-surface-variant font-montserrat text-xs uppercase tracking-widest hover:text-secondary transition-colors active:scale-95 flex items-center gap-1.5"
+          className="w-8 h-8 rounded-full border border-secondary/20 hover:border-secondary/40 text-on-surface-variant hover:text-secondary active:scale-90 transition-all flex items-center justify-center"
           type="button"
+          title="Cancel"
         >
-          <Icon name="close" size={17} />
-          <span>Cancel</span>
+          <Icon name="close" size={16} />
         </button>
 
         {/* Monogram Crest */}
-        <div className="flex items-center gap-1.5 opacity-80">
-          <span className="text-secondary text-[11px]">✦</span>
-          <span className="font-serif italic text-base tracking-widest text-primary">
-            {coupleProfile.partner1.charAt(0)} & {coupleProfile.partner2.charAt(0)}
+        <div className="flex items-center gap-1.5 opacity-85">
+          <span className="text-secondary text-[10px]">✦</span>
+          <span className="font-cinzel font-semibold text-base tracking-widest text-primary">
+            {coupleProfile.partner1.charAt(0)} &amp; {coupleProfile.partner2.charAt(0)}
           </span>
-          <span className="text-secondary text-[11px]">✦</span>
+          <span className="text-secondary text-[10px]">✦</span>
         </div>
 
         {/* Save Button */}
         <button
           onClick={handleSaveToCapsule}
-          className="bg-primary text-secondary-fixed px-3.5 py-1.5 rounded-full border border-secondary/40 font-montserrat text-[10px] tracking-wider uppercase flex items-center gap-1.5 shadow-sm hover:bg-primary-container active:scale-95 group transition-transform"
+          className="bg-primary text-secondary-fixed px-4 py-1.5 rounded-full border border-secondary/40 font-montserrat text-[10px] tracking-wider uppercase flex items-center gap-1.5 shadow-sm hover:bg-primary-container active:scale-95 group transition-transform font-semibold"
           type="button"
         >
-          <Icon name="auto_awesome" size={14} className="text-secondary-fixed" />
-          <span className="font-medium tracking-wider">Save Memory</span>
+          <Icon name="auto_awesome" size={13} className="text-secondary-fixed" />
+          <span>Save Memory</span>
         </button>
       </header>
 
@@ -215,22 +215,22 @@ export default function CaptureView() {
         {/* Title & Archival Header */}
         <section className="text-center pt-1">
           <div className="flex items-center justify-center gap-2 mb-1.5">
-            <span className="h-[1px] w-6 bg-secondary/30"></span>
-            <span className="text-secondary font-montserrat text-[10px] tracking-widest uppercase">
-              Sacred Keepsake
+            <span className="h-[1px] w-8 bg-secondary/30"></span>
+            <span className="text-secondary font-cinzel text-[10px] tracking-widest uppercase font-bold">
+              ✦ SACRED KEEPSAKE ✦
             </span>
-            <span className="h-[1px] w-6 bg-secondary/30"></span>
+            <span className="h-[1px] w-8 bg-secondary/30"></span>
           </div>
-          <h1 className="font-serif text-2xl md:text-3xl text-primary font-normal">
+          <h1 className="font-serif text-2xl md:text-3xl text-primary font-bold">
             Pen a New Memory
           </h1>
-          <p className="font-serif italic text-xs md:text-sm text-on-surface-variant/80 mt-1">
+          <p className="font-editorial italic text-sm md:text-base text-on-surface-variant/85 mt-1">
             “Immortalizing the quiet cadence of today.”
           </p>
         </section>
 
         {/* Memory Title Input */}
-        <section className="bg-surface-container-lowest border border-secondary/25 rounded p-3 shadow-sm">
+        <section className="bg-surface-container-lowest border border-secondary/25 rounded-2xl p-3.5 shadow-sm">
           <label className="font-montserrat text-[9px] uppercase tracking-wider text-secondary font-semibold block mb-1">
             Memory Title
           </label>
@@ -239,7 +239,7 @@ export default function CaptureView() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g. Our First Beach Sunset"
-            className="w-full bg-transparent border-none p-0 font-serif text-base text-primary focus:ring-0 focus:outline-none placeholder:text-on-surface-variant/40"
+            className="w-full bg-transparent border-none p-0 font-serif font-bold text-lg text-primary focus:ring-0 focus:outline-none placeholder:text-on-surface-variant/40"
           />
         </section>
 
@@ -371,9 +371,9 @@ export default function CaptureView() {
           </div>
 
           {/* Parchment Double-Hairline Archival Stationery */}
-          <div className="parchment-texture rounded border border-secondary/35 p-1 bg-surface-container-lowest shadow-sm">
-            <div className="rounded border border-secondary/20 p-4 space-y-3 bg-surface/80 backdrop-blur-[1px]">
-              <span className="font-serif italic text-sm text-secondary block">
+          <div className="parchment-texture rounded-2xl border border-secondary/35 p-1 bg-surface-container-lowest shadow-sm">
+            <div className="rounded-xl border border-secondary/20 p-4 space-y-3 bg-surface/80 backdrop-blur-[1px]">
+              <span className="font-editorial italic text-base text-secondary block font-semibold">
                 Dear Heart,
               </span>
               <textarea
@@ -381,7 +381,7 @@ export default function CaptureView() {
                 onChange={(e) => setLetter(e.target.value)}
                 rows={5}
                 placeholder="What made this moment unforgettable? Write something to make your love smile in ten years..."
-                className="w-full bg-transparent border-none p-0 text-primary font-serif italic text-base leading-relaxed focus:ring-0 resize-none placeholder:text-on-surface-variant/40"
+                className="w-full bg-transparent border-none p-0 text-primary font-editorial italic text-lg md:text-xl leading-relaxed focus:ring-0 resize-none placeholder:text-on-surface-variant/40"
               ></textarea>
 
               {/* Counter Perspective Note */}
@@ -391,7 +391,7 @@ export default function CaptureView() {
                   value={counterNote}
                   onChange={(e) => setCounterNote(e.target.value)}
                   placeholder={`Optional: A note from ${author === coupleProfile.partner1 ? coupleProfile.partner2 : coupleProfile.partner1}...`}
-                  className="w-full bg-transparent text-xs font-serif italic text-on-surface-variant border-none p-0 focus:ring-0 placeholder:text-on-surface-variant/40"
+                  className="w-full bg-transparent text-sm font-editorial italic text-on-surface-variant border-none p-0 focus:ring-0 placeholder:text-on-surface-variant/40"
                 />
               </div>
 
@@ -401,10 +401,10 @@ export default function CaptureView() {
                   <button
                     onClick={startRecording}
                     type="button"
-                    className="flex items-center gap-2 bg-secondary-fixed/40 hover:bg-secondary-fixed/70 border border-secondary/30 rounded-full px-3 py-1.5 transition-all active:scale-95 text-primary"
+                    className="flex items-center gap-2 bg-secondary-fixed/40 hover:bg-secondary-fixed/70 border border-secondary/30 rounded-full px-3.5 py-1.5 transition-all active:scale-95 text-primary shadow-sm"
                   >
-                    <Icon name="mic" size={15} />
-                    <span className="font-montserrat text-[9px] uppercase tracking-wider font-medium">
+                    <Icon name="mic" size={14} />
+                    <span className="font-montserrat text-[9px] uppercase tracking-wider font-semibold">
                       {audioBlobUrl ? 'Re-record Audio Memo' : 'Record Audio Memo'}
                     </span>
                   </button>
@@ -412,16 +412,16 @@ export default function CaptureView() {
                   <button
                     onClick={stopRecording}
                     type="button"
-                    className="flex items-center gap-2 bg-error-container border border-error/40 rounded-full px-3 py-1.5 transition-all text-error active:scale-95"
+                    className="flex items-center gap-2 bg-error-container border border-error/40 rounded-full px-3.5 py-1.5 transition-all text-error active:scale-95 shadow-sm"
                   >
                     <span className="w-2 h-2 rounded-full bg-error animate-pulse"></span>
-                    <span className="font-montserrat text-[9px] uppercase tracking-wider font-semibold">
+                    <span className="font-montserrat text-[9px] uppercase tracking-wider font-bold">
                       Stop ({recordSeconds}s)
                     </span>
                   </button>
                 )}
 
-                <div className="flex items-center gap-2 text-on-surface-variant/70 font-montserrat text-[9px] tracking-widest uppercase">
+                <div className="flex items-center gap-2 text-on-surface-variant/70 font-montserrat text-[9px] tracking-widest uppercase font-medium">
                   <span>✦ Wax Sealed</span>
                 </div>
               </div>

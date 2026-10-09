@@ -111,7 +111,7 @@ export default function MemoryDetailModal() {
               <span className="text-xs">✦ Wax Sealed</span>
             </div>
 
-            <p className="font-serif italic text-base text-primary leading-relaxed">
+            <p className="font-editorial italic text-lg md:text-xl text-primary leading-relaxed">
               “{mem.letter}”
             </p>
 
@@ -120,7 +120,7 @@ export default function MemoryDetailModal() {
                 <span className="font-montserrat text-[9px] uppercase tracking-wider text-secondary font-semibold block">
                   Echoed by {mem.author === 'Sucre' ? 'Mine' : 'Sucre'}
                 </span>
-                <p className="font-serif italic text-xs text-on-surface-variant leading-relaxed">
+                <p className="font-editorial italic text-sm md:text-base text-on-surface-variant leading-relaxed">
                   “{mem.counterNote}”
                 </p>
               </div>
@@ -131,6 +131,7 @@ export default function MemoryDetailModal() {
           <div className="flex items-center justify-between bg-surface-container-low rounded-xl p-3 border border-secondary/20">
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={togglePlayAudio}
                 className="w-8 h-8 rounded-full bg-primary text-secondary-fixed flex items-center justify-center shadow active:scale-90"
               >
@@ -144,7 +145,7 @@ export default function MemoryDetailModal() {
                 <span className="font-montserrat text-[10px] text-secondary uppercase font-semibold block">
                   Soundtrack
                 </span>
-                <span className="font-serif text-xs text-primary font-medium truncate max-w-[200px] block">
+                <span className="font-sans text-xs text-primary font-medium truncate max-w-[200px] block">
                   {mem.song || '✦ Baby Riddim'}
                 </span>
               </div>
@@ -161,21 +162,23 @@ export default function MemoryDetailModal() {
         {/* Modal Footer */}
         <div className="p-4 border-t border-outline-variant/30 flex items-center justify-between">
           <button
+            type="button"
             onClick={() => {
               if (window.confirm(`Delete "${mem.title || 'this memory'}" from your journal?`)) {
                 deleteMemory(mem.id);
                 setSelectedMemoryModal(null);
               }
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs text-error/80 hover:text-error hover:bg-error/10 font-medium transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs text-error/90 hover:text-error hover:bg-error/10 font-montserrat uppercase font-semibold transition-all active:scale-95 border border-error/20"
           >
-            <Icon name="delete" size={15} />
+            <Icon name="delete" size={14} />
             <span>Delete Memory</span>
           </button>
 
           <button
+            type="button"
             onClick={() => setSelectedMemoryModal(null)}
-            className="px-5 py-2 rounded-full bg-primary text-secondary-fixed text-xs font-montserrat uppercase tracking-wider font-semibold shadow hover:bg-primary-container"
+            className="px-5 py-2.5 rounded-full bg-primary text-secondary-fixed text-xs font-montserrat uppercase tracking-wider font-semibold shadow hover:bg-primary-container active:scale-95 transition-all"
           >
             Close Keepsake
           </button>

@@ -49,7 +49,7 @@ export default function LockSplashScreen({ onUnlock }) {
 
       <div className="w-full max-w-sm flex flex-col items-center text-center relative z-10 space-y-7">
         {/* Monogram Seal */}
-        <div className="flex items-center gap-2 text-xs font-montserrat uppercase tracking-widest text-[#ffd79b]/80">
+        <div className="flex items-center gap-2 text-xs font-cinzel uppercase tracking-widest text-[#ffd79b]/90 font-bold">
           <span>✦</span>
           <span>Mine &amp; Sucre</span>
           <span>✦</span>
@@ -92,11 +92,11 @@ export default function LockSplashScreen({ onUnlock }) {
 
         {/* Title and Romantic Prompt */}
         <div className="space-y-1.5">
-          <h1 className="font-serif text-3xl text-[#ffe2b8] tracking-tight font-normal">
+          <h1 className="font-serif text-3xl md:text-4xl text-[#ffe2b8] tracking-tight font-bold">
             Private Sanctuary
           </h1>
-          <p className="font-sans text-xs text-[#fdf9f3]/70 max-w-xs leading-relaxed">
-            Enter our sacred key to unlock our forever memories.
+          <p className="font-editorial italic text-base text-[#fdf9f3]/80 max-w-xs leading-relaxed">
+            “Enter our sacred key to unlock our forever memories.”
           </p>
         </div>
 

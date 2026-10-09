@@ -30,6 +30,7 @@ export default function VaultView() {
     e.preventDefault();
     if (!newVowText.trim()) return;
     addVow({
+      id: `vow-${Date.now()}`,
       author: newVowAuthor,
       vow: newVowText.trim(),
       date: new Date().toLocaleDateString('en-US', {
@@ -48,33 +49,36 @@ export default function VaultView() {
 
       {/* Year & Category Switcher */}
       <section className="p-3 bg-surface-container-low border-b border-outline-variant/20 sticky top-0 z-20 backdrop-blur-md">
-        <div className="flex bg-surface-container rounded-lg p-1 border border-outline-variant/30">
+        <div className="flex bg-surface-container/80 rounded-xl p-1 border border-outline-variant/30 gap-1">
           <button
+            type="button"
             onClick={() => setActiveTabYear('year1')}
-            className={`flex-1 py-1.5 px-2 rounded font-montserrat text-[10px] tracking-wider uppercase transition-all ${
+            className={`flex-1 py-1.5 px-2 rounded-lg font-montserrat text-[10px] tracking-wider uppercase transition-all active:scale-95 ${
               activeTabYear === 'year1'
-                ? 'bg-primary text-secondary-fixed font-bold shadow-sm'
-                : 'text-on-surface-variant hover:text-primary'
+                ? 'bg-primary text-secondary-fixed font-bold shadow-sm border border-secondary/30'
+                : 'text-on-surface-variant hover:text-primary font-medium'
             }`}
           >
             Year 1 Archive
           </button>
           <button
+            type="button"
             onClick={() => setActiveTabYear('year2')}
-            className={`flex-1 py-1.5 px-2 rounded font-montserrat text-[10px] tracking-wider uppercase transition-all ${
+            className={`flex-1 py-1.5 px-2 rounded-lg font-montserrat text-[10px] tracking-wider uppercase transition-all active:scale-95 ${
               activeTabYear === 'year2'
-                ? 'bg-primary text-secondary-fixed font-bold shadow-sm'
-                : 'text-on-surface-variant hover:text-primary'
+                ? 'bg-primary text-secondary-fixed font-bold shadow-sm border border-secondary/30'
+                : 'text-on-surface-variant hover:text-primary font-medium'
             }`}
           >
             Year 2 (Upcoming)
           </button>
           <button
+            type="button"
             onClick={() => setActiveTabYear('vows')}
-            className={`flex-1 py-1.5 px-2 rounded font-montserrat text-[10px] tracking-wider uppercase transition-all ${
+            className={`flex-1 py-1.5 px-2 rounded-lg font-montserrat text-[10px] tracking-wider uppercase transition-all active:scale-95 ${
               activeTabYear === 'vows'
-                ? 'bg-primary text-secondary-fixed font-bold shadow-sm'
-                : 'text-on-surface-variant hover:text-primary'
+                ? 'bg-primary text-secondary-fixed font-bold shadow-sm border border-secondary/30'
+                : 'text-on-surface-variant hover:text-primary font-medium'
             }`}
           >
             Our Vows ({vows.length})
@@ -86,25 +90,25 @@ export default function VaultView() {
         {activeTabYear === 'year1' && (
           <>
             {/* Save The Next Date Countdown Badge */}
-            <section className="bg-surface-container-low border border-secondary/30 rounded-xl p-3.5 flex items-center justify-between shadow-sm">
+            <section className="bg-surface-container-low border border-secondary/30 rounded-2xl p-4 flex items-center justify-between shadow-sm">
               <div className="flex items-center space-x-3">
-                <div className="w-9 h-9 rounded-full bg-secondary-container/40 flex items-center justify-center text-secondary border border-secondary/30">
+                <div className="w-10 h-10 rounded-full bg-secondary-container/30 flex items-center justify-center text-secondary border border-secondary/30 shrink-0">
                   <Icon name="hourglass_top" size={18} />
                 </div>
                 <div>
                   <span className="font-montserrat uppercase text-secondary block text-[9px] tracking-widest font-semibold">
                     Next Milestone
                   </span>
-                  <span className="font-serif text-sm md:text-base text-primary block leading-tight font-medium">
+                  <span className="font-cinzel text-sm md:text-base text-primary block leading-tight font-bold">
                     {timeStats.nextAnniversaryFormatted}
                   </span>
                 </div>
               </div>
               <div className="text-right">
-                <span className="font-serif text-primary font-bold text-lg block leading-none">
+                <span className="font-cinzel text-primary font-bold text-xl block leading-none">
                   {timeStats.daysTogether}
                 </span>
-                <span className="font-montserrat text-[8px] uppercase tracking-wider text-outline block mt-0.5">
+                <span className="font-montserrat text-[8px] uppercase tracking-wider text-outline block mt-0.5 font-semibold">
                   Days Together
                 </span>
               </div>
@@ -113,140 +117,98 @@ export default function VaultView() {
             {/* Our Soundtrack of the Year (Audiomack Real Playback) */}
             <section
               onClick={() => setIsAudioPlayerOpen(true)}
-              className="rounded-xl bg-surface-container-lowest border border-secondary/35 p-4 relative overflow-hidden shadow-sm cursor-pointer hover:border-secondary transition-colors group"
+              className="rounded-2xl bg-surface-container-lowest border border-secondary/35 p-4 relative overflow-hidden shadow-sm cursor-pointer hover:border-secondary transition-all group"
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center space-x-1.5">
                   <span className="text-secondary text-[11px]">✦</span>
-                  <span className="font-montserrat uppercase text-secondary text-[10px] tracking-widest font-semibold">
+                  <span className="font-cinzel uppercase text-secondary text-[10px] tracking-widest font-bold">
                     Our Love Anthem
                   </span>
                 </div>
-                <span className="font-montserrat text-[9px] uppercase tracking-wider text-secondary font-semibold hover:underline">
+                <span className="font-montserrat text-[9px] uppercase tracking-wider text-secondary font-semibold group-hover:underline">
                   Play Track ✦
                 </span>
               </div>
 
-              <div className="flex items-center space-x-4">
-                {/* Vinyl Disc Art Record */}
-                <div className="relative w-20 h-20 shrink-0 flex items-center justify-center">
-                  <div className="w-20 h-20 rounded-full bg-[#1b120e] flex items-center justify-center shadow-lg relative spin-slow">
-                    {/* Vinyl Grooves */}
-                    <div className="w-16 h-16 rounded-full border border-stone-800 flex items-center justify-center">
-                      <div className="w-12 h-12 rounded-full border border-stone-700 flex items-center justify-center">
-                        {/* Center Label */}
-                        <div className="w-7 h-7 rounded-full bg-primary-container border border-secondary-fixed flex items-center justify-center text-[7px] text-secondary-fixed font-serif font-bold">
-                          M&S
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Center Play Button Overlay */}
-                  <div className="absolute inset-0 m-auto w-8 h-8 rounded-full bg-primary/80 backdrop-blur-sm text-secondary-fixed flex items-center justify-center border border-secondary/50 shadow group-hover:scale-110 transition-transform">
-                    <Icon name="play_arrow" size={15} filled={true} className="ml-0.5" />
-                  </div>
+              <div className="flex items-center space-x-3.5">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#2f020e] to-[#4a1622] text-[#ffd79b] border border-[#ffd79b]/40 flex items-center justify-center shrink-0 shadow group-hover:scale-105 transition-transform">
+                  <Icon name="music_note" size={22} className="text-[#ffd79b]" />
                 </div>
-
-                {/* Metadata */}
-                <div className="flex-1 min-w-0">
-                  <span className="font-serif text-primary text-base font-semibold block truncate">
+                <div className="min-w-0 flex-1">
+                  <h4 className="font-serif font-bold text-base text-primary truncate">
                     {coupleProfile.anthemTitle}
-                  </span>
-                  <span className="font-montserrat text-[10px] text-secondary font-medium tracking-wider uppercase block -mt-0.5">
-                    {coupleProfile.anthemArtist}
-                  </span>
-                  <p className="font-serif italic text-on-surface-variant text-xs leading-relaxed mt-1.5 border-l-2 border-secondary/40 pl-2">
-                    “Baby riddim playing on replay... our shared constellation.”
+                  </h4>
+                  <p className="font-editorial italic text-xs text-on-surface-variant">
+                    by {coupleProfile.anthemArtist}
                   </p>
                 </div>
               </div>
             </section>
 
-            {/* Retrospective Statistics Grid */}
-            <section className="grid grid-cols-2 gap-3">
-              <div className="bg-surface-container-low p-3.5 rounded-xl border border-secondary/25 shadow-sm text-center">
-                <div className="flex justify-center mb-1 text-secondary">
-                  <Icon name="auto_stories" size={20} />
+            {/* Archival Numbers Grid */}
+            <section className="space-y-2">
+              <span className="font-montserrat text-[10px] uppercase tracking-widest text-secondary font-semibold block px-1">
+                Vault Curations
+              </span>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="bg-surface-container-lowest p-3 rounded-2xl border border-secondary/30 text-center shadow-sm">
+                  <span className="font-cinzel text-xl font-bold text-primary block">
+                    {totalPhotos}
+                  </span>
+                  <span className="font-montserrat text-[9px] uppercase tracking-wider text-on-surface-variant font-medium">
+                    Photos
+                  </span>
                 </div>
-                <span className="font-serif text-2xl text-primary font-bold block">
-                  {memories.length}
-                </span>
-                <span className="font-montserrat text-[9px] uppercase tracking-wider text-on-surface-variant">
-                  Memories Chronicled
-                </span>
-              </div>
-
-              <div className="bg-surface-container-low p-3.5 rounded-xl border border-secondary/25 shadow-sm text-center">
-                <div className="flex justify-center mb-1 text-secondary">
-                  <Icon name="photo_library" size={20} />
+                <div className="bg-surface-container-lowest p-3 rounded-2xl border border-secondary/30 text-center shadow-sm">
+                  <span className="font-cinzel text-xl font-bold text-primary block">
+                    {totalLetters}
+                  </span>
+                  <span className="font-montserrat text-[9px] uppercase tracking-wider text-on-surface-variant font-medium">
+                    Letters
+                  </span>
                 </div>
-                <span className="font-serif text-2xl text-primary font-bold block">
-                  {totalPhotos}
-                </span>
-                <span className="font-montserrat text-[9px] uppercase tracking-wider text-on-surface-variant">
-                  Photos Preserved
-                </span>
-              </div>
-
-              <div className="bg-surface-container-low p-3.5 rounded-xl border border-secondary/25 shadow-sm text-center">
-                <div className="flex justify-center mb-1 text-secondary">
-                  <Icon name="stylus_note" size={20} />
+                <div className="bg-surface-container-lowest p-3 rounded-2xl border border-secondary/30 text-center shadow-sm">
+                  <span className="font-cinzel text-xl font-bold text-primary block">
+                    {totalFavorites}
+                  </span>
+                  <span className="font-montserrat text-[9px] uppercase tracking-wider text-on-surface-variant font-medium">
+                    Favorites
+                  </span>
                 </div>
-                <span className="font-serif text-2xl text-primary font-bold block">
-                  {totalLetters}
-                </span>
-                <span className="font-montserrat text-[9px] uppercase tracking-wider text-on-surface-variant">
-                  Side Notes Written
-                </span>
-              </div>
-
-              <div className="bg-surface-container-low p-3.5 rounded-xl border border-secondary/25 shadow-sm text-center">
-                <div className="flex justify-center mb-1 text-error">
-                  <Icon name="favorite" size={20} filled={true} />
-                </div>
-                <span className="font-serif text-2xl text-primary font-bold block">
-                  {totalFavorites}
-                </span>
-                <span className="font-montserrat text-[9px] uppercase tracking-wider text-on-surface-variant">
-                  Starred Keepsakes
-                </span>
               </div>
             </section>
 
-            {/* Printable Keepsake Album CTA */}
-            <section className="bg-gradient-to-r from-primary to-primary-container text-surface rounded-xl p-5 border border-secondary/40 shadow-md text-center space-y-3">
-              <span className="font-montserrat text-[9px] uppercase tracking-widest text-secondary-fixed font-semibold block">
-                Physical Keepsake
-              </span>
-              <h3 className="font-serif text-xl italic font-normal text-secondary-fixed">
-                “Bound Forever in Print”
-              </h3>
-              <p className="font-sans text-xs text-primary-fixed-dim max-w-sm mx-auto">
-                Generate a commemorative photo album ready for printing, framing, or saving as PDF.
-              </p>
+            {/* Keepsake Album Export Button */}
+            <section className="pt-2">
               <button
+                type="button"
                 onClick={() => setIsKeepsakeBookOpen(true)}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-secondary text-primary font-montserrat text-xs tracking-wider uppercase font-bold shadow hover:bg-secondary-fixed active:scale-95 transition-all"
+                className="w-full py-3 px-4 rounded-full bg-gradient-to-r from-primary via-[#4a1622] to-primary text-secondary-fixed text-xs font-montserrat uppercase tracking-wider font-semibold shadow hover:brightness-105 active:scale-95 transition-all flex items-center justify-center gap-2"
               >
-                <Icon name="print" size={15} />
-                <span>View Printable Album</span>
+                <Icon name="menu_book" size={16} />
+                <span>Open Printable Keepsake Book</span>
               </button>
             </section>
           </>
         )}
 
         {activeTabYear === 'year2' && (
-          <section className="text-center py-12 space-y-4 bg-surface-container-low rounded-xl border border-secondary/20 p-6">
-            <div className="w-12 h-12 rounded-full bg-secondary-container/30 border border-secondary/40 mx-auto flex items-center justify-center text-secondary">
-              <Icon name="lock_clock" size={24} />
+          <section className="bg-surface-container-lowest rounded-2xl border border-secondary/30 p-8 text-center space-y-4 shadow-sm">
+            <div className="w-14 h-14 rounded-full bg-secondary-container/20 border border-secondary/30 mx-auto flex items-center justify-center text-secondary">
+              <Icon name="auto_awesome" size={24} />
             </div>
-            <h3 className="font-serif text-xl text-primary font-medium">
-              Year 2 Archives Unfolding
-            </h3>
-            <p className="font-sans text-xs text-on-surface-variant max-w-xs mx-auto leading-relaxed">
-              Every day writes another chapter of your journey together.
-            </p>
+            <div className="space-y-1.5">
+              <span className="font-cinzel text-[10px] uppercase tracking-widest text-secondary font-bold">
+                Chapter Next
+              </span>
+              <h3 className="font-serif text-2xl text-primary font-bold">
+                Year Two Is Being Written
+              </h3>
+              <p className="font-editorial italic text-base text-on-surface-variant max-w-xs mx-auto leading-relaxed">
+                “Every sunrise together is an unpenned page waiting for your quiet memories.”
+              </p>
+            </div>
             <div className="pt-2">
               <span className="font-montserrat text-[10px] uppercase tracking-widest text-secondary font-semibold">
                 Countdown to Next Retrospective: {timeStats.days} Days Left
@@ -259,64 +221,70 @@ export default function VaultView() {
           <section className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <span className="font-montserrat text-[10px] uppercase tracking-widest text-secondary font-semibold">
+                <span className="font-cinzel text-[10px] uppercase tracking-widest text-secondary font-bold">
                   Sacred Promises
                 </span>
-                <h3 className="font-serif text-2xl text-primary">Our Sealed Vows</h3>
+                <h3 className="font-serif text-2xl text-primary font-bold">Our Sealed Vows</h3>
               </div>
 
               <button
+                type="button"
                 onClick={() => setShowAddVowModal(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-secondary-fixed text-xs font-semibold shadow hover:bg-primary-container"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-secondary-fixed text-xs font-montserrat uppercase tracking-wider font-semibold shadow hover:bg-primary-container active:scale-95 transition-all"
               >
-                <Icon name="add_circle" size={14} />
+                <Icon name="plus" size={14} />
                 <span>Seal Vow</span>
               </button>
             </div>
 
             {vows.length === 0 ? (
-              <div className="text-center py-12 space-y-3 bg-surface-container-low rounded-xl border border-secondary/20 p-6">
+              <div className="text-center py-12 space-y-3.5 bg-surface-container-low rounded-2xl border border-secondary/25 p-6 shadow-sm">
                 <div className="w-12 h-12 rounded-full bg-secondary-container/20 border border-secondary/30 mx-auto flex items-center justify-center text-secondary">
                   <Icon name="drafts" size={22} />
                 </div>
-                <h4 className="font-serif text-base font-bold text-primary">
-                  No Vows Sealed Yet
-                </h4>
-                <p className="text-xs text-on-surface-variant max-w-xs mx-auto">
-                  Seal sacred promises to one another that will be permanently preserved in your vault.
-                </p>
+                <div className="space-y-1">
+                  <h4 className="font-serif text-lg font-bold text-primary">
+                    No Vows Sealed Yet
+                  </h4>
+                  <p className="text-xs text-on-surface-variant max-w-xs mx-auto leading-relaxed">
+                    Seal sacred promises to one another that will be permanently preserved in your vault.
+                  </p>
+                </div>
                 <button
+                  type="button"
                   onClick={() => setShowAddVowModal(true)}
-                  className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-secondary-fixed text-xs font-semibold shadow"
+                  className="mt-2 inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-primary text-secondary-fixed text-xs font-montserrat uppercase tracking-wider font-semibold shadow hover:bg-primary-container active:scale-95 transition-all"
                 >
-                  <Icon name="add_circle" size={14} />
+                  <Icon name="plus" size={14} />
                   <span>Seal Your First Vow</span>
                 </button>
               </div>
             ) : (
               vows.map((vow, i) => (
                 <div
-                  key={i}
-                  className="parchment-texture rounded-xl p-5 border border-secondary/35 shadow-sm space-y-2 relative overflow-hidden group"
+                  key={vow.id || i}
+                  className="parchment-texture rounded-2xl p-5 border border-secondary/35 shadow-sm space-y-2.5 relative overflow-hidden group"
                 >
                   <div className="flex items-center justify-between text-secondary">
-                    <span className="font-montserrat text-[9px] uppercase tracking-widest font-semibold">
-                      Vow of {vow.author}
+                    <span className="font-montserrat text-[10px] uppercase tracking-widest font-semibold flex items-center gap-1.5">
+                      <span>✦</span>
+                      <span>Vow of {vow.author}</span>
                     </span>
                     <button
-                      onClick={() => deleteVow(i)}
-                      className="opacity-0 group-hover:opacity-100 p-1 text-on-surface-variant hover:text-error transition-opacity"
+                      type="button"
+                      onClick={() => deleteVow(vow.id || i)}
+                      className="w-7 h-7 rounded-full border border-secondary/20 hover:border-error/40 hover:bg-error/10 text-on-surface-variant/60 hover:text-error transition-all active:scale-90 flex items-center justify-center"
                       title="Remove Vow"
                     >
-                      <Icon name="delete" size={14} />
+                      <Icon name="delete" size={13} />
                     </button>
                   </div>
-                  <p className="font-serif italic text-sm text-primary leading-relaxed">
+                  <p className="font-editorial italic text-base md:text-lg text-primary leading-relaxed">
                     “{vow.vow}”
                   </p>
-                  <div className="pt-2 flex items-center justify-between text-xs text-on-surface-variant/70 border-t border-secondary/20 font-sans">
+                  <div className="pt-2 flex items-center justify-between text-xs text-on-surface-variant/70 border-t border-secondary/20 font-sans font-medium">
                     <span>Dated: {vow.date}</span>
-                    <span className="font-montserrat text-[9px] tracking-wider uppercase text-secondary">
+                    <span className="font-montserrat text-[9px] tracking-wider uppercase text-secondary font-semibold">
                       ✦ Wax Sealed
                     </span>
                   </div>
@@ -328,36 +296,40 @@ export default function VaultView() {
 
         {/* Modal: Seal a New Vow */}
         {showAddVowModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in">
             <div className="bg-surface rounded-2xl max-w-md w-full border border-secondary/40 shadow-2xl p-6 space-y-4">
               <div className="flex items-center justify-between border-b border-outline-variant/30 pb-3">
-                <h3 className="font-serif text-lg font-bold text-primary">
-                  Seal a Sacred Vow
-                </h3>
+                <div className="flex items-center gap-2">
+                  <Icon name="drafts" size={18} className="text-secondary" />
+                  <h3 className="font-serif text-lg font-bold text-primary">
+                    Seal a Sacred Vow
+                  </h3>
+                </div>
                 <button
+                  type="button"
                   onClick={() => setShowAddVowModal(false)}
-                  className="p-1 text-on-surface-variant hover:text-primary"
+                  className="w-7 h-7 rounded-full border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors"
                 >
-                  <Icon name="close" size={18} />
+                  <Icon name="close" size={15} />
                 </button>
               </div>
 
               <form onSubmit={handleSaveVow} className="space-y-4">
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <label className="font-montserrat text-[10px] uppercase tracking-wider text-secondary font-semibold block">
                     Author
                   </label>
                   <select
                     value={newVowAuthor}
                     onChange={(e) => setNewVowAuthor(e.target.value)}
-                    className="w-full bg-surface-container-low border border-secondary/30 rounded-lg p-2 text-xs font-serif text-primary"
+                    className="w-full bg-surface-container-low border border-secondary/30 rounded-xl px-3 py-2 text-xs font-serif text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/30"
                   >
                     <option value={coupleProfile.partner1}>{coupleProfile.partner1}</option>
                     <option value={coupleProfile.partner2}>{coupleProfile.partner2}</option>
                   </select>
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <label className="font-montserrat text-[10px] uppercase tracking-wider text-secondary font-semibold block">
                     Your Sacred Promise
                   </label>
@@ -366,22 +338,22 @@ export default function VaultView() {
                     value={newVowText}
                     onChange={(e) => setNewVowText(e.target.value)}
                     placeholder="I promise to honor your heart, cherish the quiet seconds, and love you with every sunrise..."
-                    className="w-full bg-surface-container-low border border-secondary/30 rounded-lg p-3 text-xs font-serif italic text-primary focus:ring-0 focus:outline-none"
+                    className="w-full bg-surface-container-low border border-secondary/30 rounded-xl p-3 text-sm font-editorial italic text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/30 resize-none"
                     autoFocus
                   ></textarea>
                 </div>
 
-                <div className="pt-2 flex justify-end gap-2">
+                <div className="pt-2 flex justify-end gap-2.5">
                   <button
                     type="button"
                     onClick={() => setShowAddVowModal(false)}
-                    className="px-4 py-2 rounded-full border border-outline-variant/40 text-xs font-montserrat uppercase"
+                    className="px-4 py-2 rounded-full border border-outline-variant/40 text-xs font-montserrat uppercase font-medium hover:bg-surface-container active:scale-95 transition-all"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-full bg-primary text-secondary-fixed text-xs font-montserrat uppercase tracking-wider font-semibold shadow"
+                    className="px-5 py-2 rounded-full bg-primary text-secondary-fixed text-xs font-montserrat uppercase tracking-wider font-semibold shadow hover:bg-primary-container active:scale-95 transition-all"
                   >
                     Seal Vow ✦
                   </button>

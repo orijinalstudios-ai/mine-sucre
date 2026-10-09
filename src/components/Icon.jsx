@@ -7,6 +7,7 @@ import {
   Pause,
   Sparkles,
   PlusCircle,
+  Plus,
   Lock,
   LockOpen,
   Hourglass,
@@ -38,6 +39,8 @@ import {
   Cloud,
   RefreshCw,
   Link,
+  Feather,
+  Compass,
 } from 'lucide-react';
 
 const iconMap = {
@@ -45,8 +48,10 @@ const iconMap = {
   'menu_book': BookOpen,
   'settings': Settings,
   'favorite': Heart,
-  'auto_stories': Scroll,
+  'auto_stories': BookOpen,
+  'compass': Compass,
   'add_circle': PlusCircle,
+  'plus': Plus,
   'lock': Lock,
   'lock_open': LockOpen,
   'hourglass_top': Hourglass,
@@ -55,7 +60,7 @@ const iconMap = {
   'play_arrow': Play,
   'pause': Pause,
   'edit_note': FilePenLine,
-  'stylus_note': FilePenLine,
+  'stylus_note': Feather,
   'history_edu': Scroll,
   'close': X,
   'search': Search,
@@ -87,6 +92,8 @@ const iconMap = {
   'link': Link,
 };
 
+const fillableIcons = new Set(['favorite', 'heart', 'play_arrow', 'play']);
+
 export default function Icon({
   name,
   className = '',
@@ -98,7 +105,7 @@ export default function Icon({
 }) {
   const IconComponent = iconMap[name] || Sparkles;
 
-  const isFillApplicable = filled || className.includes('fill-1') || className.includes('filled');
+  const isFillApplicable = (filled || className.includes('filled')) && fillableIcons.has(name);
 
   return (
     <IconComponent

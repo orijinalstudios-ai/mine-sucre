@@ -4,8 +4,6 @@ import { ambientPlayer, getAudioEmbedUrl } from '../utils/audioPlayer';
 import {
   fetchCloudVault,
   saveCloudVault,
-  generatePartnerSyncPayload,
-  unpackPartnerSyncPayload,
 } from '../utils/cloudSync';
 
 const AppContext = createContext();
@@ -162,38 +160,7 @@ export function AppProvider({ children }) {
     }
   };
 
-  // 1. Check for Partner Sync Link in URL Hash (#sync=...) on mount
-  useEffect(() => {
-    try {
-      const hash = window.location.hash;
-      if (hash && hash.includes('sync=')) {
-        const payload = hash.split('sync=')[1];
-        const unpacked = unpackPartnerSyncPayload(payload);
-        if (unpacked) {
-          const now = new Date().toISOString();
-          localStorage.setItem('mm_vault_updated_at', now);
-          if (unpacked.memories && unpacked.memories.length > 0) {
-            setMemories(unpacked.memories);
-            localStorage.setItem('mm_memories', JSON.stringify(unpacked.memories));
-          }
-          if (unpacked.vows && unpacked.vows.length > 0) {
-            setVows(unpacked.vows);
-            localStorage.setItem('mm_vows', JSON.stringify(unpacked.vows));
-          }
-          if (unpacked.coupleProfile) {
-            setCoupleProfile((prev) => ({ ...prev, ...unpacked.coupleProfile }));
-            localStorage.setItem('mm_couple_profile_v2', JSON.stringify(unpacked.coupleProfile));
-          }
-          window.history.replaceState(null, '', window.location.pathname);
-          showToast('✦ Sacred memories synced from partner!');
-        }
-      }
-    } catch (err) {
-      console.warn('Hash sync error:', err);
-    }
-  }, []);
-
-  // 2. Continuous Auto-Sync: on mount, on phone wake/focus, and every 10 seconds
+  // Continuous Auto-Sync: on mount, on phone wake/focus, and every 10 seconds while active
   useEffect(() => {
     // Initial fetch on mount
     pullFromCloud(true);
@@ -219,68 +186,6 @@ export function AppProvider({ children }) {
       clearInterval(interval);
     };
   }, []);
-
-  // Helper to sync local state to cloud vault manually
-  const syncAllLocalToCloud = async () => {
-    showToast('✦ Syncing sanctuary with cloud...');
-    const now = new Date().toISOString();
-    localStorage.setItem('mm_vault_updated_at', now);
-    const res = await saveCloudVault({ memories, vows, coupleProfile, updatedAt: now });
-    if (res && res.success) {
-      showToast("✦ Sanctuary synced! Both phones now share memories.");
-    } else {
-      pullFromCloud(false);
-    }
-  };
-
-  // Helper to generate a 1-tap partner sync link to share via WhatsApp / SMS
-  const generateSyncLink = () => {
-    const payload = generatePartnerSyncPayload({ memories, vows, coupleProfile });
-    if (!payload) {
-      showToast('Unable to generate sync link');
-      return null;
-    }
-    const url = `${window.location.origin}${window.location.pathname}#sync=${payload}`;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url).then(() => {
-        showToast('✦ Partner sync link copied! Send to Sucre.');
-      }).catch(() => {
-        showToast('Link generated! Copy it from Settings.');
-      });
-    }
-    return url;
-  };
-
-  const importSyncData = (encoded) => {
-    const unpacked = unpackPartnerSyncPayload(encoded);
-    if (unpacked) {
-      const now = new Date().toISOString();
-      localStorage.setItem('mm_vault_updated_at', now);
-      if (unpacked.memories && unpacked.memories.length > 0) {
-        setMemories(unpacked.memories);
-        localStorage.setItem('mm_memories', JSON.stringify(unpacked.memories));
-      }
-      if (unpacked.vows && unpacked.vows.length > 0) {
-        setVows(unpacked.vows);
-        localStorage.setItem('mm_vows', JSON.stringify(unpacked.vows));
-      }
-      if (unpacked.coupleProfile) {
-        setCoupleProfile((prev) => ({ ...prev, ...unpacked.coupleProfile }));
-        localStorage.setItem('mm_couple_profile_v2', JSON.stringify(unpacked.coupleProfile));
-      }
-      saveCloudVault({
-        memories: unpacked.memories || memories,
-        vows: unpacked.vows || vows,
-        coupleProfile: unpacked.coupleProfile || coupleProfile,
-        updatedAt: now,
-      });
-      showToast('✦ Memories imported successfully!');
-      return true;
-    } else {
-      showToast('Invalid sync code.');
-      return false;
-    }
-  };
 
   const addMemory = async (newMemory) => {
     const now = new Date().toISOString();
@@ -508,9 +413,6 @@ export function AppProvider({ children }) {
         unlockApp,
         lockApp,
         isCloudConfigured,
-        syncAllLocalToCloud,
-        generateSyncLink,
-        importSyncData,
         updateCoupleProfile,
         toastMessage,
         showToast,

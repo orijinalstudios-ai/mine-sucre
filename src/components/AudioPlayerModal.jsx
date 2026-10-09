@@ -46,11 +46,12 @@ export default function AudioPlayerModal() {
           </div>
 
           <button
+            type="button"
             onClick={() => setIsAudioPlayerOpen(false)}
-            className="p-1 rounded-full text-on-surface-variant hover:text-primary transition-colors"
+            className="w-7 h-7 rounded-full border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary active:scale-90 transition-all"
             title="Close Player"
           >
-            <Icon name="close" size={18} />
+            <Icon name="close" size={15} />
           </button>
         </div>
 

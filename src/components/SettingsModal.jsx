@@ -13,10 +13,6 @@ export default function SettingsModal() {
     memories,
     vows,
     lockApp,
-    isCloudConfigured,
-    syncAllLocalToCloud,
-    generateSyncLink,
-    importSyncData,
   } = useApp();
 
   const [names, setNames] = useState(coupleProfile.names);
@@ -27,35 +23,13 @@ export default function SettingsModal() {
   const [anthemTitle, setAnthemTitle] = useState(coupleProfile.anthemTitle || '');
   const [anthemArtist, setAnthemArtist] = useState(coupleProfile.anthemArtist || '');
 
-  // Manual partner code states
-  const [showManualCode, setShowManualCode] = useState(false);
-  const [manualCodeInput, setManualCodeInput] = useState('');
-  const [generatedLink, setGeneratedLink] = useState('');
-
-  const handleManualImport = (e) => {
-    e.preventDefault();
-    if (!manualCodeInput.trim()) return;
-    const success = importSyncData(manualCodeInput.trim());
-    if (success) {
-      setManualCodeInput('');
-      setShowManualCode(false);
-    }
-  };
-
-  const handleCreateShareLink = () => {
-    const link = generateSyncLink();
-    if (link) {
-      setGeneratedLink(link);
-    }
-  };
-
   if (!isSettingsOpen) return null;
 
   const handleSave = (e) => {
     e.preventDefault();
     setCoupleProfile({
       ...coupleProfile,
-      names: names.trim() || 'Our Memory Journal',
+      names: names.trim() || 'Mine & Sucre',
       partner1: partner1.trim() || 'Mine',
       partner2: partner2.trim() || 'Sucre',
       anniversaryDate,
@@ -63,7 +37,7 @@ export default function SettingsModal() {
       anthemTitle: anthemTitle.trim() || 'Baby Riddim',
       anthemArtist: anthemArtist.trim() || 'Fave',
     });
-    showToast('Journal settings saved ✦');
+    showToast('Journal settings sealed ✦');
     setIsSettingsOpen(false);
   };
 
@@ -78,31 +52,65 @@ export default function SettingsModal() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `memory-journal-backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `mine-and-sucre-backup-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
-    showToast('Archives exported as backup');
+    showToast('Vault archives exported as backup');
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-      <div className="bg-surface rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto no-scrollbar border border-secondary/40 shadow-2xl p-6 space-y-6">
-        <div className="flex items-center justify-between border-b border-outline-variant/30 pb-3">
-          <div className="flex items-center gap-2">
-            <Icon name="settings" size={20} className="text-secondary" />
-            <h2 className="font-serif text-xl font-bold text-primary">
-              Couple Settings
-            </h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in">
+      <div className="bg-surface rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto no-scrollbar border border-secondary/35 shadow-2xl p-6 space-y-6">
+        {/* Modal Header */}
+        <div className="flex items-center justify-between border-b border-outline-variant/30 pb-3.5">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-secondary-container/30 border border-secondary/30 flex items-center justify-center text-secondary">
+              <Icon name="settings" size={17} />
+            </div>
+            <div>
+              <h2 className="font-serif text-lg font-bold text-primary leading-tight">
+                Sanctuary Settings
+              </h2>
+              <span className="font-montserrat text-[9px] uppercase tracking-widest text-secondary block">
+                Personalization &amp; Vault
+              </span>
+            </div>
           </div>
           <button
             onClick={() => setIsSettingsOpen(false)}
-            className="p-1 text-on-surface-variant hover:text-primary"
+            className="w-8 h-8 rounded-full border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-secondary transition-colors"
+            title="Close"
           >
-            <Icon name="close" size={20} />
+            <Icon name="close" size={16} />
           </button>
         </div>
 
+        {/* Live Auto-Sync Status Badge */}
+        <div className="p-3.5 rounded-xl bg-surface-container-low border border-secondary/25 flex items-center justify-between shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-600 shrink-0">
+              <Icon name="cloud_sync" size={18} />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="font-montserrat text-xs font-semibold uppercase tracking-wider text-primary">
+                  Live Auto-Sync
+                </span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/15 text-emerald-700 border border-emerald-500/30">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  ACTIVE
+                </span>
+              </div>
+              <p className="text-[11px] text-on-surface-variant/80 mt-0.5 leading-snug">
+                All photos, letters, and milestones update automatically in real time across both Mine &amp; Sucre’s phones.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Settings Form */}
         <form onSubmit={handleSave} className="space-y-4 text-xs">
-          <div className="space-y-1">
+          {/* Journal Title */}
+          <div className="space-y-1.5">
             <label className="font-montserrat uppercase tracking-wider text-secondary font-semibold block text-[10px]">
               Journal Title
             </label>
@@ -110,13 +118,14 @@ export default function SettingsModal() {
               type="text"
               value={names}
               onChange={(e) => setNames(e.target.value)}
-              placeholder="e.g. Mine & Sucre"
-              className="w-full bg-surface-container-low border border-secondary/30 rounded-lg p-2.5 text-primary text-sm font-serif focus:ring-0 focus:border-secondary"
+              placeholder="Mine & Sucre"
+              className="w-full bg-surface-container-low border border-secondary/30 rounded-xl px-3 py-2.5 text-primary text-sm font-serif focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/30 transition-all"
             />
           </div>
 
+          {/* Partner Names */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <label className="font-montserrat uppercase tracking-wider text-secondary font-semibold block text-[10px]">
                 Partner 1
               </label>
@@ -124,11 +133,11 @@ export default function SettingsModal() {
                 type="text"
                 value={partner1}
                 onChange={(e) => setPartner1(e.target.value)}
-                placeholder="Partner 1"
-                className="w-full bg-surface-container-low border border-secondary/30 rounded-lg p-2 text-primary focus:ring-0 focus:border-secondary"
+                placeholder="Mine"
+                className="w-full bg-surface-container-low border border-secondary/30 rounded-xl px-3 py-2 text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/30 transition-all"
               />
             </div>
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <label className="font-montserrat uppercase tracking-wider text-secondary font-semibold block text-[10px]">
                 Partner 2
               </label>
@@ -136,13 +145,14 @@ export default function SettingsModal() {
                 type="text"
                 value={partner2}
                 onChange={(e) => setPartner2(e.target.value)}
-                placeholder="Partner 2"
-                className="w-full bg-surface-container-low border border-secondary/30 rounded-lg p-2 text-primary focus:ring-0 focus:border-secondary"
+                placeholder="Sucre"
+                className="w-full bg-surface-container-low border border-secondary/30 rounded-xl px-3 py-2 text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/30 transition-all"
               />
             </div>
           </div>
 
-          <div className="space-y-1">
+          {/* Anniversary Date */}
+          <div className="space-y-1.5">
             <label className="font-montserrat uppercase tracking-wider text-secondary font-semibold block text-[10px]">
               Anniversary Date
             </label>
@@ -150,14 +160,15 @@ export default function SettingsModal() {
               type="date"
               value={anniversaryDate}
               onChange={(e) => setAnniversaryDate(e.target.value)}
-              className="w-full bg-surface-container-low border border-secondary/30 rounded-lg p-2 text-primary focus:ring-0 focus:border-secondary"
+              className="w-full bg-surface-container-low border border-secondary/30 rounded-xl px-3 py-2 text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/30 transition-all font-sans"
             />
-            <p className="text-[10px] text-on-surface-variant/70 italic">
-              All live countdowns and days together counters calculate from this date.
+            <p className="text-[10px] text-on-surface-variant/70 italic leading-snug">
+              All live milestone tickers and anniversary countdowns calculate from this sacred date.
             </p>
           </div>
 
-          <div className="space-y-1">
+          {/* Anthem Track */}
+          <div className="space-y-1.5">
             <label className="font-montserrat uppercase tracking-wider text-secondary font-semibold block text-[10px]">
               Song Link (Audiomack or Audio URL)
             </label>
@@ -166,12 +177,13 @@ export default function SettingsModal() {
               value={songUrl}
               onChange={(e) => setSongUrl(e.target.value)}
               placeholder="https://audiomack.com/favourish/song/baby-riddim"
-              className="w-full bg-surface-container-low border border-secondary/30 rounded-lg p-2 text-primary focus:ring-0 focus:border-secondary"
+              className="w-full bg-surface-container-low border border-secondary/30 rounded-xl px-3 py-2 text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/30 transition-all font-sans text-xs"
             />
           </div>
 
+          {/* Track Meta */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <label className="font-montserrat uppercase tracking-wider text-secondary font-semibold block text-[10px]">
                 Song Title
               </label>
@@ -180,10 +192,10 @@ export default function SettingsModal() {
                 value={anthemTitle}
                 onChange={(e) => setAnthemTitle(e.target.value)}
                 placeholder="Baby Riddim"
-                className="w-full bg-surface-container-low border border-secondary/30 rounded-lg p-2 text-primary focus:ring-0 focus:border-secondary"
+                className="w-full bg-surface-container-low border border-secondary/30 rounded-xl px-3 py-2 text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/30 transition-all"
               />
             </div>
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <label className="font-montserrat uppercase tracking-wider text-secondary font-semibold block text-[10px]">
                 Song Artist
               </label>
@@ -192,109 +204,18 @@ export default function SettingsModal() {
                 value={anthemArtist}
                 onChange={(e) => setAnthemArtist(e.target.value)}
                 placeholder="Fave"
-                className="w-full bg-surface-container-low border border-secondary/30 rounded-lg p-2 text-primary focus:ring-0 focus:border-secondary"
+                className="w-full bg-surface-container-low border border-secondary/30 rounded-xl px-3 py-2 text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/30 transition-all"
               />
             </div>
           </div>
 
-          {/* Cloud Sync Status Card (Both Phones) */}
-          <div className="p-3.5 rounded-xl bg-surface-container-low border border-secondary/30 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Icon name="cloud_sync" size={18} className="text-secondary" />
-                <span className="font-montserrat text-xs font-semibold uppercase tracking-wider text-primary">
-                  Both Phones Sync
-                </span>
-              </div>
-              <span
-                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${
-                  isCloudConfigured
-                    ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/30'
-                    : 'bg-secondary/10 text-secondary border border-secondary/30'
-                }`}
-              >
-                <span
-                  className={`w-1.5 h-1.5 rounded-full ${
-                    isCloudConfigured ? 'bg-emerald-500 animate-pulse' : 'bg-secondary'
-                  }`}
-                ></span>
-                <span>{isCloudConfigured ? 'Cloud Live' : 'Device Storage'}</span>
-              </span>
-            </div>
-
-            <p className="text-[11px] text-on-surface-variant leading-relaxed">
-              {isCloudConfigured
-                ? 'Your sanctuary is linked to Upstash cloud! When either partner seals a memory or picture, the other receives it automatically in real-time.'
-                : 'Share your memories and photos with your partner instantly below:'}
-            </p>
-
-            {/* Method 1: 1-Tap Partner Sync Link (Instant & 0 Setup!) */}
-            <div className="space-y-2 pt-1 border-t border-outline-variant/20">
-              <button
-                type="button"
-                onClick={handleCreateShareLink}
-                className="w-full py-2.5 px-3 rounded-full bg-primary text-secondary-fixed text-xs font-montserrat uppercase tracking-wider font-semibold shadow flex items-center justify-center gap-1.5 hover:bg-primary-container transition-all active:scale-95"
-              >
-                <Icon name="link" size={14} />
-                <span>Copy Partner Sync Link (WhatsApp/SMS)</span>
-              </button>
-              <p className="text-[10px] text-on-surface-variant/80 text-center leading-normal">
-                Generates a secure sync link with your latest memories. Send it to your partner — when they open it, their phone automatically imports all photos &amp; memories!
-              </p>
-
-              {generatedLink && (
-                <div className="p-2 bg-surface rounded border border-secondary/30 text-[10px] break-all select-all font-mono text-primary">
-                  {generatedLink}
-                </div>
-              )}
-            </div>
-
-            {/* Method 2: Upstash Cloud Auto-Sync or Manual Code */}
-            <div className="flex items-center justify-between pt-1 border-t border-outline-variant/20 text-[10px]">
-              <button
-                type="button"
-                onClick={syncAllLocalToCloud}
-                className="text-secondary hover:underline flex items-center gap-1 font-semibold"
-              >
-                <Icon name="sync" size={12} />
-                <span>Check Cloud Sync</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setShowManualCode(!showManualCode)}
-                className="text-on-surface-variant hover:text-primary underline"
-              >
-                {showManualCode ? 'Hide Code Box' : 'Enter Partner Code'}
-              </button>
-            </div>
-
-            {showManualCode && (
-              <form onSubmit={handleManualImport} className="space-y-2 pt-1">
-                <input
-                  type="text"
-                  value={manualCodeInput}
-                  onChange={(e) => setManualCodeInput(e.target.value)}
-                  placeholder="Paste partner sync code here..."
-                  className="w-full bg-surface text-primary border border-secondary/30 rounded-lg p-2 text-xs font-mono"
-                />
-                <button
-                  type="submit"
-                  className="w-full py-1.5 rounded-full bg-secondary text-primary font-montserrat text-[10px] uppercase font-bold tracking-wider"
-                >
-                  Import Memories from Partner
-                </button>
-              </form>
-            )}
-          </div>
-
-          {/* Buttons */}
-          <div className="pt-3 border-t border-outline-variant/30 space-y-2">
+          {/* Action Buttons */}
+          <div className="pt-4 border-t border-outline-variant/30 space-y-2.5">
             <button
               type="submit"
-              className="w-full py-2.5 rounded-full bg-primary text-secondary-fixed font-montserrat text-xs uppercase tracking-wider font-semibold shadow hover:bg-primary-container"
+              className="w-full py-2.5 rounded-full bg-primary text-secondary-fixed font-montserrat text-xs uppercase tracking-wider font-semibold shadow hover:bg-primary-container active:scale-95 transition-all"
             >
-              Save Settings
+              Save Sanctuary Settings
             </button>
 
             <button
@@ -303,7 +224,7 @@ export default function SettingsModal() {
                 setIsSettingsOpen(false);
                 lockApp();
               }}
-              className="w-full py-2 rounded-full border border-secondary/40 text-secondary hover:bg-secondary/10 font-montserrat text-[10px] uppercase tracking-wider font-semibold flex items-center justify-center gap-1.5"
+              className="w-full py-2 rounded-full border border-secondary/40 text-secondary hover:bg-secondary/10 font-montserrat text-[10px] uppercase tracking-wider font-semibold flex items-center justify-center gap-1.5 active:scale-95 transition-all"
             >
               <Icon name="lock" size={14} />
               <span>Lock Sanctuary Now</span>
@@ -312,21 +233,21 @@ export default function SettingsModal() {
             <button
               type="button"
               onClick={handleExportJSON}
-              className="w-full py-2 rounded-full border border-outline-variant/50 text-on-surface-variant hover:bg-surface-container font-montserrat text-[10px] uppercase tracking-wider font-semibold flex items-center justify-center gap-1.5"
+              className="w-full py-2 rounded-full border border-outline-variant/50 text-on-surface-variant hover:bg-surface-container font-montserrat text-[10px] uppercase tracking-wider font-semibold flex items-center justify-center gap-1.5 active:scale-95 transition-all"
             >
-              <Icon name="download" size={15} />
+              <Icon name="download" size={14} />
               <span>Export Journal Backup (JSON)</span>
             </button>
 
             <button
               type="button"
               onClick={() => {
-                if (confirm('Clear all memories and vows? This cannot be undone unless you exported a backup.')) {
+                if (window.confirm('Clear all memories and vows? This will reset the journal for a fresh start.')) {
                   clearAllData();
                   setIsSettingsOpen(false);
                 }
               }}
-              className="w-full py-2 text-center text-error hover:underline text-[11px] font-medium"
+              className="w-full py-2 text-center text-error hover:underline text-[11px] font-medium transition-colors"
             >
               Clear All Journal Data
             </button>
