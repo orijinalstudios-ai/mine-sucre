@@ -13,6 +13,10 @@ export default function SettingsModal() {
     memories,
     vows,
     lockApp,
+    isCloudConfigured,
+    syncAllLocalToCloud,
+    generateSyncLink,
+    importSyncData,
   } = useApp();
 
   const [names, setNames] = useState(coupleProfile.names);
@@ -22,6 +26,28 @@ export default function SettingsModal() {
   const [songUrl, setSongUrl] = useState(coupleProfile.songUrl || '');
   const [anthemTitle, setAnthemTitle] = useState(coupleProfile.anthemTitle || '');
   const [anthemArtist, setAnthemArtist] = useState(coupleProfile.anthemArtist || '');
+
+  // Manual partner code states
+  const [showManualCode, setShowManualCode] = useState(false);
+  const [manualCodeInput, setManualCodeInput] = useState('');
+  const [generatedLink, setGeneratedLink] = useState('');
+
+  const handleManualImport = (e) => {
+    e.preventDefault();
+    if (!manualCodeInput.trim()) return;
+    const success = importSyncData(manualCodeInput.trim());
+    if (success) {
+      setManualCodeInput('');
+      setShowManualCode(false);
+    }
+  };
+
+  const handleCreateShareLink = () => {
+    const link = generateSyncLink();
+    if (link) {
+      setGeneratedLink(link);
+    }
+  };
 
   if (!isSettingsOpen) return null;
 
@@ -169,6 +195,97 @@ export default function SettingsModal() {
                 className="w-full bg-surface-container-low border border-secondary/30 rounded-lg p-2 text-primary focus:ring-0 focus:border-secondary"
               />
             </div>
+          </div>
+
+          {/* Cloud Sync Status Card (Both Phones) */}
+          <div className="p-3.5 rounded-xl bg-surface-container-low border border-secondary/30 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Icon name="cloud_sync" size={18} className="text-secondary" />
+                <span className="font-montserrat text-xs font-semibold uppercase tracking-wider text-primary">
+                  Both Phones Sync
+                </span>
+              </div>
+              <span
+                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${
+                  isCloudConfigured
+                    ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/30'
+                    : 'bg-secondary/10 text-secondary border border-secondary/30'
+                }`}
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    isCloudConfigured ? 'bg-emerald-500 animate-pulse' : 'bg-secondary'
+                  }`}
+                ></span>
+                <span>{isCloudConfigured ? 'Vercel KV Connected' : 'Device Storage'}</span>
+              </span>
+            </div>
+
+            <p className="text-[11px] text-on-surface-variant leading-relaxed">
+              {isCloudConfigured
+                ? 'Your sanctuary is linked to Vercel KV! When either partner seals a memory or picture, the other receives it automatically in real-time.'
+                : 'Share your memories and photos with your partner instantly below:'}
+            </p>
+
+            {/* Method 1: 1-Tap Partner Sync Link (Instant & 0 Setup!) */}
+            <div className="space-y-2 pt-1 border-t border-outline-variant/20">
+              <button
+                type="button"
+                onClick={handleCreateShareLink}
+                className="w-full py-2.5 px-3 rounded-full bg-primary text-secondary-fixed text-xs font-montserrat uppercase tracking-wider font-semibold shadow flex items-center justify-center gap-1.5 hover:bg-primary-container transition-all active:scale-95"
+              >
+                <Icon name="link" size={14} />
+                <span>Copy Partner Sync Link (WhatsApp/SMS)</span>
+              </button>
+              <p className="text-[10px] text-on-surface-variant/80 text-center leading-normal">
+                Generates a secure sync link with your latest memories. Send it to your partner — when they open it, their phone automatically imports all photos &amp; memories!
+              </p>
+
+              {generatedLink && (
+                <div className="p-2 bg-surface rounded border border-secondary/30 text-[10px] break-all select-all font-mono text-primary">
+                  {generatedLink}
+                </div>
+              )}
+            </div>
+
+            {/* Method 2: Vercel KV Auto-Sync or Manual Code */}
+            <div className="flex items-center justify-between pt-1 border-t border-outline-variant/20 text-[10px]">
+              <button
+                type="button"
+                onClick={syncAllLocalToCloud}
+                className="text-secondary hover:underline flex items-center gap-1 font-semibold"
+              >
+                <Icon name="sync" size={12} />
+                <span>Check / Sync Vercel KV</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowManualCode(!showManualCode)}
+                className="text-on-surface-variant hover:text-primary underline"
+              >
+                {showManualCode ? 'Hide Code Box' : 'Enter Partner Code'}
+              </button>
+            </div>
+
+            {showManualCode && (
+              <form onSubmit={handleManualImport} className="space-y-2 pt-1">
+                <input
+                  type="text"
+                  value={manualCodeInput}
+                  onChange={(e) => setManualCodeInput(e.target.value)}
+                  placeholder="Paste partner sync code here..."
+                  className="w-full bg-surface text-primary border border-secondary/30 rounded-lg p-2 text-xs font-mono"
+                />
+                <button
+                  type="submit"
+                  className="w-full py-1.5 rounded-full bg-secondary text-primary font-montserrat text-[10px] uppercase font-bold tracking-wider"
+                >
+                  Import Memories from Partner
+                </button>
+              </form>
+            )}
           </div>
 
           {/* Buttons */}

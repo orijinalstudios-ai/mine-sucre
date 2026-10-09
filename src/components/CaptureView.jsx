@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import { useApp } from '../context/AppContext';
 import Icon from './Icon';
+import { compressImage } from '../utils/imageCompressor';
 
 export default function CaptureView() {
   const {
@@ -44,23 +45,36 @@ export default function CaptureView() {
     'Quiet Love',
   ];
 
-  // Handle image upload
-  const handleFileUpload = (e) => {
+  // Handle image upload with automatic mobile compression
+  const handleFileUpload = async (e) => {
     const files = Array.from(e.target.files);
-    files.forEach((file, index) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
+    for (let index = 0; index < files.length; index++) {
+      const file = files[index];
+      try {
+        const { dataUrl } = await compressImage(file, { maxWidth: 1200, maxHeight: 1200, quality: 0.8 });
         setAttachedPhotos((prev) => [
           ...prev,
           {
             id: `photo-${Date.now()}-${index}`,
             caption: file.name.slice(0, 15),
-            url: event.target.result,
+            url: dataUrl,
           },
         ]);
-      };
-      reader.readAsDataURL(file);
-    });
+      } catch (err) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setAttachedPhotos((prev) => [
+            ...prev,
+            {
+              id: `photo-${Date.now()}-${index}`,
+              caption: file.name.slice(0, 15),
+              url: event.target.result,
+            },
+          ]);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
   };
 
   const removePhoto = (id) => {

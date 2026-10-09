@@ -1,6 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { initialCoupleProfile, initialMemories, initialVows } from '../data/seedData';
 import { ambientPlayer, getAudioEmbedUrl } from '../utils/audioPlayer';
+import {
+  fetchCloudVault,
+  saveCloudVault,
+  generatePartnerSyncPayload,
+  unpackPartnerSyncPayload,
+} from '../utils/cloudSync';
 
 const AppContext = createContext();
 
@@ -110,37 +116,188 @@ export function AppProvider({ children }) {
     ambientPlayer.toggle();
   };
 
+  // Lightweight Cloud Sync State
+  const [isCloudConfigured, setIsCloudConfigured] = useState(false);
+
+  // 1. Check for Partner Sync Link in URL Hash (#sync=...) on mount
+  useEffect(() => {
+    try {
+      const hash = window.location.hash;
+      if (hash && hash.includes('sync=')) {
+        const payload = hash.split('sync=')[1];
+        const unpacked = unpackPartnerSyncPayload(payload);
+        if (unpacked) {
+          if (unpacked.memories && unpacked.memories.length > 0) {
+            setMemories(unpacked.memories);
+            localStorage.setItem('mm_memories', JSON.stringify(unpacked.memories));
+          }
+          if (unpacked.vows && unpacked.vows.length > 0) {
+            setVows(unpacked.vows);
+            localStorage.setItem('mm_vows', JSON.stringify(unpacked.vows));
+          }
+          if (unpacked.coupleProfile) {
+            setCoupleProfile((prev) => ({ ...prev, ...unpacked.coupleProfile }));
+            localStorage.setItem('mm_couple_profile_v2', JSON.stringify(unpacked.coupleProfile));
+          }
+          window.history.replaceState(null, '', window.location.pathname);
+          showToast('✦ Sacred memories synced from partner!');
+        }
+      }
+    } catch (err) {
+      console.warn('Hash sync error:', err);
+    }
+  }, []);
+
+  // 2. Poll/Check Vercel KV via /api/sync on load
+  useEffect(() => {
+    fetchCloudVault().then((res) => {
+      if (res && res.configured) {
+        setIsCloudConfigured(true);
+        if (res.data) {
+          if (res.data.memories && res.data.memories.length > 0) {
+            setMemories(res.data.memories);
+            localStorage.setItem('mm_memories', JSON.stringify(res.data.memories));
+          }
+          if (res.data.vows && res.data.vows.length > 0) {
+            setVows(res.data.vows);
+            localStorage.setItem('mm_vows', JSON.stringify(res.data.vows));
+          }
+          if (res.data.coupleProfile) {
+            setCoupleProfile(res.data.coupleProfile);
+            localStorage.setItem('mm_couple_profile_v2', JSON.stringify(res.data.coupleProfile));
+          }
+        }
+      }
+    });
+  }, []);
+
+  // Helper to sync local state to cloud vault
+  const syncAllLocalToCloud = async () => {
+    showToast('✦ Syncing sanctuary to cloud...');
+    const res = await saveCloudVault({ memories, vows, coupleProfile });
+    if (res && res.success) {
+      setIsCloudConfigured(true);
+      showToast("✦ Sanctuary synced! Both phones now share memories.");
+    } else if (res && !res.configured) {
+      showToast('✦ In Vercel, connect Storage > KV for auto-sync.');
+    } else {
+      showToast('✦ Could not reach cloud vault.');
+    }
+  };
+
+  // Helper to generate a 1-tap partner sync link to share via WhatsApp / SMS
+  const generateSyncLink = () => {
+    const payload = generatePartnerSyncPayload({ memories, vows, coupleProfile });
+    if (!payload) {
+      showToast('Unable to generate sync link');
+      return null;
+    }
+    const url = `${window.location.origin}${window.location.pathname}#sync=${payload}`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(() => {
+        showToast('✦ Partner sync link copied! Send to Sucre.');
+      }).catch(() => {
+        showToast('Link generated! Copy it from Settings.');
+      });
+    }
+    return url;
+  };
+
+  const importSyncData = (encoded) => {
+    const unpacked = unpackPartnerSyncPayload(encoded);
+    if (unpacked) {
+      if (unpacked.memories && unpacked.memories.length > 0) {
+        setMemories(unpacked.memories);
+        localStorage.setItem('mm_memories', JSON.stringify(unpacked.memories));
+      }
+      if (unpacked.vows && unpacked.vows.length > 0) {
+        setVows(unpacked.vows);
+        localStorage.setItem('mm_vows', JSON.stringify(unpacked.vows));
+      }
+      if (unpacked.coupleProfile) {
+        setCoupleProfile((prev) => ({ ...prev, ...unpacked.coupleProfile }));
+        localStorage.setItem('mm_couple_profile_v2', JSON.stringify(unpacked.coupleProfile));
+      }
+      showToast('✦ Memories imported successfully!');
+      return true;
+    } else {
+      showToast('Invalid sync code.');
+      return false;
+    }
+  };
+
   const addMemory = (newMemory) => {
-    setMemories((prev) => [newMemory, ...prev]);
+    setMemories((prev) => {
+      const updated = [newMemory, ...prev];
+      if (isCloudConfigured) {
+        saveCloudVault({ memories: updated, vows, coupleProfile });
+      }
+      return updated;
+    });
     showToast("Memory sealed & archived forever ✦");
     ambientPlayer.playChime();
   };
 
   const updateMemory = (id, updates) => {
-    setMemories((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, ...updates } : m))
-    );
+    setMemories((prev) => {
+      const updated = prev.map((m) => (m.id === id ? { ...m, ...updates } : m));
+      if (isCloudConfigured) {
+        saveCloudVault({ memories: updated, vows, coupleProfile });
+      }
+      return updated;
+    });
   };
 
   const deleteMemory = (id) => {
-    setMemories((prev) => prev.filter((m) => m.id !== id));
+    setMemories((prev) => {
+      const updated = prev.filter((m) => m.id !== id);
+      if (isCloudConfigured) {
+        saveCloudVault({ memories: updated, vows, coupleProfile });
+      }
+      return updated;
+    });
     showToast("Memory gently removed from archives.");
   };
 
   const toggleFavorite = (id) => {
-    setMemories((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, isFavorite: !m.isFavorite } : m))
-    );
+    setMemories((prev) => {
+      const updated = prev.map((m) => (m.id === id ? { ...m, isFavorite: !m.isFavorite } : m));
+      if (isCloudConfigured) {
+        saveCloudVault({ memories: updated, vows, coupleProfile });
+      }
+      return updated;
+    });
   };
 
   const addVow = (newVow) => {
-    setVows((prev) => [...prev, newVow]);
+    setVows((prev) => {
+      const updated = [...prev, newVow];
+      if (isCloudConfigured) {
+        saveCloudVault({ memories, vows: updated, coupleProfile });
+      }
+      return updated;
+    });
     showToast("Sacred vow sealed into the vault ✦");
   };
 
-  const deleteVow = (index) => {
-    setVows((prev) => prev.filter((_, idx) => idx !== index));
+  const deleteVow = (indexOrId) => {
+    setVows((prev) => {
+      const updated = typeof indexOrId === 'string'
+        ? prev.filter((v) => v.id !== indexOrId)
+        : prev.filter((_, idx) => idx !== indexOrId);
+      if (isCloudConfigured) {
+        saveCloudVault({ memories, vows: updated, coupleProfile });
+      }
+      return updated;
+    });
     showToast("Vow removed from vault.");
+  };
+
+  const updateCoupleProfile = (newProfile) => {
+    setCoupleProfile(newProfile);
+    if (isCloudConfigured) {
+      saveCloudVault({ memories, vows, coupleProfile: newProfile });
+    }
   };
 
   const clearAllData = () => {
@@ -148,6 +305,9 @@ export function AppProvider({ children }) {
     setVows([]);
     localStorage.removeItem('mm_memories');
     localStorage.removeItem('mm_vows');
+    if (isCloudConfigured) {
+      saveCloudVault({ memories: [], vows: [], coupleProfile });
+    }
     showToast("Archives cleared. Ready for your memories.");
   };
 
@@ -231,6 +391,11 @@ export function AppProvider({ children }) {
         isUnlocked,
         unlockApp,
         lockApp,
+        isCloudConfigured,
+        syncAllLocalToCloud,
+        generateSyncLink,
+        importSyncData,
+        updateCoupleProfile,
         toastMessage,
         showToast,
         timeStats,

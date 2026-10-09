@@ -35,6 +35,9 @@ import {
   Check,
   Eye,
   EyeOff,
+  Cloud,
+  RefreshCw,
+  Link,
 } from 'lucide-react';
 
 const iconMap = {
@@ -79,6 +82,9 @@ const iconMap = {
   'eye': Eye,
   'eye_off': EyeOff,
   'sparkles': Sparkles,
+  'cloud_sync': Cloud,
+  'sync': RefreshCw,
+  'link': Link,
 };
 
 export default function Icon({
