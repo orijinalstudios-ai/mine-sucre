@@ -27,10 +27,10 @@ export default function CaptureView() {
   const [location, setLocation] = useState('');
   const [letter, setLetter] = useState('');
   const [counterNote, setCounterNote] = useState('');
-  const [selectedMood, setSelectedMood] = useState('Effortless Joy');
   const [selectedSong, setSelectedSong] = useState(
     `✦ ${coupleProfile.anthemArtist} — ${coupleProfile.anthemTitle}`
   );
+  const [songUrl, setSongUrl] = useState(coupleProfile.songUrl || '');
   const [cardColor, setCardColor] = useState('parchment');
   const [isLocked, setIsLocked] = useState(false);
   const [attachedPhotos, setAttachedPhotos] = useState([]);
@@ -171,6 +171,7 @@ export default function CaptureView() {
       author: author,
       counterNote: counterNote.trim() || null,
       song: selectedSong,
+      songUrl: songUrl || null,
       cardColor: cardColor || 'parchment',
       tag: selectedMood === 'Adventures' ? 'Travel' : selectedMood === 'Celebration' ? 'Milestones' : 'Letters',
       mood: selectedMood,
@@ -455,6 +456,8 @@ export default function CaptureView() {
           <SongSelector
             selectedSong={selectedSong}
             onChange={setSelectedSong}
+            songUrl={songUrl}
+            onUrlChange={setSongUrl}
             coupleProfile={coupleProfile}
           />
         </section>

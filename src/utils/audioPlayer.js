@@ -1,54 +1,180 @@
-// Web Audio API Synthesizer for Romantic Acoustic Melody & Sound Effects
+// Universal Audio Engine: Supports Spotify, YouTube, SoundCloud, Direct MP3/M4A Audio Streams, Audio File Uploads, and Synthesized Acoustic Ambience
+
 export const ROMANTIC_SONG_PRESETS = [
   {
     title: 'Baby Riddim',
     artist: 'Fave',
-    url: 'https://audiomack.com/favourish/song/baby-riddim',
+    url: 'https://open.spotify.com/track/1a2R0g4f08rY2k26t1vY3g',
+    youtubeUrl: 'https://www.youtube.com/watch?v=FqG7j3x9T88',
     isAnthem: true,
   },
   {
     title: 'Until I Found You',
     artist: 'Stephen Sanchez',
-    url: 'https://audiomack.com/stephensanchez/song/until-i-found-you',
+    url: 'https://open.spotify.com/track/0VjIjW4GlULA75pqn05apV',
+    youtubeUrl: 'https://www.youtube.com/watch?v=GxldQ9eX2wo',
   },
   {
     title: 'Perfect',
     artist: 'Ed Sheeran',
-    url: 'https://audiomack.com/teddysphotos/song/perfect',
+    url: 'https://open.spotify.com/track/0tgV2Di06FyKpA1z0VMD4v',
+    youtubeUrl: 'https://www.youtube.com/watch?v=2Vv-BfVoq4g',
   },
   {
     title: 'golden hour',
     artist: 'JVKE',
-    url: 'https://audiomack.com/jvke/song/golden-hour',
+    url: 'https://open.spotify.com/track/5odlY52u43F5BjByvv7Gek',
+    youtubeUrl: 'https://www.youtube.com/watch?v=PEM0Vs8jf1w',
   },
   {
     title: 'Lover',
     artist: 'Taylor Swift',
-    url: 'https://audiomack.com/taylorswift/song/lover',
+    url: 'https://open.spotify.com/track/1dGr1nsAZkt7o99cfbzg92',
+    youtubeUrl: 'https://www.youtube.com/watch?v=-BjZmE2gtdo',
   },
   {
     title: 'Texas Sun',
     artist: 'Leon Bridges & Khruangbin',
-    url: 'https://audiomack.com/leonbridges/song/texas-sun',
+    url: 'https://open.spotify.com/track/2akHGkYI9w9g2bXGqQpM88',
+    youtubeUrl: 'https://www.youtube.com/watch?v=hGvS8Jd1D6M',
   },
   {
     title: 'All of Me',
     artist: 'John Legend',
-    url: 'https://audiomack.com/johnlegend/song/all-of-me',
+    url: 'https://open.spotify.com/track/3U4isOIWM3VvDubwSI3y7a',
+    youtubeUrl: 'https://www.youtube.com/watch?v=450p7goxZqg',
   },
   {
     title: 'By Your Side',
     artist: 'Sade',
-    url: 'https://audiomack.com/sade-2/song/by-your-side',
+    url: 'https://open.spotify.com/track/713q5B6TcLcT9k1a0z33R8',
+    youtubeUrl: 'https://www.youtube.com/watch?v=C8QJmI_V3j4',
   },
 ];
 
-export function resolveSongInfo(songString, coupleProfile) {
-  if (!songString) {
+/**
+ * Universal Embed Info Parser:
+ * Detects Spotify, YouTube, SoundCloud, Audiomack, or Direct Audio Files/Streams
+ */
+export function getAudioEmbedInfo(url) {
+  if (!url || typeof url !== 'string') {
+    return { type: 'none', platform: 'None', embedUrl: '', originalUrl: '' };
+  }
+  const trimmed = url.trim();
+
+  // 1. Spotify Track / Album / Playlist / Episode
+  const spotifyMatch = trimmed.match(/open\.spotify\.com\/(?:intl-[a-z]{2}\/)?(track|album|playlist|episode)\/([a-zA-Z0-9]+)/i);
+  if (spotifyMatch) {
+    const [, entity, id] = spotifyMatch;
+    return {
+      type: 'spotify',
+      platform: 'Spotify',
+      embedUrl: `https://open.spotify.com/embed/${entity}/${id}?utm_source=generator&theme=0`,
+      originalUrl: trimmed,
+    };
+  }
+
+  // 2. YouTube / YouTube Music
+  const ytMatch = trimmed.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/|music\.youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})/i);
+  if (ytMatch) {
+    return {
+      type: 'youtube',
+      platform: 'YouTube',
+      embedUrl: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&rel=0`,
+      originalUrl: trimmed,
+    };
+  }
+
+  // 3. SoundCloud
+  if (trimmed.includes('soundcloud.com/')) {
+    return {
+      type: 'soundcloud',
+      platform: 'SoundCloud',
+      embedUrl: `https://w.soundcloud.com/player/?url=${encodeURIComponent(trimmed)}&color=%23ffd79b&auto_play=true&show_artwork=true&show_comments=false`,
+      originalUrl: trimmed,
+    };
+  }
+
+  // 4. Audiomack
+  const audiomackMatch = trimmed.match(/audiomack\.com\/(?:embed\/)?([a-zA-Z0-9_-]+)\/song\/([a-zA-Z0-9_-]+)/i);
+  if (audiomackMatch) {
+    const [, artist, song] = audiomackMatch;
+    return {
+      type: 'audiomack',
+      platform: 'Audiomack',
+      embedUrl: `https://audiomack.com/embed/${artist}/song/${song}`,
+      originalUrl: trimmed,
+    };
+  }
+
+  // 5. Direct Audio File (mp3, m4a, wav, aac, ogg, flac, data:audio/..., blob:...)
+  const isDirect =
+    trimmed.startsWith('data:audio/') ||
+    trimmed.startsWith('blob:') ||
+    /\.(mp3|m4a|wav|aac|ogg|flac|opus)(\?.*)?$/i.test(trimmed);
+
+  if (isDirect) {
+    return {
+      type: 'direct',
+      platform: 'Direct Audio',
+      embedUrl: trimmed,
+      originalUrl: trimmed,
+    };
+  }
+
+  // 6. Generic web URL (treat as direct audio or stream)
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return {
+      type: 'direct',
+      platform: 'Audio Stream',
+      embedUrl: trimmed,
+      originalUrl: trimmed,
+    };
+  }
+
+  return { type: 'none', platform: 'None', embedUrl: '', originalUrl: trimmed };
+}
+
+export function getAudioEmbedUrl(url) {
+  const info = getAudioEmbedInfo(url);
+  return info.embedUrl || url || '';
+}
+
+/**
+ * Resolves song title, artist, audio URL, and embed details for any memory or anthem
+ */
+export function resolveSongInfo(songInput, coupleProfile) {
+  // If memory object passed with direct songUrl
+  if (songInput && typeof songInput === 'object') {
+    const rawSong = songInput.song || songInput.title || '';
+    const rawUrl = songInput.songUrl || (typeof songInput.song === 'string' && songInput.song.match(/https?:\/\/[^\s]+/i)?.[0]) || '';
+    if (rawUrl) {
+      const info = getAudioEmbedInfo(rawUrl);
+      return {
+        title: songInput.songTitle || rawSong.replace(/https?:\/\/[^\s]+/i, '').replace(/^✦\s*/, '').trim() || 'Keepsake Soundtrack',
+        artist: songInput.songArtist || 'Beloved',
+        url: rawUrl,
+        embedUrl: info.embedUrl,
+        platform: info.platform,
+        type: info.type,
+        isAnthem: false,
+      };
+    }
+    return resolveSongInfo(rawSong, coupleProfile);
+  }
+
+  const songString = typeof songInput === 'string' ? songInput : '';
+
+  if (!songString.trim()) {
+    const anthemUrl = coupleProfile?.songUrl || 'https://open.spotify.com/track/1a2R0g4f08rY2k26t1vY3g';
+    const info = getAudioEmbedInfo(anthemUrl);
     return {
       title: coupleProfile?.anthemTitle || 'Baby Riddim',
       artist: coupleProfile?.anthemArtist || 'Fave',
-      url: coupleProfile?.songUrl || 'https://audiomack.com/favourish/song/baby-riddim',
+      url: anthemUrl,
+      embedUrl: info.embedUrl,
+      platform: info.platform,
+      type: info.type,
       isAnthem: true,
     };
   }
@@ -56,15 +182,21 @@ export function resolveSongInfo(songString, coupleProfile) {
   const anthemTitle = (coupleProfile?.anthemTitle || 'Baby Riddim').toLowerCase();
   const lower = songString.toLowerCase();
 
+  // Check if matches couple anthem
   if (
     lower.includes(anthemTitle) ||
     lower.includes('our anthem') ||
     lower.includes('baby riddim')
   ) {
+    const anthemUrl = coupleProfile?.songUrl || 'https://open.spotify.com/track/1a2R0g4f08rY2k26t1vY3g';
+    const info = getAudioEmbedInfo(anthemUrl);
     return {
       title: coupleProfile?.anthemTitle || 'Baby Riddim',
       artist: coupleProfile?.anthemArtist || 'Fave',
-      url: coupleProfile?.songUrl || 'https://audiomack.com/favourish/song/baby-riddim',
+      url: anthemUrl,
+      embedUrl: info.embedUrl,
+      platform: info.platform,
+      type: info.type,
       isAnthem: true,
     };
   }
@@ -75,24 +207,45 @@ export function resolveSongInfo(songString, coupleProfile) {
       lower.includes(preset.title.toLowerCase()) ||
       lower.includes(preset.artist.toLowerCase())
     ) {
+      const info = getAudioEmbedInfo(preset.url);
       return {
         title: preset.title,
         artist: preset.artist,
         url: preset.url,
+        embedUrl: info.embedUrl,
+        platform: info.platform,
+        type: info.type,
         isAnthem: Boolean(preset.isAnthem),
       };
     }
   }
 
-  // If user typed a direct URL
+  // If user pasted a direct URL in the song string
   const urlMatch = songString.match(/https?:\/\/[^\s]+/i);
   if (urlMatch) {
-    const url = urlMatch[0];
-    const cleanText = songString.replace(url, '').replace(/^✦\s*/, '').trim();
+    const foundUrl = urlMatch[0];
+    const info = getAudioEmbedInfo(foundUrl);
+    const cleanText = songString.replace(foundUrl, '').replace(/^✦\s*/, '').trim();
     return {
-      title: cleanText || 'Custom Keepsake Track',
+      title: cleanText || `${info.platform} Track`,
       artist: 'Beloved',
-      url,
+      url: foundUrl,
+      embedUrl: info.embedUrl,
+      platform: info.platform,
+      type: info.type,
+      isAnthem: false,
+    };
+  }
+
+  // If data:audio base64 was entered
+  if (songString.startsWith('data:audio/')) {
+    return {
+      title: 'Uploaded Audio Keepsake',
+      artist: 'Beloved',
+      url: songString,
+      embedUrl: songString,
+      platform: 'Direct Audio',
+      type: 'direct',
       isAnthem: false,
     };
   }
@@ -105,6 +258,9 @@ export function resolveSongInfo(songString, coupleProfile) {
       title: parts[1].trim(),
       artist: parts[0].trim(),
       url: '',
+      embedUrl: '',
+      platform: 'Synthesized Ambience',
+      type: 'none',
       isAnthem: false,
     };
   }
@@ -113,18 +269,11 @@ export function resolveSongInfo(songString, coupleProfile) {
     title: clean,
     artist: 'Special Soundtrack',
     url: '',
+    embedUrl: '',
+    platform: 'Synthesized Ambience',
+    type: 'none',
     isAnthem: false,
   };
-}
-
-export function getAudioEmbedUrl(url) {
-  if (!url) return '';
-  const audiomackMatch = url.match(/audiomack\.com\/(?:embed\/)?([a-zA-Z0-9_-]+)\/song\/([a-zA-Z0-9_-]+)/i);
-  if (audiomackMatch) {
-    const [, artist, song] = audiomackMatch;
-    return `https://audiomack.com/embed/${artist}/song/${song}`;
-  }
-  return url;
 }
 
 class AmbientMelodyPlayer {

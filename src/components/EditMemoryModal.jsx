@@ -28,6 +28,7 @@ export default function EditMemoryModal() {
   const [counterNote, setCounterNote] = useState('');
   const [selectedMood, setSelectedMood] = useState('Effortless Joy');
   const [selectedSong, setSelectedSong] = useState('');
+  const [songUrl, setSongUrl] = useState('');
   const [cardColor, setCardColor] = useState('parchment');
   const [isLocked, setIsLocked] = useState(false);
   const [attachedPhotos, setAttachedPhotos] = useState([]);
@@ -51,6 +52,7 @@ export default function EditMemoryModal() {
       setCounterNote(editingMemory.counterNote || '');
       setSelectedMood(editingMemory.mood || 'Effortless Joy');
       setSelectedSong(editingMemory.song || '');
+      setSongUrl(editingMemory.songUrl || (typeof editingMemory.song === 'string' && editingMemory.song.match(/https?:\/\/[^\s]+/i)?.[0]) || '');
       setCardColor(editingMemory.cardColor || 'parchment');
       setIsLocked(Boolean(editingMemory.isLocked));
 
@@ -143,6 +145,7 @@ export default function EditMemoryModal() {
       author,
       counterNote: counterNote.trim() || null,
       song: selectedSong || null,
+      songUrl: songUrl || null,
       cardColor: cardColor || 'parchment',
       tag: selectedMood === 'Adventures' ? 'Travel' : selectedMood === 'Celebration' ? 'Milestones' : 'Letters',
       mood: selectedMood,
@@ -369,6 +372,8 @@ export default function EditMemoryModal() {
             <SongSelector
               selectedSong={selectedSong}
               onChange={setSelectedSong}
+              songUrl={songUrl}
+              onUrlChange={setSongUrl}
               coupleProfile={coupleProfile}
             />
           </section>

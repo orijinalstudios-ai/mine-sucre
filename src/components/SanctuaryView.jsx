@@ -63,7 +63,7 @@ export default function SanctuaryView() {
           </div>
         </section>
 
-        {/* Real Audio Player Ribbon (Audiomack "Baby Riddim") */}
+        {/* Real Audio Player Ribbon */}
         <section
           onClick={playAnthem}
           className="bg-surface-container-low rounded-2xl border border-secondary/30 p-3.5 shadow-sm relative overflow-hidden cursor-pointer hover:border-secondary transition-all group"
@@ -73,7 +73,7 @@ export default function SanctuaryView() {
             <button
               type="button"
               className="w-11 h-11 rounded-full bg-gradient-to-tr from-[#2f020e] to-[#4a1622] text-[#ffd79b] flex items-center justify-center shadow-md border border-[#ffd79b]/40 group-hover:scale-105 active:scale-95 transition-transform shrink-0"
-              title="Play Real Track on Audiomack"
+              title="Play Love Anthem"
             >
               <Icon name="play_arrow" size={20} filled={true} className="text-[#ffd79b] ml-0.5" />
             </button>

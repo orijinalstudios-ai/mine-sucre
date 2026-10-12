@@ -193,13 +193,13 @@ export default function SettingsModal() {
           {/* Anthem Track */}
           <div className="space-y-1.5">
             <label className="font-montserrat uppercase tracking-wider text-secondary font-semibold block text-[10px]">
-              Song Link (Audiomack or Audio URL)
+              Love Anthem Link (Spotify, YouTube, SoundCloud, or MP3 Link)
             </label>
             <input
               type="url"
               value={songUrl}
               onChange={(e) => setSongUrl(e.target.value)}
-              placeholder="https://audiomack.com/favourish/song/baby-riddim"
+              placeholder="https://open.spotify.com/track/... or YouTube / MP3 URL"
               className="w-full bg-surface-container-low border border-secondary/30 rounded-xl px-3 py-2 text-primary focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/30 transition-all font-sans text-xs"
             />
           </div>
