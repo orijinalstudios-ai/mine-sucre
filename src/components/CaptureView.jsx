@@ -6,6 +6,7 @@ import { compressImage } from '../utils/imageCompressor';
 import TextFormattingToolbar from './TextFormattingToolbar';
 import SongSelector from './SongSelector';
 import CardColorPicker from './CardColorPicker';
+import { saveAudioFile } from '../utils/audioStorage';
 
 export default function CaptureView() {
   const {
@@ -20,17 +21,18 @@ export default function CaptureView() {
 
   // Form states - completely clean and ready to receive user data
   const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState(coupleProfile.partner1);
+  const [author, setAuthor] = useState(coupleProfile?.partner1 || 'Mine');
   const [momentDate, setMomentDate] = useState(() => {
     return new Date().toISOString().split('T')[0];
   });
   const [location, setLocation] = useState('');
   const [letter, setLetter] = useState('');
   const [counterNote, setCounterNote] = useState('');
+  const [selectedMood, setSelectedMood] = useState('Intimate');
   const [selectedSong, setSelectedSong] = useState(
-    `✦ ${coupleProfile.anthemArtist} — ${coupleProfile.anthemTitle}`
+    `✦ ${coupleProfile?.anthemArtist || 'Fave'} — ${coupleProfile?.anthemTitle || 'Baby Riddim'}`
   );
-  const [songUrl, setSongUrl] = useState(coupleProfile.songUrl || '');
+  const [songUrl, setSongUrl] = useState(coupleProfile?.songUrl || '');
   const [cardColor, setCardColor] = useState('parchment');
   const [isLocked, setIsLocked] = useState(false);
   const [attachedPhotos, setAttachedPhotos] = useState([]);
@@ -111,10 +113,15 @@ export default function CaptureView() {
         if (e.data.size > 0) chunks.push(e.data);
       };
 
-      mediaRecorder.onstop = () => {
-        const blob = new Blob(chunks, { type: 'audio/webm' });
-        const url = URL.createObjectURL(blob);
-        setAudioBlobUrl(url);
+      mediaRecorder.onstop = async () => {
+        try {
+          const blob = new Blob(chunks, { type: 'audio/webm' });
+          const audioId = await saveAudioFile(blob);
+          setAudioBlobUrl(audioId);
+        } catch (err) {
+          console.warn('Failed to save audio memo to IndexedDB:', err);
+          setAudioBlobUrl('recorded-memo');
+        }
       };
 
       mediaRecorder.start();
@@ -181,7 +188,11 @@ export default function CaptureView() {
       audioMemoDuration: audioBlobUrl ? `0:${recordSeconds.toString().padStart(2, '0')}` : null,
     };
 
-    addMemory(newMemory);
+    try {
+      addMemory(newMemory);
+    } catch (err) {
+      console.error('Error saving memory:', err);
+    }
 
     try {
       confetti({
@@ -214,7 +225,7 @@ export default function CaptureView() {
         <div className="flex items-center gap-1.5 opacity-85">
           <span className="text-secondary text-[10px]">✦</span>
           <span className="font-cinzel font-semibold text-base tracking-widest text-primary">
-            {coupleProfile.partner1.charAt(0)} &amp; {coupleProfile.partner2.charAt(0)}
+            {(coupleProfile?.partner1 || 'Mine').charAt(0)} &amp; {(coupleProfile?.partner2 || 'Sucre').charAt(0)}
           </span>
           <span className="text-secondary text-[10px]">✦</span>
         </div>
@@ -377,8 +388,8 @@ export default function CaptureView() {
                 onChange={(e) => setAuthor(e.target.value)}
                 className="bg-transparent text-xs font-serif italic text-secondary border-none p-0 focus:ring-0 cursor-pointer"
               >
-                <option value={coupleProfile.partner1}>{coupleProfile.partner1}</option>
-                <option value={coupleProfile.partner2}>{coupleProfile.partner2}</option>
+                <option value={coupleProfile?.partner1 || 'Mine'}>{coupleProfile?.partner1 || 'Mine'}</option>
+                <option value={coupleProfile?.partner2 || 'Sucre'}>{coupleProfile?.partner2 || 'Sucre'}</option>
               </select>
             </div>
           </div>
@@ -412,7 +423,7 @@ export default function CaptureView() {
                   type="text"
                   value={counterNote}
                   onChange={(e) => setCounterNote(e.target.value)}
-                  placeholder={`Optional: A note from ${author === coupleProfile.partner1 ? coupleProfile.partner2 : coupleProfile.partner1}...`}
+                  placeholder={`Optional: A note from ${author === (coupleProfile?.partner1 || 'Mine') ? (coupleProfile?.partner2 || 'Sucre') : (coupleProfile?.partner1 || 'Mine')}...`}
                   className="w-full bg-transparent text-sm font-editorial italic text-on-surface-variant border-none p-0 focus:ring-0 placeholder:text-on-surface-variant/40"
                 />
               </div>

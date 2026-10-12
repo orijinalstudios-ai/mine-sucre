@@ -59,7 +59,7 @@ export default function PrintableKeepsakeModal() {
           <div className="text-center py-16 border-b-2 border-secondary/20 space-y-4">
             <div className="w-20 h-20 rounded-full border-2 border-secondary/50 mx-auto flex items-center justify-center bg-surface-container-low shadow-sm">
               <span className="font-serif italic font-bold text-secondary text-2xl">
-                {coupleProfile.partner1.charAt(0)}&{coupleProfile.partner2.charAt(0)}
+                {(coupleProfile?.partner1 || 'Mine').charAt(0)}&amp;{(coupleProfile?.partner2 || 'Sucre').charAt(0)}
               </span>
             </div>
             <h1 className="font-serif text-4xl md:text-5xl text-primary font-normal">

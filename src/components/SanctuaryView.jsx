@@ -329,7 +329,7 @@ export default function SanctuaryView() {
         <footer className="pt-4 pb-2 text-center space-y-2">
           <div className="w-12 h-12 rounded-full border border-secondary/50 mx-auto flex items-center justify-center bg-surface-container-lowest shadow-sm">
             <span className="font-cinzel font-bold text-secondary text-sm">
-              {coupleProfile.partner1.charAt(0)}&amp;{coupleProfile.partner2.charAt(0)}
+              {(coupleProfile?.partner1 || 'Mine').charAt(0)}&amp;{(coupleProfile?.partner2 || 'Sucre').charAt(0)}
             </span>
           </div>
           <p className="font-montserrat text-[9px] tracking-widest uppercase text-on-surface-variant/70 font-medium">

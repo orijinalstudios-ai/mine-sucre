@@ -54,7 +54,7 @@ export default function TopAppBar({ title, showBack = false, onBack, borderless 
           >
             <span className="text-secondary text-[10px] opacity-75">✦</span>
             <span className="font-cinzel font-semibold text-base tracking-widest text-primary">
-              {coupleProfile.partner1.charAt(0)} &amp; {coupleProfile.partner2.charAt(0)}
+              {(coupleProfile?.partner1 || 'Mine').charAt(0)} &amp; {(coupleProfile?.partner2 || 'Sucre').charAt(0)}
             </span>
             <span className="text-secondary text-[10px] opacity-75">✦</span>
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse ml-0.5 inline-block" title="Both phones auto-synced" />

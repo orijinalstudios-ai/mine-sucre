@@ -107,7 +107,17 @@ export function getAudioEmbedInfo(url) {
     };
   }
 
-  // 5. Direct Audio File (mp3, m4a, wav, aac, ogg, flac, data:audio/..., blob:...)
+  // 5. IndexedDB Uploaded Audio Track
+  if (trimmed.startsWith('idb:')) {
+    return {
+      type: 'idb',
+      platform: 'Uploaded Audio',
+      embedUrl: trimmed,
+      originalUrl: trimmed,
+    };
+  }
+
+  // 6. Direct Audio File (mp3, m4a, wav, aac, ogg, flac, data:audio/..., blob:...)
   const isDirect =
     trimmed.startsWith('data:audio/') ||
     trimmed.startsWith('blob:') ||

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { getAudioEmbedInfo } from '../utils/audioPlayer';
+import { saveAudioFile, getAudioPlayableUrl } from '../utils/audioStorage';
 import Icon from './Icon';
 
 export default function AudioPlayerModal() {
@@ -21,20 +22,41 @@ export default function AudioPlayerModal() {
   const [inputUrl, setInputUrl] = useState('');
   const [inputTitle, setInputTitle] = useState('');
   const [inputArtist, setInputArtist] = useState('');
+  const [resolvedAudioUrl, setResolvedAudioUrl] = useState('');
 
   // Default to coupleProfile if activeTrack is null
   const currentTrack = activeTrack || {
-    title: coupleProfile.anthemTitle || 'Baby Riddim',
-    artist: coupleProfile.anthemArtist || 'Fave',
-    url: coupleProfile.songUrl || 'https://open.spotify.com/track/1a2R0g4f08rY2k26t1vY3g',
+    title: coupleProfile?.anthemTitle || 'Baby Riddim',
+    artist: coupleProfile?.anthemArtist || 'Fave',
+    url: coupleProfile?.songUrl || 'https://open.spotify.com/track/1a2R0g4f08rY2k26t1vY3g',
     isAnthem: true,
   };
 
   const embedInfo = getAudioEmbedInfo(currentTrack.url);
 
   useEffect(() => {
+    let isCancelled = false;
+    if (!currentTrack?.url) {
+      setResolvedAudioUrl('');
+      return;
+    }
+
+    if (currentTrack.url.startsWith('idb:')) {
+      getAudioPlayableUrl(currentTrack.url).then((url) => {
+        if (!isCancelled) setResolvedAudioUrl(url);
+      });
+    } else {
+      setResolvedAudioUrl(embedInfo.embedUrl || currentTrack.url);
+    }
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [currentTrack?.url, embedInfo.embedUrl]);
+
+  useEffect(() => {
     if (isAudioPlayerOpen && currentTrack) {
-      setInputUrl(currentTrack.url || '');
+      setInputUrl(currentTrack.url?.startsWith('idb:') ? '' : (currentTrack.url || ''));
       setInputTitle(currentTrack.title || '');
       setInputArtist(currentTrack.artist || '');
     }
@@ -83,37 +105,48 @@ export default function AudioPlayerModal() {
     setShowUrlEditor(false);
   };
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const cleanName = file.name.replace(/\.[^/.]+$/, '');
     setInputTitle(cleanName);
 
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      const dataUrl = event.target.result;
-      setInputUrl(dataUrl);
+    try {
+      const audioId = await saveAudioFile(file);
+      setInputUrl(audioId);
 
       setActiveTrack((prev) => ({
         ...prev,
         title: cleanName,
-        url: dataUrl,
-        embedUrl: dataUrl,
-        type: 'direct',
-        platform: 'Direct Audio',
+        url: audioId,
+        embedUrl: audioId,
+        type: 'idb',
+        platform: 'Uploaded Audio',
       }));
 
-      if (currentTrack.memoryId) {
+      if (currentTrack.isAnthem) {
+        await updateCoupleProfile({
+          ...coupleProfile,
+          songUrl: audioId,
+          anthemTitle: cleanName,
+        });
+        showToast('Love Anthem updated with audio file ✦');
+      } else if (currentTrack.memoryId) {
         await updateMemory(currentTrack.memoryId, {
-          songUrl: dataUrl,
+          songUrl: audioId,
           song: `✦ ${cleanName}`,
         });
+        showToast('Memory audio saved in vault ✦');
+      } else {
+        showToast('Audio file loaded into player ✦');
       }
-      showToast('Audio file loaded into player ✦');
+
       setShowUrlEditor(false);
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      console.warn('Failed to save audio file to IndexedDB:', err);
+      showToast('Error uploading audio file');
+    }
   };
 
   return (
@@ -229,21 +262,27 @@ export default function AudioPlayerModal() {
               </div>
             )}
 
-            {embedInfo.type === 'direct' && (
+            {(embedInfo.type === 'direct' || embedInfo.type === 'idb') && (
               <div className="p-4 text-center space-y-3 bg-surface-container-low">
                 <div className="flex items-center justify-center gap-2">
                   <Icon name="music_note" size={20} className="text-secondary" />
                   <span className="font-serif text-sm font-semibold text-primary">{currentTrack.title}</span>
                 </div>
-                <audio
-                  key={embedInfo.embedUrl}
-                  controls
-                  autoPlay
-                  className="w-full rounded-lg"
-                  src={embedInfo.embedUrl}
-                >
-                  Your browser does not support audio playback.
-                </audio>
+                {resolvedAudioUrl ? (
+                  <audio
+                    key={resolvedAudioUrl}
+                    controls
+                    autoPlay
+                    className="w-full rounded-lg"
+                    src={resolvedAudioUrl}
+                  >
+                    Your browser does not support audio playback.
+                  </audio>
+                ) : (
+                  <p className="font-editorial italic text-xs text-secondary animate-pulse">
+                    ✦ Loading audio from sacred vault...
+                  </p>
+                )}
               </div>
             )}
 
@@ -257,7 +296,7 @@ export default function AudioPlayerModal() {
                   <span className="w-1 h-3 bg-secondary rounded-full animate-bar-wave-5"></span>
                 </div>
                 <p className="font-editorial italic text-xs text-on-surface-variant">
-                  Acoustic romantic melody active. Paste a Spotify, YouTube, or MP3 link below to stream directly!
+                  Acoustic romantic melody active. Paste a Spotify, YouTube, SoundCloud, or MP3 link below to stream directly!
                 </p>
               </div>
             )}

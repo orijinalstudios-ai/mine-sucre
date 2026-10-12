@@ -14,6 +14,7 @@ export default function MemoryDetailModal() {
     audioState,
     togglePlayAudio,
     playMemorySong,
+    coupleProfile,
   } = useApp();
 
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
@@ -153,7 +154,7 @@ export default function MemoryDetailModal() {
                   className="font-montserrat text-[9px] uppercase tracking-wider font-semibold block"
                   style={{ color: theme.accent }}
                 >
-                  Echoed by {mem.author === 'Sucre' ? 'Mine' : 'Sucre'}
+                  Echoed by {mem.author === (coupleProfile?.partner2 || 'Sucre') ? (coupleProfile?.partner1 || 'Mine') : (coupleProfile?.partner2 || 'Sucre')}
                 </span>
                 <FormattedText
                   text={mem.counterNote}

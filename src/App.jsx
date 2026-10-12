@@ -13,6 +13,7 @@ import PrintableKeepsakeModal from './components/PrintableKeepsakeModal';
 import AudioPlayerModal from './components/AudioPlayerModal';
 import InstallPromptModal from './components/InstallPromptModal';
 import LockSplashScreen from './components/LockSplashScreen';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function MainApp() {
   const {
@@ -69,8 +70,10 @@ function MainApp() {
 
 export default function App() {
   return (
-    <AppProvider>
-      <MainApp />
-    </AppProvider>
+    <ErrorBoundary>
+      <AppProvider>
+        <MainApp />
+      </AppProvider>
+    </ErrorBoundary>
   );
 }

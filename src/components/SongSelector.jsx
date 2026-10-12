@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import Icon from './Icon';
 import { ROMANTIC_SONG_PRESETS, getAudioEmbedInfo } from '../utils/audioPlayer';
 import { useApp } from '../context/AppContext';
+import { saveAudioFile } from '../utils/audioStorage';
 
 export { ROMANTIC_SONG_PRESETS };
 
@@ -36,19 +37,19 @@ export default function SongSelector({
     }
   };
 
-  const handleAudioFileUpload = (e) => {
+  const handleAudioFileUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const fileNameClean = file.name.replace(/\.[^/.]+$/, '');
     if (onChange) onChange(`✦ ${fileNameClean}`);
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const dataUrl = event.target.result;
-      if (onUrlChange) onUrlChange(dataUrl);
-    };
-    reader.readAsDataURL(file);
+    try {
+      const audioId = await saveAudioFile(file);
+      if (onUrlChange) onUrlChange(audioId);
+    } catch (err) {
+      console.warn('Failed to save audio file to IndexedDB:', err);
+    }
   };
 
   const handleClear = () => {
@@ -139,9 +140,9 @@ export default function SongSelector({
         <div className="relative flex items-center">
           <input
             type="url"
-            value={currentUrl}
+            value={currentUrl.startsWith('idb:') ? '' : currentUrl}
             onChange={(e) => handleUrlInput(e.target.value)}
-            placeholder="Paste Spotify, YouTube, SoundCloud, or MP3 link..."
+            placeholder={currentUrl.startsWith('idb:') ? '✦ Audio file loaded in vault (or paste URL)...' : 'Paste Spotify, YouTube, SoundCloud, or MP3 link...'}
             className="w-full bg-surface-container-low text-xs rounded-xl pl-3 pr-20 py-2 border border-secondary/30 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/30 text-primary placeholder:text-on-surface-variant/50 transition-all font-sans"
           />
 
