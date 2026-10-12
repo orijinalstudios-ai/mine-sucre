@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import Icon from './Icon';
+import { getCardTheme } from '../utils/cardThemes';
+import FormattedText from './FormattedText';
 
 export default function MemoryDetailModal() {
   const {
     selectedMemoryModal,
     setSelectedMemoryModal,
+    setEditingMemory,
     toggleFavorite,
     deleteMemory,
     audioState,
@@ -16,6 +19,7 @@ export default function MemoryDetailModal() {
 
   if (!selectedMemoryModal) return null;
   const mem = selectedMemoryModal;
+  const theme = getCardTheme(mem.cardColor);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
@@ -23,12 +27,27 @@ export default function MemoryDetailModal() {
         {/* Modal Header */}
         <div className="sticky top-0 bg-surface/95 backdrop-blur-md px-5 py-3.5 border-b border-outline-variant/30 flex items-center justify-between z-10">
           <div className="flex items-center gap-2">
-            <span className="font-montserrat text-[10px] uppercase tracking-wider text-secondary font-semibold">
+            <span
+              className="font-montserrat text-[10px] uppercase tracking-wider font-semibold"
+              style={{ color: theme.accent }}
+            >
               ✦ {mem.chapter || 'Sacred Chronicle'}
             </span>
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                setSelectedMemoryModal(null);
+                setEditingMemory(mem);
+              }}
+              type="button"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-full border border-secondary/30 text-secondary hover:bg-secondary/10 transition-colors text-xs font-montserrat font-semibold"
+              title="Edit Memory"
+            >
+              <Icon name="edit" size={13} />
+              <span>Edit</span>
+            </button>
             <button
               onClick={() => toggleFavorite(mem.id)}
               className="p-1 text-secondary hover:text-error transition-colors"
@@ -103,26 +122,42 @@ export default function MemoryDetailModal() {
           </div>
 
           {/* The Full Side Note Letter */}
-          <div className="parchment-texture rounded-xl p-5 border border-secondary/30 shadow-sm space-y-3">
-            <div className="flex items-center justify-between border-b border-secondary/20 pb-2 text-secondary">
-              <span className="font-montserrat text-[10px] uppercase tracking-wider font-semibold">
+          <div
+            style={{
+              backgroundColor: theme.bg,
+              borderColor: theme.border,
+            }}
+            className={`rounded-xl p-5 border shadow-sm space-y-3 transition-colors ${
+              theme.isDark ? 'text-[#fff6e9]' : 'text-primary'
+            }`}
+          >
+            <div className="flex items-center justify-between border-b border-current/20 pb-2">
+              <span
+                className="font-montserrat text-[10px] uppercase tracking-wider font-semibold"
+                style={{ color: theme.accent }}
+              >
                 Letter from {mem.author || 'Beloved'}
               </span>
-              <span className="text-xs">✦ Wax Sealed</span>
+              <span className="text-xs opacity-75">✦ Keepsake ({theme.name})</span>
             </div>
 
-            <p className="font-editorial italic text-lg md:text-xl text-primary leading-relaxed">
-              “{mem.letter}”
-            </p>
+            <FormattedText
+              text={mem.letter}
+              className="font-editorial italic text-lg md:text-xl leading-relaxed"
+            />
 
             {mem.counterNote && (
-              <div className="pt-3 border-t border-secondary/20 space-y-1">
-                <span className="font-montserrat text-[9px] uppercase tracking-wider text-secondary font-semibold block">
+              <div className="pt-3 border-t border-current/20 space-y-1">
+                <span
+                  className="font-montserrat text-[9px] uppercase tracking-wider font-semibold block"
+                  style={{ color: theme.accent }}
+                >
                   Echoed by {mem.author === 'Sucre' ? 'Mine' : 'Sucre'}
                 </span>
-                <p className="font-editorial italic text-sm md:text-base text-on-surface-variant leading-relaxed">
-                  “{mem.counterNote}”
-                </p>
+                <FormattedText
+                  text={mem.counterNote}
+                  className="font-editorial italic text-sm md:text-base opacity-90 leading-relaxed"
+                />
               </div>
             )}
           </div>
@@ -160,7 +195,7 @@ export default function MemoryDetailModal() {
         </div>
 
         {/* Modal Footer */}
-        <div className="p-4 border-t border-outline-variant/30 flex items-center justify-between">
+        <div className="p-4 border-t border-outline-variant/30 flex items-center justify-between gap-2 flex-wrap">
           <button
             type="button"
             onClick={() => {
@@ -169,19 +204,33 @@ export default function MemoryDetailModal() {
                 setSelectedMemoryModal(null);
               }
             }}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs text-error/90 hover:text-error hover:bg-error/10 font-montserrat uppercase font-semibold transition-all active:scale-95 border border-error/20"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs text-error/90 hover:text-error hover:bg-error/10 font-montserrat uppercase font-semibold transition-all active:scale-95 border border-error/20"
           >
             <Icon name="delete" size={14} />
-            <span>Delete Memory</span>
+            <span>Delete</span>
           </button>
 
-          <button
-            type="button"
-            onClick={() => setSelectedMemoryModal(null)}
-            className="px-5 py-2.5 rounded-full bg-primary text-secondary-fixed text-xs font-montserrat uppercase tracking-wider font-semibold shadow hover:bg-primary-container active:scale-95 transition-all"
-          >
-            Close Keepsake
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedMemoryModal(null);
+                setEditingMemory(mem);
+              }}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-secondary/40 text-secondary hover:bg-secondary/10 font-montserrat uppercase font-semibold text-xs transition-all active:scale-95"
+            >
+              <Icon name="edit" size={14} />
+              <span>Edit Memory</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedMemoryModal(null)}
+              className="px-4 py-2 rounded-full bg-primary text-secondary-fixed text-xs font-montserrat uppercase tracking-wider font-semibold shadow hover:bg-primary-container active:scale-95 transition-all"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </div>

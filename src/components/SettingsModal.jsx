@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import Icon from './Icon';
 
@@ -7,7 +7,7 @@ export default function SettingsModal() {
     isSettingsOpen,
     setIsSettingsOpen,
     coupleProfile,
-    setCoupleProfile,
+    updateCoupleProfile,
     clearAllData,
     showToast,
     memories,
@@ -18,27 +18,50 @@ export default function SettingsModal() {
   const [names, setNames] = useState(coupleProfile.names);
   const [partner1, setPartner1] = useState(coupleProfile.partner1);
   const [partner2, setPartner2] = useState(coupleProfile.partner2);
-  const [anniversaryDate, setAnniversaryDate] = useState(coupleProfile.anniversaryDate);
+  const [anniversaryDate, setAnniversaryDate] = useState(coupleProfile.anniversaryDate || '2025-04-27');
   const [songUrl, setSongUrl] = useState(coupleProfile.songUrl || '');
   const [anthemTitle, setAnthemTitle] = useState(coupleProfile.anthemTitle || '');
   const [anthemArtist, setAnthemArtist] = useState(coupleProfile.anthemArtist || '');
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Keep form inputs perfectly synchronized whenever settings modal opens or cloud profile updates
+  useEffect(() => {
+    if (isSettingsOpen) {
+      setNames(coupleProfile.names || 'Mine & Sucre');
+      setPartner1(coupleProfile.partner1 || 'Mine');
+      setPartner2(coupleProfile.partner2 || 'Sucre');
+      setAnniversaryDate(coupleProfile.anniversaryDate || '2025-04-27');
+      setSongUrl(coupleProfile.songUrl || '');
+      setAnthemTitle(coupleProfile.anthemTitle || '');
+      setAnthemArtist(coupleProfile.anthemArtist || '');
+    }
+  }, [isSettingsOpen, coupleProfile]);
 
   if (!isSettingsOpen) return null;
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    setCoupleProfile({
+    setIsSaving(true);
+    const updated = {
       ...coupleProfile,
       names: names.trim() || 'Mine & Sucre',
       partner1: partner1.trim() || 'Mine',
       partner2: partner2.trim() || 'Sucre',
-      anniversaryDate,
+      anniversaryDate: anniversaryDate || '2025-04-27',
       songUrl: songUrl.trim() || 'https://audiomack.com/favourish/song/baby-riddim',
       anthemTitle: anthemTitle.trim() || 'Baby Riddim',
       anthemArtist: anthemArtist.trim() || 'Fave',
-    });
-    showToast('Journal settings sealed ✦');
-    setIsSettingsOpen(false);
+    };
+
+    try {
+      await updateCoupleProfile(updated);
+      showToast('Journal settings sealed & synced ✦');
+    } catch (err) {
+      showToast('Settings saved locally ✦');
+    } finally {
+      setIsSaving(false);
+      setIsSettingsOpen(false);
+    }
   };
 
   const handleExportJSON = () => {
@@ -213,9 +236,10 @@ export default function SettingsModal() {
           <div className="pt-4 border-t border-outline-variant/30 space-y-2.5">
             <button
               type="submit"
-              className="w-full py-2.5 rounded-full bg-primary text-secondary-fixed font-montserrat text-xs uppercase tracking-wider font-semibold shadow hover:bg-primary-container active:scale-95 transition-all"
+              disabled={isSaving}
+              className="w-full py-2.5 rounded-full bg-primary text-secondary-fixed font-montserrat text-xs uppercase tracking-wider font-semibold shadow hover:bg-primary-container active:scale-95 transition-all disabled:opacity-75"
             >
-              Save Sanctuary Settings
+              {isSaving ? 'Sealing Settings...' : 'Save Sanctuary Settings'}
             </button>
 
             <button

@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import TopAppBar from './TopAppBar';
 import Icon from './Icon';
+import { getCardTheme } from '../utils/cardThemes';
+import FormattedText from './FormattedText';
 
 export default function JourneyView() {
   const {
     memories,
     toggleFavorite,
     setSelectedMemoryModal,
+    setEditingMemory,
     setActiveTab,
     togglePlayAudio,
     audioState,
@@ -143,53 +146,78 @@ export default function JourneyView() {
             </button>
           </div>
         ) : (
-          filteredMemories.map((mem, index) => (
-            <article
-              key={mem.id}
-              className="bg-surface-container-lowest rounded-2xl border border-secondary/30 p-3.5 sm:p-4 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
-            >
-              {/* Card Header: Chapter & Actions */}
-              <div className="flex items-start justify-between gap-2 pb-2.5 sm:pb-3 border-b border-outline-variant/20">
-                <div className="space-y-0.5 min-w-0 flex-1">
-                  <span className="font-cinzel text-[9px] sm:text-[10px] uppercase tracking-widest text-secondary font-bold block truncate">
-                    {mem.chapter || `Chapter ${index + 1}`}
-                  </span>
-                  <h3 className="font-serif font-bold text-base sm:text-lg text-primary leading-snug break-words">
-                    {mem.title}
-                  </h3>
-                </div>
+          filteredMemories.map((mem, index) => {
+            const theme = getCardTheme(mem.cardColor);
+            return (
+              <article
+                key={mem.id}
+                style={{
+                  backgroundColor: theme.bg,
+                  borderColor: theme.border,
+                }}
+                className={`rounded-2xl border p-3.5 sm:p-4 shadow-sm hover:shadow-md transition-all relative overflow-hidden ${
+                  theme.isDark ? 'text-[#fff6e9]' : 'text-on-surface'
+                }`}
+              >
+                {/* Card Header: Chapter & Actions */}
+                <div className="flex items-start justify-between gap-2 pb-2.5 sm:pb-3 border-b border-outline-variant/20">
+                  <div className="space-y-0.5 min-w-0 flex-1">
+                    <span
+                      className="font-cinzel text-[9px] sm:text-[10px] uppercase tracking-widest font-bold block truncate"
+                      style={{ color: theme.accent }}
+                    >
+                      {mem.chapter || `Chapter ${index + 1}`}
+                    </span>
+                    <h3
+                      className={`font-serif font-bold text-base sm:text-lg leading-snug break-words ${
+                        theme.isDark ? 'text-[#fff6e9]' : 'text-primary'
+                      }`}
+                    >
+                      {mem.title}
+                    </h3>
+                  </div>
 
-                <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
-                  {/* Heart / Favorite Button */}
-                  <button
-                    onClick={() => toggleFavorite(mem.id)}
-                    type="button"
-                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-secondary/20 hover:border-secondary hover:bg-secondary-container/20 flex items-center justify-center transition-all active:scale-125 shrink-0"
-                    title={mem.isFavorite ? 'Unfavorite' : 'Add to Favorites'}
-                  >
-                    <Icon
-                      name="favorite"
-                      size={16}
-                      filled={mem.isFavorite}
-                      className={mem.isFavorite ? 'text-error' : 'text-on-surface-variant/60 hover:text-error'}
-                    />
-                  </button>
+                  <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
+                    {/* Edit button */}
+                    <button
+                      onClick={() => setEditingMemory(mem)}
+                      type="button"
+                      className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-secondary/25 hover:border-secondary hover:bg-secondary-container/20 flex items-center justify-center transition-all active:scale-95 text-secondary shrink-0"
+                      title="Edit Memory"
+                    >
+                      <Icon name="edit" size={14} />
+                    </button>
 
-                  {/* Delete button */}
-                  <button
-                    onClick={() => {
-                      if (window.confirm(`Delete "${mem.title || 'this memory'}" from your journal?`)) {
-                        deleteMemory(mem.id);
-                      }
-                    }}
-                    type="button"
-                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-outline-variant/30 hover:border-error/50 hover:bg-error/10 hover:text-error flex items-center justify-center transition-all active:scale-90 text-on-surface-variant/60 shrink-0"
-                    title="Delete Memory"
-                  >
-                    <Icon name="delete" size={14} />
-                  </button>
+                    {/* Heart / Favorite Button */}
+                    <button
+                      onClick={() => toggleFavorite(mem.id)}
+                      type="button"
+                      className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-secondary/20 hover:border-secondary hover:bg-secondary-container/20 flex items-center justify-center transition-all active:scale-125 shrink-0"
+                      title={mem.isFavorite ? 'Unfavorite' : 'Add to Favorites'}
+                    >
+                      <Icon
+                        name="favorite"
+                        size={16}
+                        filled={mem.isFavorite}
+                        className={mem.isFavorite ? 'text-error' : 'text-on-surface-variant/60 hover:text-error'}
+                      />
+                    </button>
+
+                    {/* Delete button */}
+                    <button
+                      onClick={() => {
+                        if (window.confirm(`Delete "${mem.title || 'this memory'}" from your journal?`)) {
+                          deleteMemory(mem.id);
+                        }
+                      }}
+                      type="button"
+                      className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-outline-variant/30 hover:border-error/50 hover:bg-error/10 hover:text-error flex items-center justify-center transition-all active:scale-90 text-on-surface-variant/60 shrink-0"
+                      title="Delete Memory"
+                    >
+                      <Icon name="delete" size={14} />
+                    </button>
+                  </div>
                 </div>
-              </div>
 
               {/* Meta details: Date & Location */}
               <div className="flex items-center justify-between gap-2 py-2 text-xs text-on-surface-variant font-medium">
@@ -280,16 +308,20 @@ export default function JourneyView() {
                     <span className="font-montserrat text-[9px] uppercase tracking-wider text-secondary font-semibold block mb-0.5">
                       Perspective from {mem.author === 'Sucre' ? 'Mine' : 'Sucre'}
                     </span>
-                    <p className="font-editorial italic text-xs sm:text-sm text-on-surface-variant leading-relaxed break-words">
-                      “{mem.counterNote}”
-                    </p>
+                    <FormattedText
+                      text={mem.counterNote}
+                      className="font-editorial italic text-xs sm:text-sm text-on-surface-variant leading-relaxed break-words"
+                    />
                   </div>
                 )}
 
                 <div className="space-y-1">
-                  <p className="font-editorial italic text-sm sm:text-base md:text-lg text-primary leading-relaxed line-clamp-3 break-words">
-                    “{mem.letter}”
-                  </p>
+                  <div className={`font-editorial italic text-sm sm:text-base md:text-lg leading-relaxed break-words ${theme.isDark ? 'text-[#fff6e9]' : 'text-primary'}`}>
+                    <FormattedText
+                      text={mem.letter}
+                      clampLines={3}
+                    />
+                  </div>
                   <button
                     onClick={() => setSelectedMemoryModal(mem)}
                     type="button"
@@ -336,7 +368,8 @@ export default function JourneyView() {
                 </div>
               </div>
             </article>
-          ))
+          );
+        })
         )}
       </main>
     </div>

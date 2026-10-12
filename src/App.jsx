@@ -7,6 +7,7 @@ import JourneyView from './components/JourneyView';
 import CaptureView from './components/CaptureView';
 import VaultView from './components/VaultView';
 import MemoryDetailModal from './components/MemoryDetailModal';
+import EditMemoryModal from './components/EditMemoryModal';
 import SettingsModal from './components/SettingsModal';
 import PrintableKeepsakeModal from './components/PrintableKeepsakeModal';
 import AudioPlayerModal from './components/AudioPlayerModal';
@@ -46,6 +47,7 @@ function MainApp() {
 
       {/* Global Modals */}
       <MemoryDetailModal />
+      <EditMemoryModal />
       <SettingsModal />
       <PrintableKeepsakeModal />
       <AudioPlayerModal />

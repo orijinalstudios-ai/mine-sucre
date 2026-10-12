@@ -3,6 +3,9 @@ import confetti from 'canvas-confetti';
 import { useApp } from '../context/AppContext';
 import Icon from './Icon';
 import { compressImage } from '../utils/imageCompressor';
+import TextFormattingToolbar from './TextFormattingToolbar';
+import SongSelector from './SongSelector';
+import CardColorPicker from './CardColorPicker';
 
 export default function CaptureView() {
   const {
@@ -13,6 +16,7 @@ export default function CaptureView() {
   } = useApp();
 
   const fileInputRef = useRef(null);
+  const letterTextareaRef = useRef(null);
 
   // Form states - completely clean and ready to receive user data
   const [title, setTitle] = useState('');
@@ -27,6 +31,7 @@ export default function CaptureView() {
   const [selectedSong, setSelectedSong] = useState(
     `✦ ${coupleProfile.anthemArtist} — ${coupleProfile.anthemTitle}`
   );
+  const [cardColor, setCardColor] = useState('parchment');
   const [isLocked, setIsLocked] = useState(false);
   const [attachedPhotos, setAttachedPhotos] = useState([]);
 
@@ -44,6 +49,19 @@ export default function CaptureView() {
     'Celebration',
     'Quiet Love',
   ];
+
+  const formatAnniversaryLabel = () => {
+    const raw = coupleProfile?.anniversaryDate || '2025-04-27';
+    const parts = raw.split('-').map(Number);
+    if (parts.length === 3) {
+      const months = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+      return `${parts[2]}th ${months[parts[1] - 1]}`;
+    }
+    return '27th April';
+  };
 
   // Handle image upload with automatic mobile compression
   const handleFileUpload = async (e) => {
@@ -153,6 +171,7 @@ export default function CaptureView() {
       author: author,
       counterNote: counterNote.trim() || null,
       song: selectedSong,
+      cardColor: cardColor || 'parchment',
       tag: selectedMood === 'Adventures' ? 'Travel' : selectedMood === 'Celebration' ? 'Milestones' : 'Letters',
       mood: selectedMood,
       isFavorite: true,
@@ -199,15 +218,8 @@ export default function CaptureView() {
           <span className="text-secondary text-[10px]">✦</span>
         </div>
 
-        {/* Save Button */}
-        <button
-          onClick={handleSaveToCapsule}
-          className="bg-primary text-secondary-fixed px-4 py-1.5 rounded-full border border-secondary/40 font-montserrat text-[10px] tracking-wider uppercase flex items-center gap-1.5 shadow-sm hover:bg-primary-container active:scale-95 group transition-transform font-semibold"
-          type="button"
-        >
-          <Icon name="auto_awesome" size={13} className="text-secondary-fixed" />
-          <span>Save Memory</span>
-        </button>
+        {/* Spacer to keep crest centered */}
+        <div className="w-8" />
       </header>
 
       {/* Form Content */}
@@ -376,12 +388,21 @@ export default function CaptureView() {
               <span className="font-editorial italic text-base text-secondary block font-semibold">
                 Dear Heart,
               </span>
+
+              {/* Formatting & Emojis Toolbar */}
+              <TextFormattingToolbar
+                textareaRef={letterTextareaRef}
+                value={letter}
+                onChange={setLetter}
+              />
+
               <textarea
+                ref={letterTextareaRef}
                 value={letter}
                 onChange={(e) => setLetter(e.target.value)}
-                rows={5}
-                placeholder="What made this moment unforgettable? Write something to make your love smile in ten years..."
-                className="w-full bg-transparent border-none p-0 text-primary font-editorial italic text-lg md:text-xl leading-relaxed focus:ring-0 resize-none placeholder:text-on-surface-variant/40"
+                rows={6}
+                placeholder="What made this moment unforgettable? Write something to make your love smile in ten years... Press Enter twice to create new paragraphs."
+                className="w-full bg-transparent border-none p-0 text-primary font-editorial italic text-lg md:text-xl leading-relaxed focus:ring-0 resize-y placeholder:text-on-surface-variant/40"
               ></textarea>
 
               {/* Counter Perspective Note */}
@@ -429,39 +450,21 @@ export default function CaptureView() {
           </div>
         </section>
 
-        {/* Song Soundtrack Resonance */}
-        <section className="bg-surface-container-lowest border border-secondary/25 rounded p-3.5 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="font-montserrat text-[10px] uppercase tracking-wider text-primary font-semibold flex items-center gap-1.5">
-              <Icon name="music_note" size={15} className="text-secondary" />
-              <span>Soundtrack Resonance</span>
-            </span>
-            <span
-              onClick={() => setIsAudioPlayerOpen(true)}
-              className="font-sans text-[11px] text-secondary hover:underline cursor-pointer"
-            >
-              Open Audiomack Track ✦
-            </span>
-          </div>
+        {/* Song Soundtrack Resonance for this memory */}
+        <section className="bg-surface-container-lowest border border-secondary/30 rounded-2xl p-3.5 shadow-xs">
+          <SongSelector
+            selectedSong={selectedSong}
+            onChange={setSelectedSong}
+            coupleProfile={coupleProfile}
+          />
+        </section>
 
-          <div className="bg-primary-container/10 border border-secondary/35 rounded-full px-3.5 py-2 flex items-center justify-between shadow-sm">
-            <div className="flex items-center gap-2.5 overflow-hidden flex-1">
-              <button
-                type="button"
-                onClick={() => setIsAudioPlayerOpen(true)}
-                className="w-6 h-6 rounded-full bg-primary text-secondary-fixed flex items-center justify-center shrink-0 shadow active:scale-90"
-              >
-                <Icon name="play_arrow" size={14} filled={true} className="text-secondary-fixed ml-0.5" />
-              </button>
-              <input
-                type="text"
-                value={selectedSong}
-                onChange={(e) => setSelectedSong(e.target.value)}
-                placeholder="Song title and artist..."
-                className="bg-transparent border-none p-0 font-serif text-xs text-primary truncate focus:ring-0 w-full"
-              />
-            </div>
-          </div>
+        {/* Card Color Tone for Main Screen */}
+        <section className="bg-surface-container-lowest border border-secondary/30 rounded-2xl p-3.5 shadow-xs">
+          <CardColorPicker
+            selectedColor={cardColor}
+            onChange={setCardColor}
+          />
         </section>
 
         {/* Mood Tag Selector Pills */}
@@ -493,7 +496,7 @@ export default function CaptureView() {
         </section>
 
         {/* Private Capsule Toggle */}
-        <section className="bg-surface-container-lowest border border-secondary/30 rounded p-4 shadow-sm flex items-center justify-between gap-3">
+        <section className="bg-surface-container-lowest border border-secondary/30 rounded-2xl p-4 shadow-sm flex items-center justify-between gap-3">
           <div className="flex items-start gap-3">
             <div
               className={`w-8 h-8 rounded-full border flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
@@ -509,7 +512,7 @@ export default function CaptureView() {
                 Lock until Anniversary
               </h3>
               <p className="font-sans text-[11px] text-on-surface-variant/80">
-                Capsule seals until March 27
+                Capsule seals until {formatAnniversaryLabel()}
               </p>
             </div>
           </div>
@@ -525,13 +528,13 @@ export default function CaptureView() {
           </label>
         </section>
 
-        {/* Submit Button */}
-        <div className="pt-2">
+        {/* Prominent Save Button Placed Just Below Everything for Good UX */}
+        <div className="pt-3 pb-8 space-y-2">
           <button
             type="submit"
-            className="w-full py-3.5 rounded-full bg-primary text-secondary-fixed font-montserrat text-xs tracking-widest uppercase font-semibold border border-secondary/50 shadow-md hover:bg-primary-container active:scale-98 transition-all flex items-center justify-center gap-2"
+            className="w-full py-4 rounded-full bg-gradient-to-r from-primary via-[#4a1622] to-primary text-secondary-fixed font-montserrat text-xs tracking-widest uppercase font-bold border border-secondary/50 shadow-lg hover:brightness-110 active:scale-98 transition-all flex items-center justify-center gap-2"
           >
-            <Icon name="auto_awesome" size={16} className="text-secondary-fixed" />
+            <Icon name="auto_awesome" size={17} className="text-secondary-fixed" />
             <span>Archive Forever into Capsule</span>
           </button>
         </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { getAudioEmbedUrl } from '../utils/audioPlayer';
 import Icon from './Icon';
@@ -8,7 +8,7 @@ export default function AudioPlayerModal() {
     isAudioPlayerOpen,
     setIsAudioPlayerOpen,
     coupleProfile,
-    setCoupleProfile,
+    updateCoupleProfile,
     showToast,
   } = useApp();
 
@@ -16,21 +16,29 @@ export default function AudioPlayerModal() {
   const [songTitle, setSongTitle] = useState(coupleProfile.anthemTitle || '');
   const [songArtist, setSongArtist] = useState(coupleProfile.anthemArtist || '');
 
+  useEffect(() => {
+    if (isAudioPlayerOpen) {
+      setCustomUrl(coupleProfile.songUrl || '');
+      setSongTitle(coupleProfile.anthemTitle || '');
+      setSongArtist(coupleProfile.anthemArtist || '');
+    }
+  }, [isAudioPlayerOpen, coupleProfile]);
+
   if (!isAudioPlayerOpen) return null;
 
   const embedUrl = getAudioEmbedUrl(coupleProfile.songUrl);
 
-  const handleUpdateSong = (e) => {
+  const handleUpdateSong = async (e) => {
     e.preventDefault();
     if (!customUrl.trim()) return;
 
-    setCoupleProfile({
+    await updateCoupleProfile({
       ...coupleProfile,
       songUrl: customUrl.trim(),
       anthemTitle: songTitle.trim() || 'Baby Riddim',
       anthemArtist: songArtist.trim() || 'Fave',
     });
-    showToast('Love anthem updated ✦');
+    showToast('Love anthem updated & synced ✦');
   };
 
   return (

@@ -11,6 +11,19 @@ export default function PrintableKeepsakeModal() {
     window.print();
   };
 
+  const formatCommencedDate = (dateStr) => {
+    const raw = dateStr || '2025-04-27';
+    const parts = raw.split('-').map(Number);
+    if (parts.length === 3) {
+      const months = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+      return `${parts[2]}th ${months[parts[1] - 1]}, ${parts[0]}`;
+    }
+    return '27th April, 2025';
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
       <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[95vh] overflow-y-auto no-scrollbar shadow-2xl flex flex-col relative text-[#1c1c18]">
@@ -56,7 +69,7 @@ export default function PrintableKeepsakeModal() {
               An Heirloom Chronicle of Love & Milestones
             </p>
             <div className="pt-4 text-xs text-gray-600 font-sans">
-              <p>Commenced: {coupleProfile.anniversaryDate}</p>
+              <p>Commenced: {formatCommencedDate(coupleProfile.anniversaryDate)}</p>
               <p className="mt-1 font-serif italic text-primary">
                 “{timeStats.daysTogether} Days of Love & Endless Constellations”
               </p>

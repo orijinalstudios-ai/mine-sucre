@@ -27,7 +27,19 @@ export function AppProvider({ children }) {
   // Couple Profile
   const [coupleProfile, setCoupleProfile] = useState(() => {
     const saved = localStorage.getItem('mm_couple_profile_v2');
-    return saved ? JSON.parse(saved) : initialCoupleProfile;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.anniversaryDate === '2025-03-27') {
+          parsed.anniversaryDate = '2025-04-27';
+          localStorage.setItem('mm_couple_profile_v2', JSON.stringify(parsed));
+        }
+        return parsed;
+      } catch (e) {
+        return initialCoupleProfile;
+      }
+    }
+    return initialCoupleProfile;
   });
 
   // Memories (100% clean, ready for user inputs)
@@ -71,6 +83,7 @@ export function AppProvider({ children }) {
 
   // Modals & UI overlays
   const [selectedMemoryModal, setSelectedMemoryModal] = useState(null);
+  const [editingMemory, setEditingMemory] = useState(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isKeepsakeBookOpen, setIsKeepsakeBookOpen] = useState(false);
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
@@ -142,8 +155,12 @@ export function AppProvider({ children }) {
             localStorage.setItem('mm_vows', JSON.stringify(cloudData.vows));
           }
           if (cloudData.coupleProfile && typeof cloudData.coupleProfile === 'object') {
-            setCoupleProfile((prev) => ({ ...prev, ...cloudData.coupleProfile }));
-            localStorage.setItem('mm_couple_profile_v2', JSON.stringify(cloudData.coupleProfile));
+            const profile = { ...cloudData.coupleProfile };
+            if (profile.anniversaryDate === '2025-03-27') {
+              profile.anniversaryDate = '2025-04-27';
+            }
+            setCoupleProfile((prev) => ({ ...prev, ...profile }));
+            localStorage.setItem('mm_couple_profile_v2', JSON.stringify(profile));
           }
           if (cloudUpdatedAt) {
             localStorage.setItem('mm_vault_updated_at', cloudUpdatedAt);
@@ -242,6 +259,12 @@ export function AppProvider({ children }) {
     const updated = memories.map((m) => (m.id === id ? { ...m, ...updates } : m));
     setMemories(updated);
     localStorage.setItem('mm_memories', JSON.stringify(updated));
+
+    if (selectedMemoryModal && selectedMemoryModal.id === id) {
+      setSelectedMemoryModal((prev) => ({ ...prev, ...updates }));
+    }
+
+    showToast("Memory sealed & updated in archives ✦");
 
     if (isCloudConfigured) {
       await saveCloudVault({ memories: updated, vows, coupleProfile, updatedAt: now });
@@ -347,10 +370,10 @@ export function AppProvider({ children }) {
       const now = new Date();
 
       // Safely parse anniversary YYYY-MM-DD into year, month, day components
-      const rawDate = coupleProfile.anniversaryDate || '2025-03-27';
+      const rawDate = coupleProfile.anniversaryDate || '2025-04-27';
       const parts = rawDate.split('-').map(Number);
       const startYear = parts[0] || 2025;
-      const startMonth = parts[1] || 3; // 1-indexed (March = 3)
+      const startMonth = parts[1] || 4; // 1-indexed (April = 4)
       const startDay = parts[2] || 27;
 
       // 1. Days Together: calculated by comparing local calendar midnights
@@ -427,6 +450,8 @@ export function AppProvider({ children }) {
         togglePlayAudio,
         selectedMemoryModal,
         setSelectedMemoryModal,
+        editingMemory,
+        setEditingMemory,
         isSettingsOpen,
         setIsSettingsOpen,
         isKeepsakeBookOpen,

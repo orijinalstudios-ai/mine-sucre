@@ -2,6 +2,8 @@ import React from 'react';
 import { useApp } from '../context/AppContext';
 import TopAppBar from './TopAppBar';
 import Icon from './Icon';
+import { getCardTheme } from '../utils/cardThemes';
+import FormattedText from './FormattedText';
 
 export default function SanctuaryView() {
   const {
@@ -15,14 +17,23 @@ export default function SanctuaryView() {
 
   // Find memory of the day if exists
   const memoryOfDay = memories.find((m) => m.isMemoryOfDay) || memories[0];
+  const memoryOfDayTheme = memoryOfDay ? getCardTheme(memoryOfDay.cardColor) : null;
 
-  // Format anniversary date for display
-  const startDate = new Date(coupleProfile.anniversaryDate);
-  const formattedStart = startDate.toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
+  // Format anniversary date for display (timezone-safe)
+  const formatAnniversaryStart = (dateStr) => {
+    const raw = dateStr || '2025-04-27';
+    const parts = raw.split('-').map(Number);
+    if (parts.length === 3) {
+      const months = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+      return `${parts[2]}th ${months[parts[1] - 1]}, ${parts[0]}`;
+    }
+    return '27th April, 2025';
+  };
+
+  const formattedStart = formatAnniversaryStart(coupleProfile.anniversaryDate);
 
   return (
     <div className="flex-1 flex flex-col bg-surface min-h-full">
@@ -235,7 +246,13 @@ export default function SanctuaryView() {
 
             <div
               onClick={() => setSelectedMemoryModal(memoryOfDay)}
-              className="bg-surface-container-low p-2.5 pb-4 rounded-xl border border-outline-variant/30 shadow-inner cursor-pointer hover:shadow-md transition-shadow group"
+              style={{
+                backgroundColor: memoryOfDayTheme?.bg || undefined,
+                borderColor: memoryOfDayTheme?.border || undefined,
+              }}
+              className={`p-3 pb-4 rounded-xl border shadow-inner cursor-pointer hover:shadow-md transition-all group ${
+                memoryOfDayTheme?.isDark ? 'text-[#fff6e9]' : 'text-primary'
+              }`}
             >
               {memoryOfDay.photos && memoryOfDay.photos.length > 0 && (
                 <div className="aspect-[4/3] w-full overflow-hidden rounded-lg bg-surface-dim relative">
@@ -248,15 +265,20 @@ export default function SanctuaryView() {
               )}
 
               <div className="mt-3.5 px-1.5 space-y-1.5">
-                <div className="flex items-center justify-between text-secondary">
-                  <span className="font-montserrat text-[9px] uppercase tracking-widest text-secondary font-semibold">
+                <div className="flex items-center justify-between">
+                  <span
+                    className="font-montserrat text-[9px] uppercase tracking-widest font-semibold"
+                    style={{ color: memoryOfDayTheme?.accent }}
+                  >
                     Letter from {memoryOfDay.author || 'Beloved'}
                   </span>
-                  <span className="text-[10px]">✦</span>
+                  <span className="text-[10px]" style={{ color: memoryOfDayTheme?.accent }}>✦</span>
                 </div>
-                <p className="font-editorial italic text-primary leading-snug text-base md:text-lg line-clamp-2">
-                  “{memoryOfDay.letter}”
-                </p>
+                <FormattedText
+                  text={memoryOfDay.letter}
+                  clampLines={2}
+                  className="font-editorial italic leading-snug text-base md:text-lg"
+                />
               </div>
             </div>
 
