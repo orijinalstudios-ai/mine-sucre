@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { initialCoupleProfile, initialMemories, initialVows } from '../data/seedData';
-import { ambientPlayer, getAudioEmbedUrl } from '../utils/audioPlayer';
+import { ambientPlayer, getAudioEmbedUrl, resolveSongInfo, ROMANTIC_SONG_PRESETS } from '../utils/audioPlayer';
 import {
   fetchCloudVault,
   saveCloudVault,
@@ -119,19 +119,53 @@ export function AppProvider({ children }) {
     }, 3500);
   };
 
-  const togglePlayAudio = () => {
-    if (coupleProfile.songUrl && coupleProfile.songUrl.includes('audiomack.com')) {
-      setIsAudioPlayerOpen((prev) => !prev);
+  // Track playing state (Can play either couple anthem or memory specific song)
+  const [activeTrack, setActiveTrack] = useState(() => ({
+    title: coupleProfile?.anthemTitle || 'Baby Riddim',
+    artist: coupleProfile?.anthemArtist || 'Fave',
+    url: coupleProfile?.songUrl || 'https://audiomack.com/favourish/song/baby-riddim',
+    isAnthem: true,
+  }));
+
+  const playAnthem = () => {
+    setActiveTrack({
+      title: coupleProfile?.anthemTitle || 'Baby Riddim',
+      artist: coupleProfile?.anthemArtist || 'Fave',
+      url: coupleProfile?.songUrl || 'https://audiomack.com/favourish/song/baby-riddim',
+      isAnthem: true,
+    });
+    setIsAudioPlayerOpen(true);
+  };
+
+  const playMemorySong = (mem) => {
+    if (!mem) return;
+    const resolved = resolveSongInfo(mem.song, coupleProfile);
+    setActiveTrack({
+      ...resolved,
+      memoryTitle: mem.title,
+    });
+    setIsAudioPlayerOpen(true);
+  };
+
+  const togglePlayAudio = (memOrTrack) => {
+    if (memOrTrack && typeof memOrTrack === 'object' && (memOrTrack.song || memOrTrack.title)) {
+      playMemorySong(memOrTrack);
       return;
     }
-    ambientPlayer.toggle();
+    playAnthem();
   };
 
   // Lightweight Cloud Sync State (Pre-connected to live cloud database)
   const [isCloudConfigured, setIsCloudConfigured] = useState(true);
+  const lastLocalWriteRef = useRef(0);
 
   // Auto-pull shared memories from live cloud database
   const pullFromCloud = async (silent = true) => {
+    // If local device just saved within 15 seconds, protect local state and skip pull
+    if (Date.now() - lastLocalWriteRef.current < 15000) {
+      return;
+    }
+
     try {
       const res = await fetchCloudVault();
       if (res && res.data) {
@@ -139,28 +173,41 @@ export function AppProvider({ children }) {
         const cloudUpdatedAt = cloudData.updatedAt;
         const localUpdatedAt = localStorage.getItem('mm_vault_updated_at');
 
-        // Apply if no local record, or cloud is newer/equal
-        const shouldApply =
-          !localUpdatedAt ||
-          !cloudUpdatedAt ||
-          cloudUpdatedAt >= localUpdatedAt;
+        let isStrictlyNewer = false;
+        if (!localUpdatedAt) {
+          isStrictlyNewer = true;
+        } else if (cloudUpdatedAt) {
+          isStrictlyNewer = new Date(cloudUpdatedAt).getTime() > new Date(localUpdatedAt).getTime();
+        }
 
-        if (shouldApply) {
+        if (isStrictlyNewer) {
           if (Array.isArray(cloudData.memories)) {
-            setMemories(cloudData.memories);
-            localStorage.setItem('mm_memories', JSON.stringify(cloudData.memories));
+            const incomingMemStr = JSON.stringify(cloudData.memories);
+            const localMemStr = localStorage.getItem('mm_memories');
+            if (incomingMemStr !== localMemStr) {
+              setMemories(cloudData.memories);
+              localStorage.setItem('mm_memories', incomingMemStr);
+            }
           }
           if (Array.isArray(cloudData.vows)) {
-            setVows(cloudData.vows);
-            localStorage.setItem('mm_vows', JSON.stringify(cloudData.vows));
+            const incomingVowsStr = JSON.stringify(cloudData.vows);
+            const localVowsStr = localStorage.getItem('mm_vows');
+            if (incomingVowsStr !== localVowsStr) {
+              setVows(cloudData.vows);
+              localStorage.setItem('mm_vows', incomingVowsStr);
+            }
           }
           if (cloudData.coupleProfile && typeof cloudData.coupleProfile === 'object') {
             const profile = { ...cloudData.coupleProfile };
             if (profile.anniversaryDate === '2025-03-27') {
               profile.anniversaryDate = '2025-04-27';
             }
-            setCoupleProfile((prev) => ({ ...prev, ...profile }));
-            localStorage.setItem('mm_couple_profile_v2', JSON.stringify(profile));
+            const incomingProfStr = JSON.stringify(profile);
+            const localProfStr = localStorage.getItem('mm_couple_profile_v2');
+            if (incomingProfStr !== localProfStr) {
+              setCoupleProfile(profile);
+              localStorage.setItem('mm_couple_profile_v2', incomingProfStr);
+            }
           }
           if (cloudUpdatedAt) {
             localStorage.setItem('mm_vault_updated_at', cloudUpdatedAt);
@@ -206,6 +253,7 @@ export function AppProvider({ children }) {
 
   const addMemory = async (newMemory) => {
     const now = new Date().toISOString();
+    lastLocalWriteRef.current = Date.now();
     localStorage.setItem('mm_vault_updated_at', now);
 
     // Optimistically update local state immediately
@@ -254,6 +302,7 @@ export function AppProvider({ children }) {
 
   const updateMemory = async (id, updates) => {
     const now = new Date().toISOString();
+    lastLocalWriteRef.current = Date.now();
     localStorage.setItem('mm_vault_updated_at', now);
 
     const updated = memories.map((m) => (m.id === id ? { ...m, ...updates } : m));
@@ -273,6 +322,7 @@ export function AppProvider({ children }) {
 
   const deleteMemory = async (id) => {
     const now = new Date().toISOString();
+    lastLocalWriteRef.current = Date.now();
     localStorage.setItem('mm_vault_updated_at', now);
 
     const updated = memories.filter((m) => m.id !== id);
@@ -287,6 +337,7 @@ export function AppProvider({ children }) {
 
   const toggleFavorite = async (id) => {
     const now = new Date().toISOString();
+    lastLocalWriteRef.current = Date.now();
     localStorage.setItem('mm_vault_updated_at', now);
 
     const updated = memories.map((m) => (m.id === id ? { ...m, isFavorite: !m.isFavorite } : m));
@@ -300,6 +351,7 @@ export function AppProvider({ children }) {
 
   const addVow = async (newVow) => {
     const now = new Date().toISOString();
+    lastLocalWriteRef.current = Date.now();
     localStorage.setItem('mm_vault_updated_at', now);
 
     const updated = [...vows, newVow];
@@ -314,6 +366,7 @@ export function AppProvider({ children }) {
 
   const deleteVow = async (indexOrId) => {
     const now = new Date().toISOString();
+    lastLocalWriteRef.current = Date.now();
     localStorage.setItem('mm_vault_updated_at', now);
 
     const updated = typeof indexOrId === 'string'
@@ -330,6 +383,7 @@ export function AppProvider({ children }) {
 
   const updateCoupleProfile = async (newProfile) => {
     const now = new Date().toISOString();
+    lastLocalWriteRef.current = Date.now();
     localStorage.setItem('mm_vault_updated_at', now);
 
     setCoupleProfile(newProfile);
@@ -342,6 +396,7 @@ export function AppProvider({ children }) {
 
   const clearAllData = async () => {
     const now = new Date().toISOString();
+    lastLocalWriteRef.current = Date.now();
     localStorage.setItem('mm_vault_updated_at', now);
 
     setMemories([]);
@@ -446,6 +501,10 @@ export function AppProvider({ children }) {
         clearAllData,
         isAudioPlayerOpen,
         setIsAudioPlayerOpen,
+        activeTrack,
+        setActiveTrack,
+        playAnthem,
+        playMemorySong,
         audioState,
         togglePlayAudio,
         selectedMemoryModal,

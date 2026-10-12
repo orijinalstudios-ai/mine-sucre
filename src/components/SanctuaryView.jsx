@@ -11,6 +11,7 @@ export default function SanctuaryView() {
     memories,
     setActiveTab,
     setIsAudioPlayerOpen,
+    playAnthem,
     setSelectedMemoryModal,
     timeStats,
   } = useApp();
@@ -64,7 +65,7 @@ export default function SanctuaryView() {
 
         {/* Real Audio Player Ribbon (Audiomack "Baby Riddim") */}
         <section
-          onClick={() => setIsAudioPlayerOpen(true)}
+          onClick={playAnthem}
           className="bg-surface-container-low rounded-2xl border border-secondary/30 p-3.5 shadow-sm relative overflow-hidden cursor-pointer hover:border-secondary transition-all group"
         >
           <div className="flex items-center justify-between gap-3">

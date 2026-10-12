@@ -1,16 +1,8 @@
 import React, { useState } from 'react';
 import Icon from './Icon';
+import { ROMANTIC_SONG_PRESETS } from '../utils/audioPlayer';
 
-export const ROMANTIC_SONG_PRESETS = [
-  { title: 'Baby Riddim', artist: 'Fave', isAnthem: true },
-  { title: 'Until I Found You', artist: 'Stephen Sanchez' },
-  { title: 'Perfect', artist: 'Ed Sheeran' },
-  { title: 'golden hour', artist: 'JVKE' },
-  { title: 'Lover', artist: 'Taylor Swift' },
-  { title: 'Texas Sun', artist: 'Leon Bridges & Khruangbin' },
-  { title: 'All of Me', artist: 'John Legend' },
-  { title: 'By Your Side', artist: 'Sade' },
-];
+export { ROMANTIC_SONG_PRESETS };
 
 export default function SongSelector({ selectedSong, onChange, coupleProfile }) {
   const [isCustomMode, setIsCustomMode] = useState(() => {

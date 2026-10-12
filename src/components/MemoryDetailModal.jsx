@@ -13,6 +13,7 @@ export default function MemoryDetailModal() {
     deleteMemory,
     audioState,
     togglePlayAudio,
+    playMemorySong,
   } = useApp();
 
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
@@ -167,7 +168,7 @@ export default function MemoryDetailModal() {
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={togglePlayAudio}
+                onClick={() => playMemorySong(mem)}
                 className="w-8 h-8 rounded-full bg-primary text-secondary-fixed flex items-center justify-center shadow active:scale-90"
               >
                 <Icon

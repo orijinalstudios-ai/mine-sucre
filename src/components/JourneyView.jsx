@@ -13,6 +13,7 @@ export default function JourneyView() {
     setEditingMemory,
     setActiveTab,
     togglePlayAudio,
+    playMemorySong,
     audioState,
     deleteMemory,
   } = useApp();
@@ -338,7 +339,7 @@ export default function JourneyView() {
                 <div className="flex items-center gap-1.5 flex-wrap min-w-0 max-w-full">
                   {mem.song && (
                     <button
-                      onClick={togglePlayAudio}
+                      onClick={() => playMemorySong(mem)}
                       type="button"
                       className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full bg-primary/5 hover:bg-primary/10 border border-secondary/30 text-[10px] text-primary transition-all active:scale-95 max-w-[190px] sm:max-w-[220px] truncate"
                       title={mem.song}

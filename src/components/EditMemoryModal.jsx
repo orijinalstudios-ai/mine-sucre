@@ -33,10 +33,18 @@ export default function EditMemoryModal() {
   const [attachedPhotos, setAttachedPhotos] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
 
+  const initializedMemoryIdRef = useRef(null);
+
   useEffect(() => {
     if (editingMemory) {
+      // Don't wipe out active edits if already editing this memory
+      if (initializedMemoryIdRef.current === editingMemory.id) {
+        return;
+      }
+      initializedMemoryIdRef.current = editingMemory.id;
+
       setTitle(editingMemory.title || '');
-      setAuthor(editingMemory.author || coupleProfile.partner1);
+      setAuthor(editingMemory.author || coupleProfile?.partner1 || 'Sucre');
       setMomentDate(editingMemory.date || new Date().toISOString().split('T')[0]);
       setLocation(editingMemory.location || '');
       setLetter(editingMemory.letter || '');
@@ -58,8 +66,10 @@ export default function EditMemoryModal() {
       } else {
         setAttachedPhotos([]);
       }
+    } else {
+      initializedMemoryIdRef.current = null;
     }
-  }, [editingMemory, coupleProfile]);
+  }, [editingMemory]);
 
   if (!editingMemory) return null;
 

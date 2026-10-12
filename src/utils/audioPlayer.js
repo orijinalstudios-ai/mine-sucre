@@ -1,4 +1,122 @@
 // Web Audio API Synthesizer for Romantic Acoustic Melody & Sound Effects
+export const ROMANTIC_SONG_PRESETS = [
+  {
+    title: 'Baby Riddim',
+    artist: 'Fave',
+    url: 'https://audiomack.com/favourish/song/baby-riddim',
+    isAnthem: true,
+  },
+  {
+    title: 'Until I Found You',
+    artist: 'Stephen Sanchez',
+    url: 'https://audiomack.com/stephensanchez/song/until-i-found-you',
+  },
+  {
+    title: 'Perfect',
+    artist: 'Ed Sheeran',
+    url: 'https://audiomack.com/teddysphotos/song/perfect',
+  },
+  {
+    title: 'golden hour',
+    artist: 'JVKE',
+    url: 'https://audiomack.com/jvke/song/golden-hour',
+  },
+  {
+    title: 'Lover',
+    artist: 'Taylor Swift',
+    url: 'https://audiomack.com/taylorswift/song/lover',
+  },
+  {
+    title: 'Texas Sun',
+    artist: 'Leon Bridges & Khruangbin',
+    url: 'https://audiomack.com/leonbridges/song/texas-sun',
+  },
+  {
+    title: 'All of Me',
+    artist: 'John Legend',
+    url: 'https://audiomack.com/johnlegend/song/all-of-me',
+  },
+  {
+    title: 'By Your Side',
+    artist: 'Sade',
+    url: 'https://audiomack.com/sade-2/song/by-your-side',
+  },
+];
+
+export function resolveSongInfo(songString, coupleProfile) {
+  if (!songString) {
+    return {
+      title: coupleProfile?.anthemTitle || 'Baby Riddim',
+      artist: coupleProfile?.anthemArtist || 'Fave',
+      url: coupleProfile?.songUrl || 'https://audiomack.com/favourish/song/baby-riddim',
+      isAnthem: true,
+    };
+  }
+
+  const anthemTitle = (coupleProfile?.anthemTitle || 'Baby Riddim').toLowerCase();
+  const lower = songString.toLowerCase();
+
+  if (
+    lower.includes(anthemTitle) ||
+    lower.includes('our anthem') ||
+    lower.includes('baby riddim')
+  ) {
+    return {
+      title: coupleProfile?.anthemTitle || 'Baby Riddim',
+      artist: coupleProfile?.anthemArtist || 'Fave',
+      url: coupleProfile?.songUrl || 'https://audiomack.com/favourish/song/baby-riddim',
+      isAnthem: true,
+    };
+  }
+
+  // Check against presets
+  for (const preset of ROMANTIC_SONG_PRESETS) {
+    if (
+      lower.includes(preset.title.toLowerCase()) ||
+      lower.includes(preset.artist.toLowerCase())
+    ) {
+      return {
+        title: preset.title,
+        artist: preset.artist,
+        url: preset.url,
+        isAnthem: Boolean(preset.isAnthem),
+      };
+    }
+  }
+
+  // If user typed a direct URL
+  const urlMatch = songString.match(/https?:\/\/[^\s]+/i);
+  if (urlMatch) {
+    const url = urlMatch[0];
+    const cleanText = songString.replace(url, '').replace(/^✦\s*/, '').trim();
+    return {
+      title: cleanText || 'Custom Keepsake Track',
+      artist: 'Beloved',
+      url,
+      isAnthem: false,
+    };
+  }
+
+  // Parse formatted "✦ Artist — Title" or "Artist - Title"
+  const clean = songString.replace(/^✦\s*/, '').trim();
+  const parts = clean.split(/\s*[-—]\s*/);
+  if (parts.length >= 2) {
+    return {
+      title: parts[1].trim(),
+      artist: parts[0].trim(),
+      url: '',
+      isAnthem: false,
+    };
+  }
+
+  return {
+    title: clean,
+    artist: 'Special Soundtrack',
+    url: '',
+    isAnthem: false,
+  };
+}
+
 export function getAudioEmbedUrl(url) {
   if (!url) return '';
   const audiomackMatch = url.match(/audiomack\.com\/(?:embed\/)?([a-zA-Z0-9_-]+)\/song\/([a-zA-Z0-9_-]+)/i);
