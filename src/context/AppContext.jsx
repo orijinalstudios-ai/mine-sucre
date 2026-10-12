@@ -5,6 +5,13 @@ import {
   fetchCloudVault,
   saveCloudVault,
 } from '../utils/cloudSync';
+import {
+  saveMemoriesToIDB,
+  loadMemoriesFromIDB,
+  appendMemoryToIDB,
+  getDeletedMemoryIds,
+  recordDeletedMemoryId,
+} from '../utils/memoryStorage';
 
 export function safeLocalStorageSet(key, value) {
   try {
@@ -139,9 +146,44 @@ export function AppProvider({ children }) {
     safeLocalStorageSet('mm_couple_profile_v2', coupleProfile);
   }, [coupleProfile]);
 
-  // Persist Memories safely
+  // Memories reference for race-condition-free async operations
+  const memoriesRef = useRef(memories);
+  useEffect(() => {
+    memoriesRef.current = memories;
+  }, [memories]);
+
+  // Dual-layer hydration: restore any memories preserved in IndexedDB
+  useEffect(() => {
+    let isMounted = true;
+    async function hydrateIDB() {
+      try {
+        const idbMemories = await loadMemoriesFromIDB();
+        if (isMounted && Array.isArray(idbMemories) && idbMemories.length > 0) {
+          setMemories((current) => {
+            const existingIds = new Set(current.map((m) => m.id));
+            const missing = idbMemories.filter((m) => !existingIds.has(m.id));
+            if (missing.length > 0) {
+              const combined = [...current, ...missing];
+              safeLocalStorageSet('mm_memories', combined);
+              return combined;
+            }
+            return current;
+          });
+        }
+      } catch (err) {
+        console.warn('Non-fatal IDB memories hydration:', err);
+      }
+    }
+    hydrateIDB();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Persist Memories safely to both localStorage and IndexedDB
   useEffect(() => {
     safeLocalStorageSet('mm_memories', memories);
+    saveMemoriesToIDB(memories);
   }, [memories]);
 
   // Persist Vows safely
@@ -222,11 +264,29 @@ export function AppProvider({ children }) {
 
         if (isStrictlyNewer) {
           if (Array.isArray(cloudData.memories)) {
-            const incomingMemStr = JSON.stringify(cloudData.memories);
+            const deletedIds = getDeletedMemoryIds();
+            const currentMemories = memoriesRef.current || memories;
+
+            // Safe union merge: keep cloud items + any local items not deleted
+            const memoryMap = new Map();
+            for (const cm of cloudData.memories) {
+              if (cm && cm.id && !deletedIds.has(cm.id)) {
+                memoryMap.set(cm.id, cm);
+              }
+            }
+            for (const lm of currentMemories) {
+              if (lm && lm.id && !deletedIds.has(lm.id) && !memoryMap.has(lm.id)) {
+                memoryMap.set(lm.id, lm);
+              }
+            }
+
+            const mergedList = Array.from(memoryMap.values());
+            const incomingMemStr = JSON.stringify(mergedList);
             const localMemStr = localStorage.getItem('mm_memories');
             if (incomingMemStr !== localMemStr) {
-              setMemories(cloudData.memories);
-              localStorage.setItem('mm_memories', incomingMemStr);
+              setMemories(mergedList);
+              safeLocalStorageSet('mm_memories', mergedList);
+              saveMemoriesToIDB(mergedList);
             }
           }
           if (Array.isArray(cloudData.vows)) {
@@ -296,22 +356,33 @@ export function AppProvider({ children }) {
     lastLocalWriteRef.current = Date.now();
     safeLocalStorageSet('mm_vault_updated_at', now);
 
-    // Optimistically update local state immediately
-    setMemories((prev) => [newMemory, ...prev]);
+    // 1. Instantly append to IndexedDB (fail-safe hard storage)
+    appendMemoryToIDB(newMemory);
+
+    // 2. Synchronously update local React state and localStorage
+    const currentList = memoriesRef.current || memories;
+    const updatedLocal = [newMemory, ...currentList.filter((m) => m.id !== newMemory.id)];
+    setMemories(updatedLocal);
+    safeLocalStorageSet('mm_memories', updatedLocal);
+    saveMemoriesToIDB(updatedLocal);
+
     showToast("Memory sealed & archived forever ✦");
     ambientPlayer.playChime();
 
+    // 3. Sync to Cloud without overwriting partner's unpulled memories
     try {
-      // Fetch latest cloud memories to merge seamlessly without overwriting partner
       const cloudRes = await fetchCloudVault();
-      let merged = [newMemory, ...memories];
+      let merged = [...updatedLocal];
       let currentVows = vows;
       let currentProfile = coupleProfile;
 
       if (cloudRes && cloudRes.data) {
         if (Array.isArray(cloudRes.data.memories)) {
+          const deletedIds = getDeletedMemoryIds();
           const knownIds = new Set(merged.map((m) => m.id));
-          const partnerMemories = cloudRes.data.memories.filter((m) => !knownIds.has(m.id));
+          const partnerMemories = cloudRes.data.memories.filter(
+            (m) => !knownIds.has(m.id) && !deletedIds.has(m.id)
+          );
           merged = [...merged, ...partnerMemories];
         }
         if (Array.isArray(cloudRes.data.vows)) {
@@ -324,6 +395,8 @@ export function AppProvider({ children }) {
 
       setMemories(merged);
       safeLocalStorageSet('mm_memories', merged);
+      saveMemoriesToIDB(merged);
+
       await saveCloudVault({
         memories: merged,
         vows: currentVows,
@@ -332,7 +405,7 @@ export function AppProvider({ children }) {
       });
     } catch (err) {
       saveCloudVault({
-        memories: [newMemory, ...memories],
+        memories: updatedLocal,
         vows,
         coupleProfile,
         updatedAt: now,
@@ -345,9 +418,11 @@ export function AppProvider({ children }) {
     lastLocalWriteRef.current = Date.now();
     safeLocalStorageSet('mm_vault_updated_at', now);
 
-    const updated = memories.map((m) => (m.id === id ? { ...m, ...updates } : m));
+    const currentList = memoriesRef.current || memories;
+    const updated = currentList.map((m) => (m.id === id ? { ...m, ...updates } : m));
     setMemories(updated);
     safeLocalStorageSet('mm_memories', updated);
+    saveMemoriesToIDB(updated);
 
     if (selectedMemoryModal && selectedMemoryModal.id === id) {
       setSelectedMemoryModal((prev) => ({ ...prev, ...updates }));
@@ -361,13 +436,16 @@ export function AppProvider({ children }) {
   };
 
   const deleteMemory = async (id) => {
+    recordDeletedMemoryId(id);
     const now = new Date().toISOString();
     lastLocalWriteRef.current = Date.now();
     safeLocalStorageSet('mm_vault_updated_at', now);
 
-    const updated = memories.filter((m) => m.id !== id);
+    const currentList = memoriesRef.current || memories;
+    const updated = currentList.filter((m) => m.id !== id);
     setMemories(updated);
     safeLocalStorageSet('mm_memories', updated);
+    saveMemoriesToIDB(updated);
     showToast("Memory gently removed from archives.");
 
     if (isCloudConfigured) {
@@ -380,9 +458,11 @@ export function AppProvider({ children }) {
     lastLocalWriteRef.current = Date.now();
     safeLocalStorageSet('mm_vault_updated_at', now);
 
-    const updated = memories.map((m) => (m.id === id ? { ...m, isFavorite: !m.isFavorite } : m));
+    const currentList = memoriesRef.current || memories;
+    const updated = currentList.map((m) => (m.id === id ? { ...m, isFavorite: !m.isFavorite } : m));
     setMemories(updated);
     safeLocalStorageSet('mm_memories', updated);
+    saveMemoriesToIDB(updated);
 
     if (isCloudConfigured) {
       await saveCloudVault({ memories: updated, vows, coupleProfile, updatedAt: now });

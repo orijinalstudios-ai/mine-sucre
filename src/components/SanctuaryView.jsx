@@ -16,9 +16,15 @@ export default function SanctuaryView() {
     timeStats,
   } = useApp();
 
-  // Find memory of the day if exists
-  const memoryOfDay = memories.find((m) => m.isMemoryOfDay) || memories[0];
-  const memoryOfDayTheme = memoryOfDay ? getCardTheme(memoryOfDay.cardColor) : null;
+  // Extract up to 3 featured memories (1 big hero + 2 inline underneath)
+  const featuredMemories = memories.slice(0, 3);
+  const primaryMemory = featuredMemories[0];
+  const secondaryMemory1 = featuredMemories[1];
+  const secondaryMemory2 = featuredMemories[2];
+
+  const primaryTheme = primaryMemory ? getCardTheme(primaryMemory.cardColor) : null;
+  const secondary1Theme = secondaryMemory1 ? getCardTheme(secondaryMemory1.cardColor) : null;
+  const secondary2Theme = secondaryMemory2 ? getCardTheme(secondaryMemory2.cardColor) : null;
 
   // Format anniversary date for display (timezone-safe)
   const formatAnniversaryStart = (dateStr) => {
@@ -228,72 +234,265 @@ export default function SanctuaryView() {
           </div>
         </section>
 
-        {/* Memory of the Day / Clean Empty State */}
-        {memoryOfDay ? (
-          <section className="bg-surface-container-lowest rounded-2xl border border-secondary/30 p-4 shadow-sm space-y-3.5">
-            <div className="flex items-center justify-between">
+        {/* Featured Memories Showcase: 1 Big Featured + 2 Inline Underneath + Journey Navigation */}
+        {primaryMemory ? (
+          <section className="space-y-4">
+            {/* Section Header */}
+            <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full border border-secondary/50 flex items-center justify-center bg-surface-container-low text-secondary font-serif text-[11px] italic font-semibold">
-                  {memoryOfDay.author ? memoryOfDay.author.charAt(0) : 'M'}
-                </div>
-                <span className="font-montserrat text-[10px] uppercase tracking-widest text-primary font-semibold">
-                  Featured Memory
-                </span>
+                <span className="text-secondary text-xs">✦</span>
+                <h2 className="font-cinzel text-xs uppercase tracking-widest text-primary font-bold">
+                  Featured Chronicles
+                </h2>
               </div>
-              <span className="font-sans text-[11px] text-on-surface-variant font-medium">
-                {memoryOfDay.location}
+              <span className="font-montserrat text-[10px] text-on-surface-variant font-medium">
+                {memories.length} {memories.length === 1 ? 'Keepsake' : 'Keepsakes'} Preserved
               </span>
             </div>
 
-            <div
-              onClick={() => setSelectedMemoryModal(memoryOfDay)}
+            {/* 1. Large Top Featured Card */}
+            <article
+              onClick={() => setSelectedMemoryModal(primaryMemory)}
               style={{
-                backgroundColor: memoryOfDayTheme?.bg || undefined,
-                borderColor: memoryOfDayTheme?.border || undefined,
+                backgroundColor: primaryTheme?.bg || undefined,
+                borderColor: primaryTheme?.border || undefined,
               }}
-              className={`p-3 pb-4 rounded-xl border shadow-inner cursor-pointer hover:shadow-md transition-all group ${
-                memoryOfDayTheme?.isDark ? 'text-[#fff6e9]' : 'text-primary'
+              className={`rounded-2xl border p-4 sm:p-5 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden ${
+                primaryTheme?.isDark ? 'text-[#fff6e9]' : 'text-primary'
               }`}
             >
-              {memoryOfDay.photos && memoryOfDay.photos.length > 0 && (
-                <div className="aspect-[4/3] w-full overflow-hidden rounded-lg bg-surface-dim relative">
+              {/* Header of Big Card */}
+              <div className="flex items-center justify-between pb-3 border-b border-outline-variant/20 mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full border border-secondary/50 flex items-center justify-center bg-surface-container-low text-secondary font-serif text-[11px] italic font-semibold">
+                    {primaryMemory.author ? primaryMemory.author.charAt(0) : 'M'}
+                  </div>
+                  <div>
+                    <span
+                      className="font-montserrat text-[9px] uppercase tracking-widest font-bold block"
+                      style={{ color: primaryTheme?.accent }}
+                    >
+                      Primary Keepsake · {primaryMemory.displayDate || primaryMemory.date}
+                    </span>
+                  </div>
+                </div>
+                <span className="font-sans text-[11px] text-on-surface-variant font-medium flex items-center gap-1">
+                  <Icon name="location_on" size={12} className="text-secondary" />
+                  <span className="truncate max-w-[120px] sm:max-w-[160px]">{primaryMemory.location || 'Our Sanctuary'}</span>
+                </span>
+              </div>
+
+              {/* Main Keepsake Photo (if attached) */}
+              {primaryMemory.photos && primaryMemory.photos.length > 0 && (
+                <div className="aspect-[16/10] sm:aspect-[2/1] max-h-[300px] w-full overflow-hidden rounded-xl bg-surface-dim relative mb-3 shadow-sm">
                   <img
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    src={memoryOfDay.photos[0]}
-                    alt={memoryOfDay.title}
+                    src={primaryMemory.photos[0]}
+                    alt={primaryMemory.title}
                   />
                 </div>
               )}
 
-              <div className="mt-3.5 px-1.5 space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <span
-                    className="font-montserrat text-[9px] uppercase tracking-widest font-semibold"
-                    style={{ color: memoryOfDayTheme?.accent }}
-                  >
-                    Letter from {memoryOfDay.author || 'Beloved'}
-                  </span>
-                  <span className="text-[10px]" style={{ color: memoryOfDayTheme?.accent }}>✦</span>
-                </div>
+              {/* Title & Letter */}
+              <div className="space-y-1.5 px-0.5">
+                <h3 className={`font-serif font-bold text-lg sm:text-xl leading-snug ${primaryTheme?.isDark ? 'text-[#fff6e9]' : 'text-primary'}`}>
+                  {primaryMemory.title}
+                </h3>
                 <FormattedText
-                  text={memoryOfDay.letter}
-                  clampLines={2}
-                  className="font-editorial italic leading-snug text-base md:text-lg"
+                  text={primaryMemory.letter}
+                  clampLines={3}
+                  className="font-editorial italic leading-relaxed text-sm sm:text-base text-on-surface-variant"
                 />
               </div>
+
+              {/* Footer info */}
+              <div className="pt-3 mt-3 border-t border-outline-variant/20 flex items-center justify-between text-xs">
+                {primaryMemory.song ? (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container/20 text-secondary text-[10px] font-sans font-medium truncate max-w-[200px]">
+                    <Icon name="music_note" size={12} className="shrink-0" />
+                    <span className="truncate">{primaryMemory.song}</span>
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-montserrat uppercase tracking-wider text-secondary">
+                    ✦ Preserved in Vault
+                  </span>
+                )}
+                <span className="font-serif italic text-secondary group-hover:underline inline-flex items-center gap-1 font-medium">
+                  <span>Read Full Keepsake</span>
+                  <span>→</span>
+                </span>
+              </div>
+            </article>
+
+            {/* 2. Two Inline Cards Underneath (Responsive Grid) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {/* Secondary Card 1 */}
+              {secondaryMemory1 ? (
+                <article
+                  onClick={() => setSelectedMemoryModal(secondaryMemory1)}
+                  style={{
+                    backgroundColor: secondary1Theme?.bg || undefined,
+                    borderColor: secondary1Theme?.border || undefined,
+                  }}
+                  className={`rounded-2xl border p-3.5 sm:p-4 shadow-sm hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between ${
+                    secondary1Theme?.isDark ? 'text-[#fff6e9]' : 'text-primary'
+                  }`}
+                >
+                  <div className="space-y-2">
+                    {secondaryMemory1.photos && secondaryMemory1.photos.length > 0 ? (
+                      <div className="aspect-[16/10] w-full overflow-hidden rounded-lg bg-surface-dim relative shadow-sm">
+                        <img
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          src={secondaryMemory1.photos[0]}
+                          alt={secondaryMemory1.title}
+                        />
+                      </div>
+                    ) : (
+                      <div className="h-16 rounded-lg bg-surface-container-low/60 border border-outline-variant/30 flex items-center justify-center text-secondary">
+                        <Icon name="favorite" size={20} filled={true} />
+                      </div>
+                    )}
+
+                    <div>
+                      <div className="flex items-center justify-between text-[9px] font-montserrat uppercase tracking-wider text-secondary font-semibold mb-1">
+                        <span>From {secondaryMemory1.author || 'Mine'}</span>
+                        <span>{secondaryMemory1.displayDate || secondaryMemory1.date}</span>
+                      </div>
+                      <h4 className={`font-serif font-bold text-sm sm:text-base leading-tight truncate ${secondary1Theme?.isDark ? 'text-[#fff6e9]' : 'text-primary'}`}>
+                        {secondaryMemory1.title}
+                      </h4>
+                      <div className="mt-1">
+                        <FormattedText
+                          text={secondaryMemory1.letter}
+                          clampLines={2}
+                          className="font-editorial italic text-xs leading-snug text-on-surface-variant"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 mt-2 border-t border-outline-variant/20 flex items-center justify-between text-[10px] text-secondary font-serif italic">
+                    <span className="truncate max-w-[130px] font-sans text-on-surface-variant/80">
+                      {secondaryMemory1.location || 'Sanctuary'}
+                    </span>
+                    <span className="group-hover:underline">View Details →</span>
+                  </div>
+                </article>
+              ) : (
+                <div
+                  onClick={() => setActiveTab('capture')}
+                  className="rounded-2xl border border-dashed border-secondary/40 p-4 bg-surface-container-low/40 hover:bg-surface-container-low transition-all cursor-pointer text-center flex flex-col items-center justify-center space-y-2 min-h-[160px] active:scale-95 group"
+                >
+                  <div className="w-9 h-9 rounded-full bg-secondary-container/20 border border-secondary/30 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
+                    <Icon name="plus" size={16} />
+                  </div>
+                  <div className="space-y-0.5">
+                    <span className="font-cinzel text-[10px] uppercase tracking-wider text-primary font-bold block">
+                      Pen Second Keepsake
+                    </span>
+                    <p className="font-editorial italic text-xs text-on-surface-variant">
+                      “Add another chapter to your constellation.”
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Secondary Card 2 */}
+              {secondaryMemory2 ? (
+                <article
+                  onClick={() => setSelectedMemoryModal(secondaryMemory2)}
+                  style={{
+                    backgroundColor: secondary2Theme?.bg || undefined,
+                    borderColor: secondary2Theme?.border || undefined,
+                  }}
+                  className={`rounded-2xl border p-3.5 sm:p-4 shadow-sm hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between ${
+                    secondary2Theme?.isDark ? 'text-[#fff6e9]' : 'text-primary'
+                  }`}
+                >
+                  <div className="space-y-2">
+                    {secondaryMemory2.photos && secondaryMemory2.photos.length > 0 ? (
+                      <div className="aspect-[16/10] w-full overflow-hidden rounded-lg bg-surface-dim relative shadow-sm">
+                        <img
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          src={secondaryMemory2.photos[0]}
+                          alt={secondaryMemory2.title}
+                        />
+                      </div>
+                    ) : (
+                      <div className="h-16 rounded-lg bg-surface-container-low/60 border border-outline-variant/30 flex items-center justify-center text-secondary">
+                        <Icon name="auto_awesome" size={20} />
+                      </div>
+                    )}
+
+                    <div>
+                      <div className="flex items-center justify-between text-[9px] font-montserrat uppercase tracking-wider text-secondary font-semibold mb-1">
+                        <span>From {secondaryMemory2.author || 'Sucre'}</span>
+                        <span>{secondaryMemory2.displayDate || secondaryMemory2.date}</span>
+                      </div>
+                      <h4 className={`font-serif font-bold text-sm sm:text-base leading-tight truncate ${secondary2Theme?.isDark ? 'text-[#fff6e9]' : 'text-primary'}`}>
+                        {secondaryMemory2.title}
+                      </h4>
+                      <div className="mt-1">
+                        <FormattedText
+                          text={secondaryMemory2.letter}
+                          clampLines={2}
+                          className="font-editorial italic text-xs leading-snug text-on-surface-variant"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 mt-2 border-t border-outline-variant/20 flex items-center justify-between text-[10px] text-secondary font-serif italic">
+                    <span className="truncate max-w-[130px] font-sans text-on-surface-variant/80">
+                      {secondaryMemory2.location || 'Sanctuary'}
+                    </span>
+                    <span className="group-hover:underline">View Details →</span>
+                  </div>
+                </article>
+              ) : (
+                <div
+                  onClick={() => setActiveTab('capture')}
+                  className="rounded-2xl border border-dashed border-secondary/40 p-4 bg-surface-container-low/40 hover:bg-surface-container-low transition-all cursor-pointer text-center flex flex-col items-center justify-center space-y-2 min-h-[160px] active:scale-95 group"
+                >
+                  <div className="w-9 h-9 rounded-full bg-secondary-container/20 border border-secondary/30 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
+                    <Icon name="edit_note" size={16} />
+                  </div>
+                  <div className="space-y-0.5">
+                    <span className="font-cinzel text-[10px] uppercase tracking-wider text-primary font-bold block">
+                      Add Third Keepsake
+                    </span>
+                    <p className="font-editorial italic text-xs text-on-surface-variant">
+                      “Preserve quiet laughter and memories.”
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div className="pt-1 flex justify-center">
+            {/* 3. Navigation to Journey ("View More Memories") */}
+            <div className="pt-1">
               <button
                 type="button"
-                onClick={() => setSelectedMemoryModal(memoryOfDay)}
-                className="font-serif text-secondary hover:text-primary transition-colors text-sm italic font-medium inline-flex items-center gap-1.5 active:scale-95"
+                onClick={() => setActiveTab('journey')}
+                className="w-full py-3.5 px-4 rounded-2xl bg-surface-container-low hover:bg-surface-container border border-secondary/40 text-primary font-montserrat text-xs uppercase tracking-widest font-bold flex items-center justify-between group shadow-sm hover:border-secondary active:scale-[0.99] transition-all"
               >
-                <span>✦</span>
-                <span className="underline decoration-secondary/40 underline-offset-4">
-                  View Full Note &amp; Details
-                </span>
-                <span>✦</span>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-full bg-secondary-container/30 border border-secondary/30 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform shrink-0">
+                    <Icon name="auto_stories" size={16} />
+                  </div>
+                  <div className="text-left min-w-0">
+                    <span className="block text-primary font-bold text-xs truncate">
+                      Explore All Memories in Journey
+                    </span>
+                    <span className="block text-[10px] text-on-surface-variant font-normal normal-case font-editorial italic truncate">
+                      Browse all {memories.length} preserved chapters &amp; letters
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 text-secondary font-serif italic text-sm group-hover:translate-x-1 transition-transform shrink-0 ml-2">
+                  <span>View All</span>
+                  <span>→</span>
+                </div>
               </button>
             </div>
           </section>

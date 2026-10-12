@@ -193,7 +193,7 @@ export default function CaptureView() {
       };
 
       try {
-        addMemory(newMemory);
+        await addMemory(newMemory);
       } catch (err) {
         console.error('Error saving memory:', err);
       }
