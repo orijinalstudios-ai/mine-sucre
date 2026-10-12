@@ -190,6 +190,7 @@ export default function CaptureView() {
         isMemoryOfDay: false,
         isLocked: isLocked,
         audioMemoDuration: audioBlobUrl ? `0:${recordSeconds.toString().padStart(2, '0')}` : null,
+        voiceMemoUrl: audioBlobUrl || null,
       };
 
       try {
