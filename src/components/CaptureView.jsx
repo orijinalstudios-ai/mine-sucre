@@ -36,6 +36,7 @@ export default function CaptureView() {
   const [cardColor, setCardColor] = useState('parchment');
   const [isLocked, setIsLocked] = useState(false);
   const [attachedPhotos, setAttachedPhotos] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Audio recording state
   const [isRecording, setIsRecording] = useState(false);
@@ -152,60 +153,66 @@ export default function CaptureView() {
   };
 
   // Submit new memory
-  const handleSaveToCapsule = (e) => {
-    e.preventDefault();
+  const handleSaveToCapsule = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
 
     if (!title.trim() && !letter.trim() && attachedPhotos.length === 0) {
       alert("Please enter a title, photo, or letter for your memory.");
       return;
     }
 
-    const formattedDate = new Date(momentDate).toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-    });
-
-    const newMemory = {
-      id: `memory-${Date.now()}`,
-      title: title.trim() || 'A Sacred Keepsake Second',
-      chapter: `Chronicle · ${formattedDate}`,
-      date: momentDate,
-      displayDate: formattedDate,
-      location: location.trim() || 'Our Sanctuary',
-      photos: attachedPhotos.map((p) => p.url),
-      letter: letter.trim() || 'Every second in this quiet constellation is a blessing beyond words.',
-      author: author,
-      counterNote: counterNote.trim() || null,
-      song: selectedSong,
-      songUrl: songUrl || null,
-      cardColor: cardColor || 'parchment',
-      tag: selectedMood === 'Adventures' ? 'Travel' : selectedMood === 'Celebration' ? 'Milestones' : 'Letters',
-      mood: selectedMood,
-      isFavorite: true,
-      isMemoryOfDay: false,
-      isLocked: isLocked,
-      audioMemoDuration: audioBlobUrl ? `0:${recordSeconds.toString().padStart(2, '0')}` : null,
-    };
+    setIsSaving(true);
 
     try {
-      addMemory(newMemory);
-    } catch (err) {
-      console.error('Error saving memory:', err);
-    }
-
-    try {
-      confetti({
-        particleCount: 80,
-        spread: 60,
-        origin: { y: 0.6 },
-        colors: ['#ffd79b', '#2f020e', '#ffdeae', '#e8c086'],
+      const formattedDate = new Date(momentDate).toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
       });
-    } catch (err) {
-      // Ignore
-    }
 
-    setActiveTab('journey');
+      const newMemory = {
+        id: `memory-${Date.now()}`,
+        title: title.trim() || 'A Sacred Keepsake Second',
+        chapter: `Chronicle · ${formattedDate}`,
+        date: momentDate,
+        displayDate: formattedDate,
+        location: location.trim() || 'Our Sanctuary',
+        photos: attachedPhotos.map((p) => p.url),
+        letter: letter.trim() || 'Every second in this quiet constellation is a blessing beyond words.',
+        author: author,
+        counterNote: counterNote.trim() || null,
+        song: selectedSong,
+        songUrl: songUrl || null,
+        cardColor: cardColor || 'parchment',
+        tag: selectedMood === 'Adventures' ? 'Travel' : selectedMood === 'Celebration' ? 'Milestones' : 'Letters',
+        mood: selectedMood,
+        isFavorite: true,
+        isMemoryOfDay: false,
+        isLocked: isLocked,
+        audioMemoDuration: audioBlobUrl ? `0:${recordSeconds.toString().padStart(2, '0')}` : null,
+      };
+
+      try {
+        addMemory(newMemory);
+      } catch (err) {
+        console.error('Error saving memory:', err);
+      }
+
+      try {
+        confetti({
+          particleCount: 80,
+          spread: 60,
+          origin: { y: 0.6 },
+          colors: ['#ffd79b', '#2f020e', '#ffdeae', '#e8c086'],
+        });
+      } catch (err) {
+        // Ignore
+      }
+
+      setActiveTab('journey');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -230,8 +237,17 @@ export default function CaptureView() {
           <span className="text-secondary text-[10px]">✦</span>
         </div>
 
-        {/* Spacer to keep crest centered */}
-        <div className="w-8" />
+        {/* Quick Save Action in Header */}
+        <button
+          type="button"
+          onClick={handleSaveToCapsule}
+          disabled={isSaving}
+          className="px-3.5 py-1.5 rounded-full bg-primary hover:bg-[#4a1622] text-secondary-fixed font-montserrat text-xs tracking-wider uppercase font-bold border border-secondary/40 shadow-sm active:scale-95 transition-all flex items-center gap-1.5 disabled:opacity-60"
+          title="Save Memory"
+        >
+          <Icon name={isSaving ? "sync" : "check"} size={13} className={isSaving ? "animate-spin" : ""} />
+          <span>{isSaving ? "Saving..." : "Save"}</span>
+        </button>
       </header>
 
       {/* Form Content */}
@@ -546,10 +562,11 @@ export default function CaptureView() {
         <div className="pt-3 pb-8 space-y-2">
           <button
             type="submit"
-            className="w-full py-4 rounded-full bg-gradient-to-r from-primary via-[#4a1622] to-primary text-secondary-fixed font-montserrat text-xs tracking-widest uppercase font-bold border border-secondary/50 shadow-lg hover:brightness-110 active:scale-98 transition-all flex items-center justify-center gap-2"
+            disabled={isSaving}
+            className="w-full py-4 rounded-full bg-gradient-to-r from-primary via-[#4a1622] to-primary text-secondary-fixed font-montserrat text-xs tracking-widest uppercase font-bold border border-secondary/50 shadow-lg hover:brightness-110 active:scale-98 transition-all flex items-center justify-center gap-2 disabled:opacity-75"
           >
-            <Icon name="auto_awesome" size={17} className="text-secondary-fixed" />
-            <span>Archive Forever into Capsule</span>
+            <Icon name={isSaving ? "sync" : "auto_awesome"} size={17} className={`text-secondary-fixed ${isSaving ? 'animate-spin' : ''}`} />
+            <span>{isSaving ? "Saving Memory into Vault..." : "Save Memory ✦"}</span>
           </button>
         </div>
       </form>
