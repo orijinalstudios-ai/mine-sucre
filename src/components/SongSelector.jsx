@@ -1,10 +1,8 @@
 import React, { useState, useRef } from 'react';
 import Icon from './Icon';
-import { ROMANTIC_SONG_PRESETS, getAudioEmbedInfo } from '../utils/audioPlayer';
+import { getAudioEmbedInfo } from '../utils/audioPlayer';
 import { useApp } from '../context/AppContext';
 import { saveAudioFile } from '../utils/audioStorage';
-
-export { ROMANTIC_SONG_PRESETS };
 
 export default function SongSelector({
   selectedSong = '',
@@ -198,56 +196,31 @@ export default function SongSelector({
           type="text"
           value={selectedSong}
           onChange={(e) => onChange && onChange(e.target.value)}
-          placeholder="e.g. ✦ Stephen Sanchez — Until I Found You"
+          placeholder="e.g. ✦ Our Slow Dance Melody or Custom Track Name"
           className="w-full bg-surface-container-low text-xs rounded-xl px-3 py-2 border border-secondary/30 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/30 text-primary placeholder:text-on-surface-variant/50 transition-all font-sans"
         />
       </div>
 
-      {/* Preset Suggestions Quick Chips */}
-      <div className="space-y-1.5 pt-1">
-        <span className="text-[9px] font-montserrat uppercase tracking-wider text-on-surface-variant/70 block">
-          Romantic Presets &amp; Love Anthem:
-        </span>
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
-          {/* Couple Anthem Button */}
-          <button
-            type="button"
-            onClick={() =>
-              handleSelectPreset({
-                artist: coupleProfile?.anthemArtist || 'Fave',
-                title: coupleProfile?.anthemTitle || 'Baby Riddim',
-                url: coupleProfile?.songUrl || 'https://open.spotify.com/track/1a2R0g4f08rY2k26t1vY3g',
-              })
-            }
-            className={`px-3 py-1.5 rounded-full text-[10px] font-montserrat uppercase tracking-wider whitespace-nowrap transition-all active:scale-95 shrink-0 flex items-center gap-1 ${
-              selectedSong === anthemLabel
-                ? 'bg-primary text-secondary-fixed font-bold border border-secondary/40 shadow-xs'
-                : 'bg-secondary-container/25 text-primary border border-secondary/30 hover:border-secondary'
-            }`}
-          >
-            <span>♥ Our Anthem</span>
-          </button>
-
-          {/* Other romantic presets with verified streams */}
-          {ROMANTIC_SONG_PRESETS.filter((p) => !p.isAnthem).map((preset) => {
-            const label = `✦ ${preset.artist} — ${preset.title}`;
-            const isSelected = selectedSong === label || currentUrl === preset.url;
-            return (
-              <button
-                key={preset.title}
-                type="button"
-                onClick={() => handleSelectPreset(preset)}
-                className={`px-3 py-1.5 rounded-full text-[10px] font-montserrat uppercase tracking-wider whitespace-nowrap transition-all active:scale-95 shrink-0 ${
-                  isSelected
-                    ? 'bg-primary text-secondary-fixed font-bold border border-secondary/40 shadow-xs'
-                    : 'bg-surface-container-low text-on-surface-variant border border-outline-variant/30 hover:border-secondary/30 hover:text-primary'
-                }`}
-              >
-                {preset.title} · {preset.artist}
-              </button>
-            );
-          })}
-        </div>
+      {/* Quick Couple Anthem Selection Pill */}
+      <div className="pt-1 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() =>
+            handleSelectPreset({
+              artist: coupleProfile?.anthemArtist || 'Fave',
+              title: coupleProfile?.anthemTitle || 'Baby Riddim',
+              url: coupleProfile?.songUrl || 'https://open.spotify.com/track/1a2R0g4f08rY2k26t1vY3g',
+            })
+          }
+          className={`px-3.5 py-1.5 rounded-full text-[10px] font-montserrat uppercase tracking-wider whitespace-nowrap transition-all active:scale-95 flex items-center gap-1.5 ${
+            selectedSong === anthemLabel
+              ? 'bg-primary text-secondary-fixed font-bold border border-secondary/40 shadow-xs'
+              : 'bg-secondary-container/25 text-primary border border-secondary/30 hover:border-secondary'
+          }`}
+        >
+          <span className="text-secondary text-xs">♥</span>
+          <span>Our Couple Love Anthem ({coupleProfile?.anthemTitle || 'Baby Riddim'})</span>
+        </button>
       </div>
     </div>
   );

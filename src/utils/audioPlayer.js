@@ -8,48 +8,6 @@ export const ROMANTIC_SONG_PRESETS = [
     youtubeUrl: 'https://www.youtube.com/watch?v=FqG7j3x9T88',
     isAnthem: true,
   },
-  {
-    title: 'Until I Found You',
-    artist: 'Stephen Sanchez',
-    url: 'https://open.spotify.com/track/0VjIjW4GlULA75pqn05apV',
-    youtubeUrl: 'https://www.youtube.com/watch?v=GxldQ9eX2wo',
-  },
-  {
-    title: 'Perfect',
-    artist: 'Ed Sheeran',
-    url: 'https://open.spotify.com/track/0tgV2Di06FyKpA1z0VMD4v',
-    youtubeUrl: 'https://www.youtube.com/watch?v=2Vv-BfVoq4g',
-  },
-  {
-    title: 'golden hour',
-    artist: 'JVKE',
-    url: 'https://open.spotify.com/track/5odlY52u43F5BjByvv7Gek',
-    youtubeUrl: 'https://www.youtube.com/watch?v=PEM0Vs8jf1w',
-  },
-  {
-    title: 'Lover',
-    artist: 'Taylor Swift',
-    url: 'https://open.spotify.com/track/1dGr1nsAZkt7o99cfbzg92',
-    youtubeUrl: 'https://www.youtube.com/watch?v=-BjZmE2gtdo',
-  },
-  {
-    title: 'Texas Sun',
-    artist: 'Leon Bridges & Khruangbin',
-    url: 'https://open.spotify.com/track/2akHGkYI9w9g2bXGqQpM88',
-    youtubeUrl: 'https://www.youtube.com/watch?v=hGvS8Jd1D6M',
-  },
-  {
-    title: 'All of Me',
-    artist: 'John Legend',
-    url: 'https://open.spotify.com/track/3U4isOIWM3VvDubwSI3y7a',
-    youtubeUrl: 'https://www.youtube.com/watch?v=450p7goxZqg',
-  },
-  {
-    title: 'By Your Side',
-    artist: 'Sade',
-    url: 'https://open.spotify.com/track/713q5B6TcLcT9k1a0z33R8',
-    youtubeUrl: 'https://www.youtube.com/watch?v=C8QJmI_V3j4',
-  },
 ];
 
 /**
@@ -209,25 +167,6 @@ export function resolveSongInfo(songInput, coupleProfile) {
       type: info.type,
       isAnthem: true,
     };
-  }
-
-  // Check against presets
-  for (const preset of ROMANTIC_SONG_PRESETS) {
-    if (
-      lower.includes(preset.title.toLowerCase()) ||
-      lower.includes(preset.artist.toLowerCase())
-    ) {
-      const info = getAudioEmbedInfo(preset.url);
-      return {
-        title: preset.title,
-        artist: preset.artist,
-        url: preset.url,
-        embedUrl: info.embedUrl,
-        platform: info.platform,
-        type: info.type,
-        isAnthem: Boolean(preset.isAnthem),
-      };
-    }
   }
 
   // If user pasted a direct URL in the song string
