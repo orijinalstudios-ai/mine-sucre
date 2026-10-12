@@ -57,13 +57,22 @@ export async function saveAudioFile(fileOrBlob) {
     createdAt: Date.now(),
   };
 
+  // 1. Immediately cache in memory & create Object URL for 0ms instant playback
+  memoryStore.set(id, record);
+  try {
+    const immediateUrl = URL.createObjectURL(fileOrBlob);
+    objectUrlRegistry.set(id, immediateUrl);
+  } catch (err) {
+    // ignore
+  }
+
+  // 2. Persist to IndexedDB
   const db = await openDB();
   if (!db) {
-    memoryStore.set(id, record);
     return id;
   }
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     try {
       const tx = db.transaction(STORE_NAME, 'readwrite');
       const store = tx.objectStore(STORE_NAME);
@@ -71,13 +80,11 @@ export async function saveAudioFile(fileOrBlob) {
 
       req.onsuccess = () => resolve(id);
       req.onerror = () => {
-        console.warn('IndexedDB put error, falling back to memory store:', req.error);
-        memoryStore.set(id, record);
+        console.warn('IndexedDB put error, cached in memory:', req.error);
         resolve(id);
       };
     } catch (err) {
-      console.warn('Transaction error, falling back to memory store:', err);
-      memoryStore.set(id, record);
+      console.warn('Transaction error, cached in memory:', err);
       resolve(id);
     }
   });
@@ -125,11 +132,22 @@ export async function getAudioPlayableUrl(urlOrId) {
   if (!urlOrId || typeof urlOrId !== 'string') return '';
 
   if (urlOrId.startsWith('idb:')) {
-    // Check if we already created an active Object URL for this ID
+    // 1. Check if we already created an active Object URL for this ID
     if (objectUrlRegistry.has(urlOrId)) {
       return objectUrlRegistry.get(urlOrId);
     }
 
+    // 2. Check memory store
+    if (memoryStore.has(urlOrId)) {
+      const record = memoryStore.get(urlOrId);
+      if (record?.blob) {
+        const objectUrl = URL.createObjectURL(record.blob);
+        objectUrlRegistry.set(urlOrId, objectUrl);
+        return objectUrl;
+      }
+    }
+
+    // 3. Query IndexedDB
     const blob = await getAudioBlob(urlOrId);
     if (blob) {
       const objectUrl = URL.createObjectURL(blob);

@@ -174,12 +174,15 @@ export function AppProvider({ children }) {
     setIsAudioPlayerOpen(true);
   };
 
-  const playMemorySong = (mem) => {
+  const playMemorySong = (mem, options = {}) => {
     if (!mem) return;
-    const resolved = resolveSongInfo(mem.song, coupleProfile);
+    // Pass the entire mem object to resolveSongInfo so mem.songUrl is preserved
+    const resolved = resolveSongInfo(mem, coupleProfile);
     setActiveTrack({
       ...resolved,
-      memoryTitle: mem.title,
+      memoryId: mem.id || null,
+      memoryTitle: mem.title || '',
+      onTrackUpdated: mem.onTrackUpdated || options.onTrackUpdated || null,
     });
     setIsAudioPlayerOpen(true);
   };

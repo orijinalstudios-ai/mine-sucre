@@ -84,6 +84,14 @@ export default function AudioPlayerModal() {
       type: resolvedInfo.type,
     }));
 
+    if (currentTrack.onTrackUpdated) {
+      try {
+        currentTrack.onTrackUpdated(trimmedUrl, `✦ ${newArtist} — ${newTitle}`);
+      } catch (err) {
+        // ignore
+      }
+    }
+
     if (currentTrack.isAnthem) {
       await updateCoupleProfile({
         ...coupleProfile,
@@ -124,6 +132,14 @@ export default function AudioPlayerModal() {
         type: 'idb',
         platform: 'Uploaded Audio',
       }));
+
+      if (currentTrack.onTrackUpdated) {
+        try {
+          currentTrack.onTrackUpdated(audioId, `✦ ${cleanName}`);
+        } catch (err) {
+          // ignore
+        }
+      }
 
       if (currentTrack.isAnthem) {
         await updateCoupleProfile({
@@ -279,9 +295,14 @@ export default function AudioPlayerModal() {
                     Your browser does not support audio playback.
                   </audio>
                 ) : (
-                  <p className="font-editorial italic text-xs text-secondary animate-pulse">
-                    ✦ Loading audio from sacred vault...
-                  </p>
+                  <div className="space-y-1.5 py-2">
+                    <p className="font-editorial italic text-xs text-secondary">
+                      ✦ Audio file stored on the device where it was uploaded.
+                    </p>
+                    <p className="font-sans text-[10px] text-on-surface-variant/70">
+                      To stream across both phones seamlessly, paste a Spotify, YouTube, or audio link!
+                    </p>
+                  </div>
                 )}
               </div>
             )}

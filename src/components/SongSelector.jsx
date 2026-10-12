@@ -15,6 +15,7 @@ export default function SongSelector({
 }) {
   const { playMemorySong } = useApp();
   const fileInputRef = useRef(null);
+  const [isUploadingAudio, setIsUploadingAudio] = useState(false);
 
   // Fallback if songUrl is embedded inside selectedSong string
   const currentUrl = songUrl || (typeof selectedSong === 'string' && selectedSong.match(/https?:\/\/[^\s]+/i)?.[0]) || '';
@@ -41,6 +42,7 @@ export default function SongSelector({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setIsUploadingAudio(true);
     const fileNameClean = file.name.replace(/\.[^/.]+$/, '');
     if (onChange) onChange(`✦ ${fileNameClean}`);
 
@@ -49,7 +51,25 @@ export default function SongSelector({
       if (onUrlChange) onUrlChange(audioId);
     } catch (err) {
       console.warn('Failed to save audio file to IndexedDB:', err);
+    } finally {
+      setIsUploadingAudio(false);
     }
+  };
+
+  const handlePreview = () => {
+    playMemorySong(
+      {
+        title: selectedSong || 'Keepsake Track',
+        song: selectedSong,
+        songUrl: currentUrl,
+      },
+      {
+        onTrackUpdated: (newUrl, newTitle) => {
+          if (onUrlChange) onUrlChange(newUrl);
+          if (onChange && newTitle) onChange(newTitle);
+        },
+      }
+    );
   };
 
   const handleClear = () => {
@@ -89,7 +109,12 @@ export default function SongSelector({
               {selectedSong || (currentUrl ? 'Custom Keepsake Audio' : 'No soundtrack selected (Quiet memory)')}
             </span>
             <div className="flex items-center gap-1.5 pt-0.5">
-              {embedInfo.type !== 'none' ? (
+              {isUploadingAudio ? (
+                <span className="text-[10px] text-secondary font-medium animate-pulse flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-ping"></span>
+                  Saving audio into vault...
+                </span>
+              ) : embedInfo.type !== 'none' ? (
                 <span className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full text-[9px] font-bold bg-secondary/15 text-secondary border border-secondary/30">
                   <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span>
                   {embedInfo.platform}
@@ -107,13 +132,8 @@ export default function SongSelector({
         {(selectedSong || currentUrl) && (
           <button
             type="button"
-            onClick={() =>
-              playMemorySong({
-                title: selectedSong || 'Keepsake Track',
-                song: selectedSong,
-                songUrl: currentUrl,
-              })
-            }
+            onClick={handlePreview}
+            disabled={isUploadingAudio}
             className="px-2.5 py-1 rounded-full bg-primary text-secondary-fixed text-[10px] font-montserrat uppercase font-bold flex items-center gap-1 shadow-xs hover:bg-primary-container active:scale-95 transition-all shrink-0"
             title="Preview Audio"
           >
@@ -149,12 +169,13 @@ export default function SongSelector({
           {/* Audio File Upload Button Trigger */}
           <button
             type="button"
+            disabled={isUploadingAudio}
             onClick={() => fileInputRef.current?.click()}
-            className="absolute right-1.5 px-2 py-1 rounded-lg bg-surface-container-high hover:bg-secondary-container/30 border border-secondary/25 text-[10px] font-montserrat text-primary font-medium flex items-center gap-1 transition-all active:scale-95"
+            className="absolute right-1.5 px-2 py-1 rounded-lg bg-surface-container-high hover:bg-secondary-container/30 border border-secondary/25 text-[10px] font-montserrat text-primary font-medium flex items-center gap-1 transition-all active:scale-95 disabled:opacity-60"
             title="Upload audio file (.mp3, .m4a, .wav)"
           >
-            <Icon name="upload_file" size={12} className="text-secondary" />
-            <span>Upload</span>
+            <Icon name={isUploadingAudio ? "sync" : "upload_file"} size={12} className={`text-secondary ${isUploadingAudio ? 'animate-spin' : ''}`} />
+            <span>{isUploadingAudio ? "Saving..." : "Upload"}</span>
           </button>
         </div>
 
