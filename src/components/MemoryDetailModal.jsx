@@ -17,6 +17,7 @@ export default function MemoryDetailModal() {
   } = useApp();
 
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
+  const [isFitMode, setIsFitMode] = useState(false);
 
   // Background audio autoplay state & refs
   const audioRef = useRef(null);
@@ -238,12 +239,23 @@ export default function MemoryDetailModal() {
           {/* Photos Carousel / Lightbox */}
           {mem.photos && mem.photos.length > 0 && (
             <div className="space-y-2">
-              <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-surface-dim border border-secondary/30 shadow-inner">
+              <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-black/40 border border-secondary/30 shadow-inner group">
                 <img
                   src={mem.photos[activePhotoIndex]}
                   alt={mem.title}
-                  className="w-full h-full object-cover"
+                  className={`w-full h-full transition-all duration-300 ${
+                    isFitMode ? 'object-contain' : 'object-cover'
+                  }`}
                 />
+                <button
+                  type="button"
+                  onClick={() => setIsFitMode(!isFitMode)}
+                  className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-full bg-black/75 hover:bg-black text-[#ffd79b] text-[10px] font-montserrat uppercase font-semibold flex items-center gap-1.5 backdrop-blur-md shadow-md border border-[#ffd79b]/30 transition-all active:scale-95"
+                  title={isFitMode ? 'Switch to Fill Frame' : 'Switch to Fit Entire Image (Show Entire Photo)'}
+                >
+                  <Icon name={isFitMode ? 'crop' : 'crop_free'} size={13} />
+                  <span>{isFitMode ? 'Fill' : 'Fit'}</span>
+                </button>
               </div>
 
               {/* Thumbnails if multiple */}

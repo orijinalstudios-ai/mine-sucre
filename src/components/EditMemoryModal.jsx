@@ -6,6 +6,7 @@ import { compressImage } from '../utils/imageCompressor';
 import TextFormattingToolbar from './TextFormattingToolbar';
 import SongSelector from './SongSelector';
 import CardColorPicker from './CardColorPicker';
+import ImageCropModal from './ImageCropModal';
 
 export default function EditMemoryModal() {
   const {
@@ -33,6 +34,8 @@ export default function EditMemoryModal() {
   const [isLocked, setIsLocked] = useState(false);
   const [attachedPhotos, setAttachedPhotos] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [cropTarget, setCropTarget] = useState(null);
+  const [isCropModalOpen, setIsCropModalOpen] = useState(false);
 
   const initializedMemoryIdRef = useRef(null);
 
@@ -85,33 +88,44 @@ export default function EditMemoryModal() {
 
   const handleFileUpload = async (e) => {
     const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    const newPhotos = [];
     for (let index = 0; index < files.length; index++) {
       const file = files[index];
+      const photoId = `photo-${Date.now()}-${index}`;
+      let dataUrl;
       try {
-        const { dataUrl } = await compressImage(file, { maxWidth: 1200, maxHeight: 1200, quality: 0.8 });
-        setAttachedPhotos((prev) => [
-          ...prev,
-          {
-            id: `photo-${Date.now()}-${index}`,
-            caption: file.name.slice(0, 15),
-            url: dataUrl,
-          },
-        ]);
+        const res = await compressImage(file, { maxWidth: 1200, maxHeight: 1200, quality: 0.85 });
+        dataUrl = res.dataUrl;
       } catch (err) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          setAttachedPhotos((prev) => [
-            ...prev,
-            {
-              id: `photo-${Date.now()}-${index}`,
-              caption: file.name.slice(0, 15),
-              url: event.target.result,
-            },
-          ]);
-        };
-        reader.readAsDataURL(file);
+        dataUrl = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (event) => resolve(event.target.result);
+          reader.readAsDataURL(file);
+        });
       }
+      newPhotos.push({
+        id: photoId,
+        caption: file.name.slice(0, 15),
+        url: dataUrl,
+      });
     }
+
+    if (newPhotos.length > 0) {
+      setAttachedPhotos((prev) => [...prev, ...newPhotos]);
+      setCropTarget(newPhotos[0]);
+      setIsCropModalOpen(true);
+    }
+    e.target.value = '';
+  };
+
+  const handleCropComplete = (croppedUrl) => {
+    if (!cropTarget) return;
+    setAttachedPhotos((prev) =>
+      prev.map((p) => (p.id === cropTarget.id ? { ...p, url: croppedUrl } : p))
+    );
+    setCropTarget(null);
   };
 
   const removePhoto = (id) => {
@@ -264,10 +278,22 @@ export default function EditMemoryModal() {
                       src={photo.url}
                       alt={photo.caption}
                     />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCropTarget(photo);
+                        setIsCropModalOpen(true);
+                      }}
+                      className="absolute bottom-1.5 left-1.5 right-1.5 py-1 rounded-md bg-black/80 hover:bg-black text-[#ffd79b] text-[9px] font-montserrat uppercase font-semibold flex items-center justify-center gap-1 shadow-xs transition-all active:scale-95 z-10"
+                      title="Crop / Adjust Framing"
+                    >
+                      <Icon name="crop" size={12} />
+                      <span>Crop</span>
+                    </button>
                   </div>
                   <button
                     onClick={() => removePhoto(photo.id)}
-                    className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-error text-white flex items-center justify-center shadow hover:scale-105 active:scale-95 transition-transform"
+                    className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-error text-white flex items-center justify-center shadow hover:scale-105 active:scale-95 transition-transform z-10"
                     type="button"
                     title="Remove photo"
                   >
@@ -460,6 +486,18 @@ export default function EditMemoryModal() {
           </div>
         </form>
       </div>
+
+      {/* Interactive Image Cropper Modal */}
+      <ImageCropModal
+        isOpen={isCropModalOpen}
+        imageUrl={cropTarget?.url}
+        initialAspectRatio="16:10"
+        onCropComplete={handleCropComplete}
+        onClose={() => {
+          setIsCropModalOpen(false);
+          setCropTarget(null);
+        }}
+      />
     </div>
   );
 }
