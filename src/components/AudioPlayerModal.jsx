@@ -28,7 +28,7 @@ export default function AudioPlayerModal() {
   const currentTrack = activeTrack || {
     title: coupleProfile?.anthemTitle || 'Baby Riddim',
     artist: coupleProfile?.anthemArtist || 'Fave',
-    url: coupleProfile?.songUrl || 'https://open.spotify.com/track/1a2R0g4f08rY2k26t1vY3g',
+    url: coupleProfile?.songUrl || 'https://audiomack.com/favourish/song/baby-riddim',
     isAnthem: true,
   };
 

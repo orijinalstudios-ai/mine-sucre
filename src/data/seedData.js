@@ -3,7 +3,7 @@ export const initialCoupleProfile = {
   partner1: "Mine",
   partner2: "Sucre",
   anniversaryDate: "2025-04-27",
-  songUrl: "https://open.spotify.com/track/1a2R0g4f08rY2k26t1vY3g",
+  songUrl: "https://audiomack.com/favourish/song/baby-riddim",
   anthemTitle: "Baby Riddim",
   anthemArtist: "Fave",
   anthemDuration: "02:44",

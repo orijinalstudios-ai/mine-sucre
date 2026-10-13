@@ -209,7 +209,7 @@ export default function SongSelector({
             handleSelectPreset({
               artist: coupleProfile?.anthemArtist || 'Fave',
               title: coupleProfile?.anthemTitle || 'Baby Riddim',
-              url: coupleProfile?.songUrl || 'https://open.spotify.com/track/1a2R0g4f08rY2k26t1vY3g',
+              url: coupleProfile?.songUrl || 'https://audiomack.com/favourish/song/baby-riddim',
             })
           }
           className={`px-3.5 py-1.5 rounded-full text-[10px] font-montserrat uppercase tracking-wider whitespace-nowrap transition-all active:scale-95 flex items-center gap-1.5 ${

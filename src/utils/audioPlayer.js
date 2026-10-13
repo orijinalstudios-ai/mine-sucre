@@ -4,7 +4,7 @@ export const ROMANTIC_SONG_PRESETS = [
   {
     title: 'Baby Riddim',
     artist: 'Fave',
-    url: 'https://open.spotify.com/track/1a2R0g4f08rY2k26t1vY3g',
+    url: 'https://audiomack.com/favourish/song/baby-riddim',
     youtubeUrl: 'https://www.youtube.com/watch?v=FqG7j3x9T88',
     isAnthem: true,
   },
@@ -134,7 +134,7 @@ export function resolveSongInfo(songInput, coupleProfile) {
   const songString = typeof songInput === 'string' ? songInput : '';
 
   if (!songString.trim()) {
-    const anthemUrl = coupleProfile?.songUrl || 'https://open.spotify.com/track/1a2R0g4f08rY2k26t1vY3g';
+    const anthemUrl = coupleProfile?.songUrl || 'https://audiomack.com/favourish/song/baby-riddim';
     const info = getAudioEmbedInfo(anthemUrl);
     return {
       title: coupleProfile?.anthemTitle || 'Baby Riddim',
@@ -156,7 +156,7 @@ export function resolveSongInfo(songInput, coupleProfile) {
     lower.includes('our anthem') ||
     lower.includes('baby riddim')
   ) {
-    const anthemUrl = coupleProfile?.songUrl || 'https://open.spotify.com/track/1a2R0g4f08rY2k26t1vY3g';
+    const anthemUrl = coupleProfile?.songUrl || 'https://audiomack.com/favourish/song/baby-riddim';
     const info = getAudioEmbedInfo(anthemUrl);
     return {
       title: coupleProfile?.anthemTitle || 'Baby Riddim',

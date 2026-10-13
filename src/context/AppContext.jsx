@@ -50,9 +50,20 @@ export function AppProvider({ children }) {
         const parsed = JSON.parse(saved);
         if (parsed.anniversaryDate === '2025-03-27') {
           parsed.anniversaryDate = '2025-04-27';
-          safeLocalStorageSet('mm_couple_profile_v2', parsed);
         }
-        return parsed;
+        // Auto-heal missing anthem fields and migrate dead Spotify 404 URL
+        const healed = {
+          ...initialCoupleProfile,
+          ...parsed,
+          anthemTitle: (parsed.anthemTitle && parsed.anthemTitle.trim()) || initialCoupleProfile.anthemTitle,
+          anthemArtist: (parsed.anthemArtist && parsed.anthemArtist.trim()) || initialCoupleProfile.anthemArtist,
+          anthemDuration: (parsed.anthemDuration && parsed.anthemDuration.trim()) || initialCoupleProfile.anthemDuration,
+          songUrl: (!parsed.songUrl || parsed.songUrl.includes('1a2R0g4f08rY2k26t1vY3g'))
+            ? initialCoupleProfile.songUrl
+            : parsed.songUrl.trim(),
+        };
+        safeLocalStorageSet('mm_couple_profile_v2', healed);
+        return healed;
       } catch (e) {
         return initialCoupleProfile;
       }
@@ -202,7 +213,7 @@ export function AppProvider({ children }) {
   const [activeTrack, setActiveTrack] = useState(() => ({
     title: coupleProfile?.anthemTitle || 'Baby Riddim',
     artist: coupleProfile?.anthemArtist || 'Fave',
-    url: coupleProfile?.songUrl || 'https://open.spotify.com/track/1a2R0g4f08rY2k26t1vY3g',
+    url: coupleProfile?.songUrl || 'https://audiomack.com/favourish/song/baby-riddim',
     isAnthem: true,
   }));
 
@@ -210,7 +221,7 @@ export function AppProvider({ children }) {
     setActiveTrack({
       title: coupleProfile?.anthemTitle || 'Baby Riddim',
       artist: coupleProfile?.anthemArtist || 'Fave',
-      url: coupleProfile?.songUrl || 'https://open.spotify.com/track/1a2R0g4f08rY2k26t1vY3g',
+      url: coupleProfile?.songUrl || 'https://audiomack.com/favourish/song/baby-riddim',
       isAnthem: true,
     });
     setIsAudioPlayerOpen(true);
@@ -341,12 +352,24 @@ export function AppProvider({ children }) {
       // Merge couple profile
       let mergedProfile = currentProfile;
       if (cloudData && cloudData.coupleProfile && typeof cloudData.coupleProfile === 'object') {
-        const cp = { ...cloudData.coupleProfile };
+        const cp = {
+          ...initialCoupleProfile,
+          ...currentProfile,
+          ...cloudData.coupleProfile,
+        };
         if (cp.anniversaryDate === '2025-03-27') cp.anniversaryDate = '2025-04-27';
+        if (!cp.anthemTitle || !cp.anthemTitle.trim()) cp.anthemTitle = initialCoupleProfile.anthemTitle;
+        if (!cp.anthemArtist || !cp.anthemArtist.trim()) cp.anthemArtist = initialCoupleProfile.anthemArtist;
+        if (!cp.anthemDuration || !cp.anthemDuration.trim()) cp.anthemDuration = initialCoupleProfile.anthemDuration;
+        if (!cp.songUrl || cp.songUrl.includes('1a2R0g4f08rY2k26t1vY3g')) {
+          cp.songUrl = initialCoupleProfile.songUrl;
+        }
+
         if (JSON.stringify(cp) !== JSON.stringify(currentProfile)) {
           mergedProfile = cp;
           setCoupleProfile(mergedProfile);
           safeLocalStorageSet('mm_couple_profile_v2', mergedProfile);
+          needsCloudPush = true;
         }
       } else if (currentProfile) {
         needsCloudPush = true;

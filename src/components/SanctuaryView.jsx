@@ -88,10 +88,10 @@ export default function SanctuaryView() {
             <div className="flex-1 min-w-0 pr-1">
               <div className="flex items-center justify-between mb-1">
                 <span className="font-montserrat text-[10px] text-secondary uppercase font-semibold tracking-wider truncate">
-                  ✦ {coupleProfile.anthemArtist} — {coupleProfile.anthemTitle}
+                  ✦ {coupleProfile?.anthemArtist || 'Fave'} — {coupleProfile?.anthemTitle || 'Baby Riddim'}
                 </span>
                 <span className="font-sans text-[11px] text-on-surface-variant/80">
-                  {coupleProfile.anthemDuration}
+                  {coupleProfile?.anthemDuration || '02:44'}
                 </span>
               </div>
 

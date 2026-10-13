@@ -10,6 +10,7 @@ export default function VaultView() {
     vows,
     addVow,
     deleteVow,
+    playAnthem,
     setIsAudioPlayerOpen,
     setIsKeepsakeBookOpen,
     setActiveTab,
@@ -119,7 +120,7 @@ export default function VaultView() {
 
             {/* Our Soundtrack of the Year (Audiomack Real Playback) */}
             <section
-              onClick={() => setIsAudioPlayerOpen(true)}
+              onClick={playAnthem}
               className="rounded-2xl bg-surface-container-lowest border border-secondary/35 p-4 relative overflow-hidden shadow-sm cursor-pointer hover:border-secondary transition-all group"
             >
               <div className="flex items-center justify-between mb-3">
@@ -140,10 +141,10 @@ export default function VaultView() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <h4 className="font-serif font-bold text-base text-primary truncate">
-                    {coupleProfile.anthemTitle}
+                    {coupleProfile?.anthemTitle || 'Baby Riddim'}
                   </h4>
                   <p className="font-editorial italic text-xs text-on-surface-variant">
-                    by {coupleProfile.anthemArtist}
+                    by {coupleProfile?.anthemArtist || 'Fave'}
                   </p>
                 </div>
               </div>
