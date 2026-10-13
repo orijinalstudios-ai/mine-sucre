@@ -2,30 +2,43 @@
  * Ultra-Lightweight Couple Cloud Sync Utility (0 KB external dependencies)
  * 
  * Auto-connected to live cloud database for Mine & Sucre.
- * Syncs automatically between both phones in real-time.
+ * Syncs automatically between both phones and computers in real-time.
  */
 
-const API_ENDPOINT = '/api/sync';
-const VAULT_KEY = 'couple_vault_mine_and_sucre';
+export const PROD_API_ENDPOINT = 'https://mine-and-sucre.vercel.app/api/sync';
 
-// Pre-connected live cloud database for Mine & Sucre
-const LIVE_UPSTASH_URL = 'https://shining-monarch-216455.upstash.io';
-const LIVE_UPSTASH_TOKEN = 'gQAAAAAAA02HAQIgcDE2MTBkMzU2YTNjODU0ZjNhODQ3NTA2YjY0NjJjMWRkNQ';
-
-export function getCustomUpstash() {
-  const url = localStorage.getItem('mm_upstash_url') || LIVE_UPSTASH_URL;
-  const token = localStorage.getItem('mm_upstash_token') || LIVE_UPSTASH_TOKEN;
-  if (url && token) return { url: url.trim(), token: token.trim() };
-  return null;
+/**
+ * Determine the best endpoint URL to reach the cloud sync API:
+ * - If running on production (mine-and-sucre.vercel.app), use relative '/api/sync'
+ * - If running locally (localhost / 127.0.0.1 / local Wi-Fi IP) or in standalone PWA,
+ *   use the production absolute URL 'https://mine-and-sucre.vercel.app/api/sync'
+ *   (which allows cross-origin requests with Access-Control-Allow-Origin: *)
+ */
+export function getSyncEndpoint() {
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    if (host === 'mine-and-sucre.vercel.app') {
+      return '/api/sync';
+    }
+  }
+  return PROD_API_ENDPOINT;
 }
 
-export function saveCustomUpstash(url, token) {
-  if (url && token) {
-    localStorage.setItem('mm_upstash_url', url.trim());
-    localStorage.setItem('mm_upstash_token', token.trim());
-  } else {
-    localStorage.removeItem('mm_upstash_url');
-    localStorage.removeItem('mm_upstash_token');
+/**
+ * Helper to fetch with a timeout
+ */
+async function fetchWithTimeout(url, options = {}, timeoutMs = 12000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const res = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    return res;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
@@ -33,44 +46,34 @@ export function saveCustomUpstash(url, token) {
  * Fetch shared memories, vows, and profile from cloud
  */
 export async function fetchCloudVault() {
-  const custom = getCustomUpstash();
+  const endpoint = getSyncEndpoint();
 
-  // Try direct Upstash cloud REST endpoint
-  if (custom) {
-    try {
-      const res = await fetch(`${custom.url}/get/${VAULT_KEY}`, {
-        headers: { Authorization: `Bearer ${custom.token}` },
-      });
-      if (res.ok) {
-        const json = await res.json();
-        let data = json.result;
-        while (typeof data === 'string') {
-          try {
-            data = JSON.parse(data);
-          } catch (e) {
-            break;
-          }
-        }
-        return { configured: true, data: data || null };
-      }
-    } catch (err) {
-      console.warn('Direct Upstash fetch fallback to /api/sync:', err);
-    }
-  }
-
-  // Fallback to /api/sync on Vercel
   try {
-    const res = await fetch(API_ENDPOINT, {
+    const res = await fetchWithTimeout(endpoint, {
       method: 'GET',
-      headers: { 'Accept': 'application/json' },
-    });
+      headers: { Accept: 'application/json' },
+    }, 12000);
 
     if (res.ok) {
       const data = await res.json();
       return data;
     }
-    return { configured: true, data: null };
+    return { configured: true, data: null, error: `HTTP ${res.status}` };
   } catch (err) {
+    // If relative endpoint failed, retry once with the absolute production URL
+    if (endpoint !== PROD_API_ENDPOINT) {
+      try {
+        const retryRes = await fetchWithTimeout(PROD_API_ENDPOINT, {
+          method: 'GET',
+          headers: { Accept: 'application/json' },
+        }, 12000);
+        if (retryRes.ok) {
+          return await retryRes.json();
+        }
+      } catch (retryErr) {
+        return { configured: true, error: retryErr.message };
+      }
+    }
     return { configured: true, error: err.message };
   }
 }
@@ -87,43 +90,39 @@ export async function saveCloudVault({ memories, vows, coupleProfile, updatedAt 
     updatedAt: timestamp,
   };
 
-  const custom = getCustomUpstash();
+  const endpoint = getSyncEndpoint();
 
-  // Save directly to live Upstash cloud endpoint
-  if (custom) {
-    try {
-      const res = await fetch(`${custom.url}/set/${VAULT_KEY}`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${custom.token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (res.ok) {
-        return { success: true, savedAt: timestamp };
-      }
-    } catch (err) {
-      console.warn('Direct Upstash save fallback to /api/sync:', err);
-    }
-  }
-
-  // Backup write to /api/sync
   try {
-    const res = await fetch(API_ENDPOINT, {
+    const res = await fetchWithTimeout(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),
-    });
+    }, 15000);
 
     if (res.ok) {
-      return await res.json();
+      const json = await res.json();
+      return { success: true, savedAt: timestamp, ...json };
     }
-    return { success: false };
+    return { success: false, error: `HTTP ${res.status}` };
   } catch (err) {
+    // Fallback retry with absolute production URL if relative endpoint failed
+    if (endpoint !== PROD_API_ENDPOINT) {
+      try {
+        const retryRes = await fetchWithTimeout(PROD_API_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        }, 15000);
+        if (retryRes.ok) {
+          const json = await retryRes.json();
+          return { success: true, savedAt: timestamp, ...json };
+        }
+      } catch (retryErr) {
+        return { success: false, error: retryErr.message };
+      }
+    }
     return { success: false, error: err.message };
   }
 }

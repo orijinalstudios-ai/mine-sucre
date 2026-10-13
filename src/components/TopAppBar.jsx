@@ -9,6 +9,8 @@ export default function TopAppBar({ title, showBack = false, onBack, borderless 
     setIsKeepsakeBookOpen,
     setIsInstallModalOpen,
     lockApp,
+    syncState,
+    syncNow,
   } = useApp();
 
   return (
@@ -49,15 +51,29 @@ export default function TopAppBar({ title, showBack = false, onBack, borderless 
         ) : (
           <div
             className="flex items-center gap-1.5 cursor-pointer relative group px-2 py-1 rounded-full hover:bg-secondary-container/15 transition-colors"
-            onClick={() => setIsSettingsOpen(true)}
-            title="Auto-Sync Live between Mine & Sucre"
+            onClick={() => syncNow(true)}
+            title={
+              syncState?.status === 'syncing'
+                ? 'Syncing memories across devices...'
+                : syncState?.status === 'error'
+                ? 'Sync offline - tap to retry'
+                : 'Synced across devices (tap to refresh)'
+            }
           >
             <span className="text-secondary text-[10px] opacity-75">✦</span>
             <span className="font-cinzel font-semibold text-base tracking-widest text-primary">
               {(coupleProfile?.partner1 || 'Mine').charAt(0)} &amp; {(coupleProfile?.partner2 || 'Sucre').charAt(0)}
             </span>
             <span className="text-secondary text-[10px] opacity-75">✦</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse ml-0.5 inline-block" title="Both phones auto-synced" />
+            <span
+              className={`w-1.5 h-1.5 rounded-full ml-0.5 inline-block ${
+                syncState?.status === 'syncing'
+                  ? 'bg-amber-500 animate-spin'
+                  : syncState?.status === 'error'
+                  ? 'bg-rose-500'
+                  : 'bg-emerald-500 animate-pulse'
+              }`}
+            />
           </div>
         )}
 

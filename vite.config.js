@@ -6,6 +6,13 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
-    open: false
-  }
+    open: false,
+    proxy: {
+      '/api': {
+        target: 'https://mine-and-sucre.vercel.app',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
+  },
 })

@@ -13,6 +13,8 @@ export default function SettingsModal() {
     memories,
     vows,
     lockApp,
+    syncState,
+    syncNow,
   } = useApp();
 
   const [names, setNames] = useState(coupleProfile.names);
@@ -107,26 +109,70 @@ export default function SettingsModal() {
           </button>
         </div>
 
-        {/* Live Auto-Sync Status Badge */}
-        <div className="p-3.5 rounded-xl bg-surface-container-low border border-secondary/25 flex items-center justify-between shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-600 shrink-0">
-              <Icon name="cloud_sync" size={18} />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="font-montserrat text-xs font-semibold uppercase tracking-wider text-primary">
-                  Live Auto-Sync
-                </span>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/15 text-emerald-700 border border-emerald-500/30">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  ACTIVE
-                </span>
+        {/* Live Auto-Sync Status Badge & Manual Trigger */}
+        <div className="p-3.5 rounded-xl bg-surface-container-low border border-secondary/25 shadow-sm space-y-2.5">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className={`w-8 h-8 rounded-full border flex items-center justify-center shrink-0 ${
+                syncState?.status === 'syncing'
+                  ? 'bg-amber-500/10 border-amber-500/30 text-amber-600'
+                  : syncState?.status === 'error'
+                  ? 'bg-rose-500/10 border-rose-500/30 text-rose-600'
+                  : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600'
+              }`}>
+                <Icon
+                  name={syncState?.status === 'syncing' ? 'sync' : 'cloud_sync'}
+                  size={16}
+                  className={syncState?.status === 'syncing' ? 'animate-spin' : ''}
+                />
               </div>
-              <p className="text-[11px] text-on-surface-variant/80 mt-0.5 leading-snug">
-                All photos, letters, and milestones update automatically in real time across both Mine &amp; Sucre’s phones.
-              </p>
+
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="font-montserrat text-xs font-semibold uppercase tracking-wider text-primary">
+                    Universal Cloud Sync
+                  </span>
+                  <span className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[8px] font-bold border ${
+                    syncState?.status === 'syncing'
+                      ? 'bg-amber-500/15 text-amber-700 border-amber-500/30'
+                      : syncState?.status === 'error'
+                      ? 'bg-rose-500/15 text-rose-700 border-rose-500/30'
+                      : 'bg-emerald-500/15 text-emerald-700 border-emerald-500/30'
+                  }`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${
+                      syncState?.status === 'syncing'
+                        ? 'bg-amber-500 animate-spin'
+                        : syncState?.status === 'error'
+                        ? 'bg-rose-500'
+                        : 'bg-emerald-500 animate-pulse'
+                    }`}></span>
+                    {syncState?.status === 'syncing' ? 'SYNCING...' : syncState?.status === 'error' ? 'RETRYING' : 'CONNECTED'}
+                  </span>
+                </div>
+
+                <p className="text-[10px] text-on-surface-variant/80 truncate">
+                  {syncState?.lastSyncedAt
+                    ? `Last updated: ${new Date(syncState.lastSyncedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                    : 'Auto-syncs across phones & computers'}
+                </p>
+              </div>
             </div>
+
+            {/* Manual Sync Now Button */}
+            <button
+              type="button"
+              onClick={() => syncNow(true)}
+              disabled={syncState?.status === 'syncing'}
+              className="px-2.5 py-1.5 rounded-full bg-secondary-container/40 hover:bg-secondary-container text-primary font-montserrat text-[9px] font-semibold uppercase tracking-wider border border-secondary/40 active:scale-95 transition-all flex items-center gap-1 shrink-0 disabled:opacity-60"
+              title="Force sync memories with partner's phone right now"
+            >
+              <Icon
+                name={syncState?.status === 'syncing' ? 'sync' : 'refresh'}
+                size={12}
+                className={syncState?.status === 'syncing' ? 'animate-spin' : ''}
+              />
+              <span>{syncState?.status === 'syncing' ? 'Syncing' : 'Sync Now ✦'}</span>
+            </button>
           </div>
         </div>
 

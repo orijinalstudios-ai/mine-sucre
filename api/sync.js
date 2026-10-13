@@ -1,4 +1,12 @@
 // api/sync.js - Lightweight Vercel Serverless Endpoint for Couple Memory Sync
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
+  },
+};
+
 export default async function handler(req, res) {
   // CORS configuration for cross-origin or local dev testing
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -13,15 +21,13 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  // Live Upstash Redis connection (pre-connected for Mine & Sucre)
+  // Live Upstash/Vercel KV Redis connection
   const kvUrl =
     process.env.KV_REST_API_URL ||
-    process.env.UPSTASH_REDIS_REST_URL ||
-    'https://shining-monarch-216455.upstash.io';
+    process.env.UPSTASH_REDIS_REST_URL;
   const kvToken =
     process.env.KV_REST_API_TOKEN ||
-    process.env.UPSTASH_REDIS_REST_TOKEN ||
-    'gQAAAAAAA02HAQIgcDE2MTBkMzU2YTNjODU0ZjNhODQ3NTA2YjY0NjJjMWRkNQ';
+    process.env.UPSTASH_REDIS_REST_TOKEN;
 
   const vaultKey = 'couple_vault_mine_and_sucre';
 
@@ -30,7 +36,7 @@ export default async function handler(req, res) {
     if (!kvUrl || !kvToken) {
       return res.status(200).json({
         configured: false,
-        message: 'Upstash Redis not connected yet. Connect Upstash in Vercel Marketplace or add UPSTASH_REDIS_REST_URL in Vercel Settings.',
+        message: 'Cloud database not configured. Please add KV_REST_API_URL and KV_REST_API_TOKEN in Vercel settings.',
       });
     }
 
@@ -72,7 +78,7 @@ export default async function handler(req, res) {
     if (!kvUrl || !kvToken) {
       return res.status(200).json({
         configured: false,
-        message: 'Upstash Redis not connected yet. Connect Upstash in Vercel Marketplace or add UPSTASH_REDIS_REST_URL in Vercel Settings.',
+        message: 'Cloud database not configured. Please add KV_REST_API_URL and KV_REST_API_TOKEN in Vercel settings.',
       });
     }
 

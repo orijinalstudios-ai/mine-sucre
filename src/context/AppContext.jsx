@@ -237,112 +237,173 @@ export function AppProvider({ children }) {
     playAnthem();
   };
 
-  // Lightweight Cloud Sync State (Pre-connected to live cloud database)
-  const [isCloudConfigured, setIsCloudConfigured] = useState(true);
-  const lastLocalWriteRef = useRef(0);
+  // Live Cloud Sync State & Diagnostics
+  const [syncState, setSyncState] = useState({
+    status: 'idle', // 'idle' | 'syncing' | 'synced' | 'error'
+    lastSyncedAt: null,
+    error: null,
+  });
 
-  // Auto-pull shared memories from live cloud database
-  const pullFromCloud = async (silent = true) => {
-    // If local device just saved within 15 seconds, protect local state and skip pull
-    if (Date.now() - lastLocalWriteRef.current < 15000) {
-      return;
-    }
+  const isSyncInProgressRef = useRef(false);
+
+  /**
+   * Bidirectional sync engine:
+   * Reconciles local memories with the cloud vault using per-item timestamps.
+   * If local has newer or unpushed memories, pushes them to the cloud.
+   * If cloud has partner's memories, pulls them into local storage & state.
+   */
+  const syncNow = async (manual = false) => {
+    if (isSyncInProgressRef.current) return;
+    isSyncInProgressRef.current = true;
+    setSyncState((prev) => ({ ...prev, status: 'syncing', error: null }));
 
     try {
       const res = await fetchCloudVault();
-      if (res && res.data) {
-        const cloudData = res.data;
-        const cloudUpdatedAt = cloudData.updatedAt;
-        const localUpdatedAt = localStorage.getItem('mm_vault_updated_at');
+      if (!res) throw new Error('Could not reach cloud server');
+      if (res.error) throw new Error(res.error);
 
-        let isStrictlyNewer = false;
-        if (!localUpdatedAt) {
-          isStrictlyNewer = true;
-        } else if (cloudUpdatedAt) {
-          isStrictlyNewer = new Date(cloudUpdatedAt).getTime() > new Date(localUpdatedAt).getTime();
+      const cloudData = res.data;
+      const currentMemories = memoriesRef.current || memories;
+      const currentVows = vows;
+      const currentProfile = coupleProfile;
+      const deletedIds = getDeletedMemoryIds();
+
+      let needsCloudPush = false;
+      let mergedMemories = [...currentMemories];
+
+      if (cloudData && Array.isArray(cloudData.memories)) {
+        const memoryMap = new Map();
+
+        // 1. Add cloud memories that haven't been locally deleted
+        for (const cm of cloudData.memories) {
+          if (cm && cm.id && !deletedIds.has(cm.id)) {
+            memoryMap.set(cm.id, cm);
+          }
         }
 
-        if (isStrictlyNewer) {
-          if (Array.isArray(cloudData.memories)) {
-            const deletedIds = getDeletedMemoryIds();
-            const currentMemories = memoriesRef.current || memories;
+        // 2. Merge local memories with per-item updatedAt comparison
+        for (const lm of currentMemories) {
+          if (!lm || !lm.id) continue;
+          if (deletedIds.has(lm.id)) continue;
 
-            // Safe union merge: keep cloud items + any local items not deleted
-            const memoryMap = new Map();
-            for (const cm of cloudData.memories) {
-              if (cm && cm.id && !deletedIds.has(cm.id)) {
-                memoryMap.set(cm.id, cm);
-              }
+          if (memoryMap.has(lm.id)) {
+            const cm = memoryMap.get(lm.id);
+            const lmTime = lm.updatedAt ? new Date(lm.updatedAt).getTime() : 0;
+            const cmTime = cm.updatedAt ? new Date(cm.updatedAt).getTime() : 0;
+            if (lmTime > cmTime) {
+              // Local is strictly newer than cloud
+              memoryMap.set(lm.id, lm);
+              needsCloudPush = true;
+            } else if (cmTime > lmTime) {
+              // Cloud is strictly newer, already in map
+            } else {
+              // Same timestamp or fallback: merge properties safely
+              memoryMap.set(lm.id, { ...cm, ...lm });
             }
-            for (const lm of currentMemories) {
-              if (lm && lm.id && !deletedIds.has(lm.id) && !memoryMap.has(lm.id)) {
-                memoryMap.set(lm.id, lm);
-              }
-            }
+          } else {
+            // Memory exists locally on this device but not in cloud yet
+            memoryMap.set(lm.id, lm);
+            needsCloudPush = true;
+          }
+        }
 
-            const mergedList = Array.from(memoryMap.values());
-            const incomingMemStr = JSON.stringify(mergedList);
-            const localMemStr = localStorage.getItem('mm_memories');
-            if (incomingMemStr !== localMemStr) {
-              setMemories(mergedList);
-              safeLocalStorageSet('mm_memories', mergedList);
-              saveMemoriesToIDB(mergedList);
-            }
-          }
-          if (Array.isArray(cloudData.vows)) {
-            const incomingVowsStr = JSON.stringify(cloudData.vows);
-            const localVowsStr = localStorage.getItem('mm_vows');
-            if (incomingVowsStr !== localVowsStr) {
-              setVows(cloudData.vows);
-              localStorage.setItem('mm_vows', incomingVowsStr);
-            }
-          }
-          if (cloudData.coupleProfile && typeof cloudData.coupleProfile === 'object') {
-            const profile = { ...cloudData.coupleProfile };
-            if (profile.anniversaryDate === '2025-03-27') {
-              profile.anniversaryDate = '2025-04-27';
-            }
-            const incomingProfStr = JSON.stringify(profile);
-            const localProfStr = localStorage.getItem('mm_couple_profile_v2');
-            if (incomingProfStr !== localProfStr) {
-              setCoupleProfile(profile);
-              safeLocalStorageSet('mm_couple_profile_v2', incomingProfStr);
-            }
-          }
-          if (cloudUpdatedAt) {
-            safeLocalStorageSet('mm_vault_updated_at', cloudUpdatedAt);
-          }
-          if (!silent) {
-            showToast('✦ Sanctuary synced with partner in real-time!');
-          }
-        } else if (!silent) {
-          showToast('✦ Sanctuary is up to date!');
+        mergedMemories = Array.from(memoryMap.values());
+      } else {
+        // Cloud is empty. If this device has local memories, push them!
+        if (currentMemories.length > 0) {
+          needsCloudPush = true;
         }
       }
+
+      // Check if merged memories differ from local state
+      const mergedMemStr = JSON.stringify(mergedMemories);
+      const localMemStr = JSON.stringify(currentMemories);
+      if (mergedMemStr !== localMemStr) {
+        setMemories(mergedMemories);
+        safeLocalStorageSet('mm_memories', mergedMemories);
+        saveMemoriesToIDB(mergedMemories);
+      }
+
+      // Merge vows
+      let mergedVows = currentVows;
+      if (cloudData && Array.isArray(cloudData.vows)) {
+        if (cloudData.vows.length > 0 && currentVows.length === 0) {
+          mergedVows = cloudData.vows;
+          setVows(mergedVows);
+          safeLocalStorageSet('mm_vows', mergedVows);
+        } else if (currentVows.length > 0 && cloudData.vows.length === 0) {
+          needsCloudPush = true;
+        }
+      } else if (currentVows.length > 0) {
+        needsCloudPush = true;
+      }
+
+      // Merge couple profile
+      let mergedProfile = currentProfile;
+      if (cloudData && cloudData.coupleProfile && typeof cloudData.coupleProfile === 'object') {
+        const cp = { ...cloudData.coupleProfile };
+        if (cp.anniversaryDate === '2025-03-27') cp.anniversaryDate = '2025-04-27';
+        if (JSON.stringify(cp) !== JSON.stringify(currentProfile)) {
+          mergedProfile = cp;
+          setCoupleProfile(mergedProfile);
+          safeLocalStorageSet('mm_couple_profile_v2', mergedProfile);
+        }
+      } else if (currentProfile) {
+        needsCloudPush = true;
+      }
+
+      // If this device had newer memories or missing items on cloud, push now
+      const nowIso = new Date().toISOString();
+      if (needsCloudPush) {
+        await saveCloudVault({
+          memories: mergedMemories,
+          vows: mergedVows,
+          coupleProfile: mergedProfile,
+          updatedAt: nowIso,
+        });
+      }
+
+      safeLocalStorageSet('mm_vault_updated_at', nowIso);
+      setSyncState({
+        status: 'synced',
+        lastSyncedAt: new Date(),
+        error: null,
+      });
+
+      if (manual) {
+        showToast('✦ Memories synced across devices in real time!');
+      }
     } catch (err) {
-      console.warn('Auto-sync notice:', err);
+      console.warn('Sync notice:', err.message);
+      setSyncState((prev) => ({
+        ...prev,
+        status: 'error',
+        error: err.message,
+      }));
+      if (manual) {
+        showToast(`Sync notice: ${err.message || 'Offline'}`);
+      }
+    } finally {
+      isSyncInProgressRef.current = false;
     }
   };
 
-  // Continuous Auto-Sync: on mount, on phone wake/focus, and every 10 seconds while active
+  // Continuous Auto-Sync: on mount, on phone wake/focus, and every 20 seconds while active
   useEffect(() => {
-    // Initial fetch on mount
-    pullFromCloud(true);
+    syncNow(false);
 
-    // Sync whenever phone is unlocked, tab switched, or app focused
-    const handleFocus = () => pullFromCloud(true);
+    const handleFocus = () => syncNow(false);
     window.addEventListener('focus', handleFocus);
     const handleVisibility = () => {
-      if (document.visibilityState === 'visible') pullFromCloud(true);
+      if (document.visibilityState === 'visible') syncNow(false);
     };
     document.addEventListener('visibilitychange', handleVisibility);
 
-    // Live continuous polling while tab is active
     const interval = setInterval(() => {
       if (document.visibilityState === 'visible') {
-        pullFromCloud(true);
+        syncNow(false);
       }
-    }, 10000);
+    }, 20000);
 
     return () => {
       window.removeEventListener('focus', handleFocus);
@@ -353,15 +414,17 @@ export function AppProvider({ children }) {
 
   const addMemory = async (newMemory) => {
     const now = new Date().toISOString();
-    lastLocalWriteRef.current = Date.now();
-    safeLocalStorageSet('mm_vault_updated_at', now);
+    const memoryWithTime = {
+      ...newMemory,
+      updatedAt: now,
+    };
 
     // 1. Instantly append to IndexedDB (fail-safe hard storage)
-    appendMemoryToIDB(newMemory);
+    appendMemoryToIDB(memoryWithTime);
 
     // 2. Synchronously update local React state and localStorage
     const currentList = memoriesRef.current || memories;
-    const updatedLocal = [newMemory, ...currentList.filter((m) => m.id !== newMemory.id)];
+    const updatedLocal = [memoryWithTime, ...currentList.filter((m) => m.id !== newMemory.id)];
     setMemories(updatedLocal);
     safeLocalStorageSet('mm_memories', updatedLocal);
     saveMemoriesToIDB(updatedLocal);
@@ -369,78 +432,61 @@ export function AppProvider({ children }) {
     showToast("Memory sealed & archived forever ✦");
     ambientPlayer.playChime();
 
-    // 3. Sync to Cloud without overwriting partner's unpulled memories
+    // 3. Immediately trigger cloud sync & push
     try {
-      const cloudRes = await fetchCloudVault();
-      let merged = [...updatedLocal];
-      let currentVows = vows;
-      let currentProfile = coupleProfile;
-
-      if (cloudRes && cloudRes.data) {
-        if (Array.isArray(cloudRes.data.memories)) {
-          const deletedIds = getDeletedMemoryIds();
-          const knownIds = new Set(merged.map((m) => m.id));
-          const partnerMemories = cloudRes.data.memories.filter(
-            (m) => !knownIds.has(m.id) && !deletedIds.has(m.id)
-          );
-          merged = [...merged, ...partnerMemories];
-        }
-        if (Array.isArray(cloudRes.data.vows)) {
-          currentVows = cloudRes.data.vows;
-        }
-        if (cloudRes.data.coupleProfile) {
-          currentProfile = { ...coupleProfile, ...cloudRes.data.coupleProfile };
-        }
-      }
-
-      setMemories(merged);
-      safeLocalStorageSet('mm_memories', merged);
-      saveMemoriesToIDB(merged);
-
       await saveCloudVault({
-        memories: merged,
-        vows: currentVows,
-        coupleProfile: currentProfile,
-        updatedAt: now,
-      });
-    } catch (err) {
-      saveCloudVault({
         memories: updatedLocal,
         vows,
         coupleProfile,
         updatedAt: now,
       });
+      setSyncState({
+        status: 'synced',
+        lastSyncedAt: new Date(),
+        error: null,
+      });
+    } catch (err) {
+      console.warn('Error saving new memory to cloud vault:', err);
     }
   };
 
   const updateMemory = async (id, updates) => {
     const now = new Date().toISOString();
-    lastLocalWriteRef.current = Date.now();
-    safeLocalStorageSet('mm_vault_updated_at', now);
-
     const currentList = memoriesRef.current || memories;
-    const updated = currentList.map((m) => (m.id === id ? { ...m, ...updates } : m));
+    const updated = currentList.map((m) =>
+      m.id === id ? { ...m, ...updates, updatedAt: now } : m
+    );
     setMemories(updated);
     safeLocalStorageSet('mm_memories', updated);
     saveMemoriesToIDB(updated);
 
     if (selectedMemoryModal && selectedMemoryModal.id === id) {
-      setSelectedMemoryModal((prev) => ({ ...prev, ...updates }));
+      setSelectedMemoryModal((prev) => ({ ...prev, ...updates, updatedAt: now }));
     }
 
     showToast("Memory sealed & updated in archives ✦");
 
-    if (isCloudConfigured) {
-      await saveCloudVault({ memories: updated, vows, coupleProfile, updatedAt: now });
+    // Immediately trigger cloud sync & push
+    try {
+      await saveCloudVault({
+        memories: updated,
+        vows,
+        coupleProfile,
+        updatedAt: now,
+      });
+      setSyncState({
+        status: 'synced',
+        lastSyncedAt: new Date(),
+        error: null,
+      });
+    } catch (err) {
+      console.warn('Error saving update to cloud vault:', err);
     }
   };
 
   const deleteMemory = async (id) => {
     recordDeletedMemoryId(id);
     const now = new Date().toISOString();
-    lastLocalWriteRef.current = Date.now();
-    safeLocalStorageSet('mm_vault_updated_at', now);
-
     const currentList = memoriesRef.current || memories;
     const updated = currentList.filter((m) => m.id !== id);
     setMemories(updated);
@@ -448,24 +494,47 @@ export function AppProvider({ children }) {
     saveMemoriesToIDB(updated);
     showToast("Memory gently removed from archives.");
 
-    if (isCloudConfigured) {
-      await saveCloudVault({ memories: updated, vows, coupleProfile, updatedAt: now });
+    try {
+      await saveCloudVault({
+        memories: updated,
+        vows,
+        coupleProfile,
+        updatedAt: now,
+      });
+      setSyncState({
+        status: 'synced',
+        lastSyncedAt: new Date(),
+        error: null,
+      });
+    } catch (err) {
+      console.warn('Error deleting memory from cloud vault:', err);
     }
   };
 
   const toggleFavorite = async (id) => {
     const now = new Date().toISOString();
-    lastLocalWriteRef.current = Date.now();
-    safeLocalStorageSet('mm_vault_updated_at', now);
-
     const currentList = memoriesRef.current || memories;
-    const updated = currentList.map((m) => (m.id === id ? { ...m, isFavorite: !m.isFavorite } : m));
+    const updated = currentList.map((m) =>
+      m.id === id ? { ...m, isFavorite: !m.isFavorite, updatedAt: now } : m
+    );
     setMemories(updated);
     safeLocalStorageSet('mm_memories', updated);
     saveMemoriesToIDB(updated);
 
-    if (isCloudConfigured) {
-      await saveCloudVault({ memories: updated, vows, coupleProfile, updatedAt: now });
+    try {
+      await saveCloudVault({
+        memories: updated,
+        vows,
+        coupleProfile,
+        updatedAt: now,
+      });
+      setSyncState({
+        status: 'synced',
+        lastSyncedAt: new Date(),
+        error: null,
+      });
+    } catch (err) {
+      console.warn('Error saving favorite to cloud vault:', err);
     }
   };
 
@@ -640,7 +709,10 @@ export function AppProvider({ children }) {
         isUnlocked,
         unlockApp,
         lockApp,
-        isCloudConfigured,
+        syncState,
+        syncNow,
+        pullFromCloud: syncNow,
+        isCloudConfigured: true,
         updateCoupleProfile,
         toastMessage,
         showToast,
